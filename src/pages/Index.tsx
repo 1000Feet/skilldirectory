@@ -35,6 +35,7 @@ import {
   ChevronRight,
   Star
 } from "lucide-react";
+import { CategoryFilter } from "@/components/CategoryFilter";
 
 const businesses = [
   {
@@ -153,6 +154,9 @@ const featuredEducators = [
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const categoryNames = categories.map(cat => cat.name);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -320,6 +324,12 @@ const Index = () => {
         <Sidebar categories={categories} />
 
         <div className="flex-1 space-y-6">
+          <CategoryFilter 
+            categories={categoryNames}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
+          
           {businesses.map((business) => (
             <BusinessCard
               key={business.id}
