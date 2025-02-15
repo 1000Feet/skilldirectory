@@ -1,8 +1,14 @@
-
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext
+} from "@/components/ui/pagination";
 
 // Sample data
 const businesses = [
@@ -20,6 +26,62 @@ const businesses = [
     distance: "4,714.2",
     image: "/path-to-hinnendael-logo.png",
   },
+  {
+    id: 3,
+    name: "Kayla Peeters Music Lessons",
+    description: "As passionate educators and instructors, Kayla Peeters and her teac...",
+    distance: "4,714.2",
+    image: "/path-to-kayla-logo.png",
+  },
+  {
+    id: 4,
+    name: "Ledgeview Gardens LLC",
+    description: "We are small scale, chemical free vegetable farm specializing in hy...",
+    distance: "4,714.2",
+    image: "/path-to-placeholder.png",
+  },
+  {
+    id: 5,
+    name: "Burnt Bluff Glassworks",
+    description: "Stop in and watch us blow glass on your next visit to Door County a...",
+    distance: "4,714.2",
+    image: "/path-to-burnt-bluff-logo.png",
+  },
+  {
+    id: 6,
+    name: "Green Bay Botanical Gardens",
+    description: "Green Bay Botanical Garden connects people with plants by providing...",
+    distance: "4,714.2",
+    image: "/path-to-botanical-logo.png",
+  },
+  {
+    id: 7,
+    name: "Door County Forgeworks",
+    description: "Door County Forgeworks is nested in beautiful Door County, Wiscons...",
+    distance: "4,714.2",
+    image: "/path-to-forgeworks-image.png",
+  },
+  {
+    id: 8,
+    name: "DC Farm For Vets",
+    description: "DC Farm for Vets is a rehabilitation farm that provides educational...",
+    distance: "4,714.2",
+    image: "/path-to-dc-farm-logo.png",
+  },
+  {
+    id: 9,
+    name: "Forest to Brook",
+    description: "Forest to Brook Enrichment Education Services LLC, is a newly...",
+    distance: "4,714.2",
+    image: "/path-to-forest-brook-logo.png",
+  },
+  {
+    id: 10,
+    name: "Green Bay Sail and Paddle",
+    description: "Green Bay Sail & Paddle, Inc. is a nonprofit organization creating...",
+    distance: "4,714.2",
+    image: "/path-to-sail-paddle-logo.png",
+  },
 ];
 
 const categories = [
@@ -30,7 +92,10 @@ const categories = [
   "Music and Performing Arts",
   "Outdoor Recreation",
   "Personal Fitness/ Sports",
-  "Sports",
+  "Shooting Sports",
+  "Trades",
+  "Vehicle Operation",
+  "Water Recreation",
 ];
 
 const Index = () => {
@@ -87,7 +152,7 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto py-8 flex gap-8">
+      <main className="container mx-auto py-8 flex gap-8 flex-1">
         {/* Sidebar */}
         <aside className="w-64 flex-shrink-0">
           <div className="bg-white rounded-lg shadow-sm p-4">
@@ -132,8 +197,57 @@ const Index = () => {
               image={business.image}
             />
           ))}
+
+          {/* Pagination */}
+          <Pagination className="mt-8">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationLink isActive>1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink>2</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink>3</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink>4</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-[#333333] text-white mt-auto">
+        <div className="container mx-auto py-8">
+          <div className="flex justify-between items-center">
+            <img 
+              src="/lovable-uploads/0a56a419-7e3e-4266-a1e3-6fdd59c00442.png" 
+              alt="Skill Directory" 
+              className="h-8"
+            />
+            <div className="flex gap-6 text-sm">
+              <a href="#" className="hover:text-primary-foreground/90">ABOUT</a>
+              <a href="#" className="hover:text-primary-foreground/90">PRICING</a>
+              <a href="#" className="hover:text-primary-foreground/90">PRIVACY POLICY</a>
+              <a href="#" className="hover:text-primary-foreground/90">TERMS & CONDITIONS</a>
+              <a href="#" className="hover:text-primary-foreground/90">SUPPORT</a>
+            </div>
+          </div>
+          <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-700 text-sm text-gray-400">
+            <div>
+              Copyright © 2024 <span className="text-[#88C440]">SKILLDIRECTORY.COM</span>. All Rights Reserved.
+            </div>
+            <div>
+              Website by <a href="#" className="text-[#88C440]">HILLPHAT.COM</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
