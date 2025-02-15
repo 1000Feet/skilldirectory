@@ -52,7 +52,7 @@ const AboutPage = () => {
                       Committing to the personal and professional growth of all students and instructors.
                     </p>
                   </Card>
-                  <Card className="p-6 bg-[#EAFBD8] hover:shadow-md transition-shadow">
+                  <Card className="p-6 bg-[#F2FCE2] hover:shadow-md transition-shadow">
                     <h3 className="text-xl font-semibold mb-2 text-primary">Curiosity</h3>
                     <p className="text-lg text-gray-700">
                       Encouraging a love for learning and exploration of new skills and knowledge.
