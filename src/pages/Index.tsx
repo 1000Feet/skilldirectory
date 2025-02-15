@@ -59,7 +59,7 @@ const businesses = [
     name: "Door County Forgeworks",
     description: "Door County Forgeworks is nested in beautiful Door County, Wiscons...",
     distance: "4,714.2",
-    image: "/lovable-uploads/5761b0ec-8536-4c77-81e9-1208f9964cc0.png",
+    image: "/lovable-uploads/d637f6c7-41e1-41cf-b51c-fcc7bc02ca6b.png",
   },
   {
     id: 8,
