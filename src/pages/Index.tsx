@@ -114,7 +114,7 @@ const Index = () => {
         </div>
       </div>
 
-      <section className="py-10 bg-white">
+      <section className="py-2 bg-white">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4">
           <div className="text-center p-6 space-y-2 animate-fadeIn">
             <Users className="w-8 h-8 mx-auto text-primary mb-2" />
