@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
 import { Header } from "@/components/Header";
@@ -105,6 +106,14 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      
+      <div className="bg-white py-6 shadow-sm">
+        <div className="container mx-auto text-center">
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto px-4">
+            Empowering learners by connecting them with top educators, fueling passions, and fostering sustainable growth for a brighter future.
+          </p>
+        </div>
+      </div>
 
       <main className="container mx-auto py-8 flex gap-8 flex-1">
         <Sidebar categories={categories} />
