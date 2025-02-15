@@ -187,15 +187,13 @@ const BusinessProfile = () => {
               alt="Skill Directory" 
               className="h-8"
             />
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex gap-6 text-sm">
-                <a href="#" className="hover:text-primary-foreground/90">ABOUT</a>
-                <a href="#" className="hover:text-primary-foreground/90">PRICING</a>
-                <a href="#" className="hover:text-primary-foreground/90">PRIVACY POLICY</a>
-                <a href="#" className="hover:text-primary-foreground/90">TERMS & CONDITIONS</a>
-                <a href="#" className="hover:text-primary-foreground/90">SUPPORT</a>
-              </div>
-              <a href="#" className="text-[#88C440] text-sm hover:underline">SKILL PROVIDER? SIGN UP HERE</a>
+            <div className="flex gap-6 text-sm">
+              <a href="#" className="hover:text-primary-foreground/90">ABOUT</a>
+              <a href="#" className="hover:text-primary-foreground/90">PRICING</a>
+              <a href="#" className="hover:text-primary-foreground/90">PRIVACY POLICY</a>
+              <a href="#" className="hover:text-primary-foreground/90">TERMS & CONDITIONS</a>
+              <a href="#" className="hover:text-primary-foreground/90">SUPPORT</a>
+              <a href="#" className="text-[#88C440] hover:underline">SKILL PROVIDER? SIGN UP HERE</a>
             </div>
           </div>
           <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-700 text-sm text-gray-400">
