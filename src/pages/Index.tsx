@@ -239,7 +239,7 @@ const Index = () => {
               Copyright © 2024 <span className="text-[#88C440]">SKILLDIRECTORY.COM</span>. All Rights Reserved.
             </div>
             <div>
-              Website by <a href="#" className="text-[#88C440]">HILLPHAT.COM</a>
+              Website by <a href="#" className="text-[#88C440]">1000FEET</a>
             </div>
           </div>
         </div>
