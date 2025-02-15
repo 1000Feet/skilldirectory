@@ -80,7 +80,7 @@ const businesses = [
     name: "Green Bay Sail and Paddle",
     description: "Green Bay Sail & Paddle, Inc. is a nonprofit organization creating...",
     distance: "4,714.2",
-    image: "/lovable-uploads/2a1e1a7c-3432-4772-aae6-82d34dcbc604.png",
+    image: "/lovable-uploads/96771fd3-ae5e-408b-9c0d-ccca29477e11.png",
   },
 ];
 
