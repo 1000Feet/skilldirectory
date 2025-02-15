@@ -38,7 +38,7 @@ const businesses = [
     name: "Ledgeview Gardens LLC",
     description: "We are small scale, chemical free vegetable farm specializing in hy...",
     distance: "4,714.2",
-    image: "/lovable-uploads/74909161-c700-4664-8b11-45e03fa0f422.png",
+    image: "/lovable-uploads/fd4cec6d-dd7f-488d-a566-ae8d26ee62af.png",
   },
   {
     id: 5,
