@@ -24,7 +24,13 @@ export function CategoryFilter({
     <div className="flex flex-wrap gap-2 mb-8">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-[200px] justify-between">
+          <Button 
+            variant="outline" 
+            className={cn(
+              "w-[200px] justify-between",
+              "border-primary hover:border-primary"
+            )}
+          >
             <span>{selectedCategory || "Categories"}</span>
             <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>

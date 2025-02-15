@@ -112,10 +112,11 @@ const categories = [
 
 const Listings = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <main className="container mx-auto py-8 flex gap-8">
         <Sidebar 
           categories={categories} 
