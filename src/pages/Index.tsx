@@ -39,29 +39,33 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="bg-black text-white">
-        <div className="container mx-auto py-2 text-center text-sm">
-          INVEST IN YOURSELF
+      <header>
+        <div className="bg-black text-white">
+          <div className="container mx-auto py-2 text-center text-sm">
+            INVEST IN YOURSELF
+          </div>
         </div>
-        <div className="container mx-auto py-8">
-          <img 
-            src="/lovable-uploads/2a1e1a7c-3432-4772-aae6-82d34dcbc604.png" 
-            alt="Skill Directory" 
-            className="h-16 mx-auto mb-8"
-          />
-          <div className="max-w-2xl mx-auto relative">
-            <Input
-              type="text"
-              placeholder="Invest in yourself"
-              className="search-input pr-12"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+        <div className="bg-[#F2FCE2] py-8">
+          <div className="container mx-auto">
+            <img 
+              src="/lovable-uploads/0a56a419-7e3e-4266-a1e3-6fdd59c00442.png" 
+              alt="Skill Directory" 
+              className="h-20 mx-auto mb-8"
             />
-            <Button 
-              className="absolute right-1 top-1 bottom-1 bg-primary hover:bg-primary/90 rounded-full w-10 p-0"
-            >
-              🔍
-            </Button>
+            <div className="max-w-2xl mx-auto relative">
+              <Input
+                type="text"
+                placeholder="Invest in yourself"
+                className="search-input pr-12"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button 
+                className="absolute right-1 top-1 bottom-1 bg-primary hover:bg-primary/90 rounded-full w-10 p-0"
+              >
+                🔍
+              </Button>
+            </div>
           </div>
         </div>
         <nav className="bg-black border-t border-gray-800">
