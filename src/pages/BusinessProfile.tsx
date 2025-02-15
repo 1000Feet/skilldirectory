@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Globe, Facebook, Instagram, MapPin, Phone, Mail, MessageSquare, Video, Calendar } from "lucide-react";
 
-// Sample data (in a real app, this would come from an API)
 const businessData = {
   id: 5,
   name: "Burnt Bluff Glassworks",
@@ -29,7 +28,6 @@ const BusinessProfile = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header>
         <div className="bg-black text-white">
           <div className="container mx-auto py-2 text-center text-sm">
@@ -56,7 +54,6 @@ const BusinessProfile = () => {
         </nav>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 bg-gray-50">
         <div className="container mx-auto py-8">
           {showClaimBanner && (
@@ -77,7 +74,6 @@ const BusinessProfile = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Column */}
             <div className="md:col-span-2 space-y-6">
               <Card className="p-6">
                 <div className="flex items-start gap-6">
@@ -103,7 +99,6 @@ const BusinessProfile = () => {
                 </div>
               </Card>
 
-              {/* About Section */}
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">About the Business</h2>
                 <p className="text-gray-600">
@@ -113,9 +108,7 @@ const BusinessProfile = () => {
                 </p>
               </Card>
 
-              {/* New Interactive Features */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* AI Voice Agent */}
                 <Card className="p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-primary/5 to-primary/10">
                   <div className="flex flex-col items-center text-center space-y-4">
                     <div className="p-3 bg-primary/10 rounded-full">
@@ -127,7 +120,6 @@ const BusinessProfile = () => {
                   </div>
                 </Card>
 
-                {/* Video Presentation */}
                 <Card className="p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-primary/5 to-primary/10">
                   <div className="flex flex-col items-center text-center space-y-4">
                     <div className="p-3 bg-primary/10 rounded-full">
@@ -139,7 +131,6 @@ const BusinessProfile = () => {
                   </div>
                 </Card>
 
-                {/* Booking */}
                 <Card className="p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-green-50 to-green-100">
                   <div className="flex flex-col items-center text-center space-y-4">
                     <div className="p-3 bg-green-100 rounded-full">
@@ -153,7 +144,6 @@ const BusinessProfile = () => {
               </div>
             </div>
 
-            {/* Right Column - Contact Information */}
             <div className="space-y-6">
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
@@ -189,7 +179,6 @@ const BusinessProfile = () => {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="bg-[#333333] text-white">
         <div className="container mx-auto py-8">
           <div className="flex justify-between items-center">
@@ -198,12 +187,15 @@ const BusinessProfile = () => {
               alt="Skill Directory" 
               className="h-8"
             />
-            <div className="flex gap-6 text-sm">
-              <a href="#" className="hover:text-primary-foreground/90">ABOUT</a>
-              <a href="#" className="hover:text-primary-foreground/90">PRICING</a>
-              <a href="#" className="hover:text-primary-foreground/90">PRIVACY POLICY</a>
-              <a href="#" className="hover:text-primary-foreground/90">TERMS & CONDITIONS</a>
-              <a href="#" className="hover:text-primary-foreground/90">SUPPORT</a>
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex gap-6 text-sm">
+                <a href="#" className="hover:text-primary-foreground/90">ABOUT</a>
+                <a href="#" className="hover:text-primary-foreground/90">PRICING</a>
+                <a href="#" className="hover:text-primary-foreground/90">PRIVACY POLICY</a>
+                <a href="#" className="hover:text-primary-foreground/90">TERMS & CONDITIONS</a>
+                <a href="#" className="hover:text-primary-foreground/90">SUPPORT</a>
+              </div>
+              <a href="#" className="text-[#88C440] text-sm hover:underline">SKILL PROVIDER? SIGN UP HERE</a>
             </div>
           </div>
           <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-700 text-sm text-gray-400">
