@@ -29,9 +29,10 @@ export const Sidebar = ({ categories, selectedCategory, onSelectCategory }: Side
             <li key={category.name}>
               <button
                 className={cn(
-                  "w-full text-left px-4 py-2 rounded-md hover:bg-primary/5 hover:text-primary transition-colors",
+                  "w-full text-left px-4 py-2 rounded-md transition-colors",
                   "flex items-center gap-2",
-                  selectedCategory === category.name && "bg-primary/5 text-primary"
+                  "border border-primary",
+                  selectedCategory === category.name ? "bg-primary/5 text-primary" : "hover:bg-primary/5 hover:text-primary"
                 )}
                 onClick={() => onSelectCategory(category.name)}
               >

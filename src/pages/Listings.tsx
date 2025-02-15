@@ -110,17 +110,19 @@ const categories = [
   { name: "Water Recreation", icon: Waves },
 ];
 
-const ListingsPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-
+const Listings = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  
   return (
     <div className="min-h-screen flex flex-col">
-      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-
-      <main className="container mx-auto py-8 flex gap-8 flex-1">
-        <Sidebar categories={categories} />
-
-        <div className="flex-1 space-y-6">
+      <Header />
+      <main className="container mx-auto py-8 flex gap-8">
+        <Sidebar 
+          categories={categories} 
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
+        <div className="flex-1">
           {businesses.map((business) => (
             <BusinessCard
               key={business.id}
@@ -153,10 +155,9 @@ const ListingsPage = () => {
           </Pagination>
         </div>
       </main>
-
       <Footer />
     </div>
   );
 };
 
-export default ListingsPage;
+export default Listings;
