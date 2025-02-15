@@ -6,8 +6,9 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext } from "@/components/ui/pagination";
-import { CheckCircle, Users, GraduationCap, Trophy, ArrowRight, Music, Palette, Utensils, Dumbbell, TreePine, Car, Waves, Hammer, ChevronRight, Star } from "lucide-react";
+import { CheckCircle, Users, GraduationCap, Trophy, ArrowRight, Music, Palette, Utensils, Dumbbell, TreePine, Car, Waves, Hammer, Star } from "lucide-react";
 import { CategoryFilter } from "@/components/CategoryFilter";
+
 const businesses = [{
   id: 1,
   name: "The Princess Co.",
@@ -69,6 +70,7 @@ const businesses = [{
   distance: "4,714.2",
   image: "/lovable-uploads/96771fd3-ae5e-408b-9c0d-ccca29477e11.png"
 }];
+
 const categories = [{
   name: "Music and Performing Arts",
   icon: Music
@@ -94,6 +96,7 @@ const categories = [{
   name: "Trades",
   icon: Hammer
 }];
+
 const featuredEducators = [{
   id: 1,
   name: "The Princess Co.",
@@ -119,10 +122,12 @@ const featuredEducators = [{
   rating: "4.7",
   category: "Agriculture"
 }];
+
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const categoryNames = categories.map(cat => cat.name);
+
   return <div className="min-h-screen flex flex-col">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       
@@ -202,7 +207,6 @@ const Index = () => {
           <div className="flex justify-center mt-8">
             <Button className="bg-primary hover:bg-primary/90 text-white gap-2">
               More Categories
-              <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -299,4 +303,5 @@ const Index = () => {
       <Footer />
     </div>;
 };
+
 export default Index;
