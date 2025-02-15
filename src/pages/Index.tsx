@@ -217,6 +217,36 @@ const Index = () => {
         </div>
       </section>
 
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-4">Featured Categories</h2>
+          <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+            Explore our most popular learning categories and find the perfect educator for your interests
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {categories.map((category) => (
+              <div 
+                key={category.name}
+                className="group p-6 bg-gray-50 rounded-xl hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer"
+              >
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <category.icon className="w-8 h-8 group-hover:text-white transition-colors" />
+                  <h3 className="font-semibold">{category.name}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-center mt-8">
+            <Button 
+              className="bg-primary hover:bg-primary/90 text-white gap-2"
+            >
+              More Categories
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4">Featured Educators</h2>
@@ -260,36 +290,6 @@ const Index = () => {
               <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2" />
             </div>
           </Carousel>
-        </div>
-      </section>
-
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Featured Categories</h2>
-          <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-            Explore our most popular learning categories and find the perfect educator for your interests
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <div 
-                key={category.name}
-                className="group p-6 bg-gray-50 rounded-xl hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer"
-              >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <category.icon className="w-8 h-8 group-hover:text-white transition-colors" />
-                  <h3 className="font-semibold">{category.name}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-center mt-8">
-            <Button 
-              className="bg-primary hover:bg-primary/90 text-white gap-2"
-            >
-              More Categories
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
         </div>
       </section>
 
