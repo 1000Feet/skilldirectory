@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
-import { Header } from "@/components/Header"; // Changed this import
+import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { Footer } from "@/components/Footer";
 import { 
@@ -11,8 +10,19 @@ import {
   PaginationLink, 
   PaginationNext
 } from "@/components/ui/pagination";
+import {
+  Music,
+  Palette,
+  Utensils,
+  Dog,
+  Dumbbell,
+  TreePine,
+  Car,
+  Target,
+  Hammer,
+  Waves
+} from "lucide-react";
 
-// Sample data
 const businesses = [
   {
     id: 1,
@@ -87,17 +97,17 @@ const businesses = [
 ];
 
 const categories = [
-  "Animals",
-  "Arts & Crafts",
-  "Food and Beverage",
-  "Martial Arts",
-  "Music and Performing Arts",
-  "Outdoor Recreation",
-  "Personal Fitness/ Sports",
-  "Shooting Sports",
-  "Trades",
-  "Vehicle Operation",
-  "Water Recreation",
+  { name: "Animals", icon: Dog },
+  { name: "Arts & Crafts", icon: Palette },
+  { name: "Food and Beverage", icon: Utensils },
+  { name: "Martial Arts", icon: Target },
+  { name: "Music and Performing Arts", icon: Music },
+  { name: "Outdoor Recreation", icon: TreePine },
+  { name: "Personal Fitness/ Sports", icon: Dumbbell },
+  { name: "Shooting Sports", icon: Target },
+  { name: "Trades", icon: Hammer },
+  { name: "Vehicle Operation", icon: Car },
+  { name: "Water Recreation", icon: Waves },
 ];
 
 const ListingsPage = () => {
