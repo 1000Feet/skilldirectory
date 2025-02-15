@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -29,12 +30,12 @@ const BusinessProfile = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <header>
-        <div className="bg-black text-white">
+        <div className="bg-[#333333] text-white">
           <div className="container mx-auto py-2 text-center text-sm">
             INVEST IN YOURSELF
           </div>
         </div>
-        <nav className="bg-black border-t border-gray-800">
+        <nav className="bg-[#333333] border-t border-gray-700">
           <div className="container mx-auto">
             <div className="flex items-center justify-between py-4 relative">
               <div className="flex gap-8 absolute left-1/2 -translate-x-1/2">
