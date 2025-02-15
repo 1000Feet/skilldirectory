@@ -28,7 +28,7 @@ export function CategoryFilter({
             variant="outline" 
             className={cn(
               "w-[200px] justify-between",
-              "border-primary hover:border-primary"
+              "border-2 border-primary hover:border-primary"
             )}
           >
             <span>{selectedCategory || "Categories"}</span>
