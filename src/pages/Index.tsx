@@ -236,7 +236,7 @@ const Index = () => {
           </div>
           <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-700 text-sm text-gray-400">
             <div>
-              Copyright © 2024 <span className="text-[#88C440]">SKILLDIRECTORY.COM</span>. All Rights Reserved.
+              Copyright © 2025 <span className="text-[#88C440]">SKILLDIRECTORY.COM</span>. All Rights Reserved.
             </div>
             <div>
               Website by <a href="#" className="text-[#88C440]">1000FEET</a>
