@@ -24,7 +24,7 @@ const businesses = [
     name: "Hinnendael Studios",
     description: "Hinnendael Studios offers full music production, including audio re...",
     distance: "4,714.2",
-    image: "/lovable-uploads/db608be1-3cad-488f-9482-11ab117079b8.png",
+    image: "/lovable-uploads/77ef91f8-c568-43b4-8b0b-472abea9b6f0.png",
   },
   {
     id: 3,
