@@ -193,7 +193,7 @@ const BusinessProfile = () => {
               <a href="#" className="hover:text-primary-foreground/90">PRIVACY POLICY</a>
               <a href="#" className="hover:text-primary-foreground/90">TERMS & CONDITIONS</a>
               <a href="#" className="hover:text-primary-foreground/90">SUPPORT</a>
-              <a href="#" className="text-[#88C440] hover:underline">SKILL PROVIDER? SIGN UP HERE</a>
+              <a href="#" className="text-[#88C440] hover:underline font-medium">SKILL PROVIDER? SIGN UP HERE</a>
             </div>
           </div>
           <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-700 text-sm text-gray-400">
