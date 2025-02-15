@@ -128,10 +128,10 @@ const BusinessProfile = () => {
                 </Card>
 
                 {/* Video Presentation */}
-                <Card className="p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-blue-50 to-blue-100">
+                <Card className="p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-primary/5 to-primary/10">
                   <div className="flex flex-col items-center text-center space-y-4">
-                    <div className="p-3 bg-blue-100 rounded-full">
-                      <Video className="w-6 h-6 text-blue-600" />
+                    <div className="p-3 bg-primary/10 rounded-full">
+                      <Video className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="font-semibold">Watch Our Studio</h3>
                     <p className="text-sm text-gray-600">YouTube video presentation of our work</p>
