@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
 import { Header } from "@/components/Header";
@@ -11,8 +10,8 @@ import {
   PaginationLink, 
   PaginationNext
 } from "@/components/ui/pagination";
+import { CheckCircle, Users, GraduationCap, Trophy, ArrowRight } from "lucide-react";
 
-// Sample data
 const businesses = [
   {
     id: 1,
@@ -114,6 +113,80 @@ const Index = () => {
           </p>
         </div>
       </div>
+
+      <section className="py-12 bg-white">
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4">
+          <div className="text-center p-6 space-y-2 animate-fadeIn">
+            <Users className="w-8 h-8 mx-auto text-primary mb-2" />
+            <h3 className="text-3xl font-bold text-gray-900">5,000+</h3>
+            <p className="text-gray-600">Active Educators</p>
+          </div>
+          <div className="text-center p-6 space-y-2 animate-fadeIn [animation-delay:200ms]">
+            <GraduationCap className="w-8 h-8 mx-auto text-primary mb-2" />
+            <h3 className="text-3xl font-bold text-gray-900">20,000+</h3>
+            <p className="text-gray-600">Students Taught</p>
+          </div>
+          <div className="text-center p-6 space-y-2 animate-fadeIn [animation-delay:400ms]">
+            <Trophy className="w-8 h-8 mx-auto text-primary mb-2" />
+            <h3 className="text-3xl font-bold text-gray-900">4.8/5</h3>
+            <p className="text-gray-600">Average Rating</p>
+          </div>
+          <div className="text-center p-6 space-y-2 animate-fadeIn [animation-delay:600ms]">
+            <CheckCircle className="w-8 h-8 mx-auto text-primary mb-2" />
+            <h3 className="text-3xl font-bold text-gray-900">98%</h3>
+            <p className="text-gray-600">Satisfaction Rate</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="relative p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="absolute -top-4 left-6 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold">1</div>
+              <h3 className="text-xl font-semibold mb-3 mt-2">Search Educators</h3>
+              <p className="text-gray-600 mb-4">Browse through our verified educators and find the perfect match for your learning needs.</p>
+              <ArrowRight className="w-5 h-5 text-primary absolute bottom-6 right-6" />
+            </div>
+            <div className="relative p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="absolute -top-4 left-6 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold">2</div>
+              <h3 className="text-xl font-semibold mb-3 mt-2">Connect & Learn</h3>
+              <p className="text-gray-600 mb-4">Schedule sessions and start learning with personalized attention from expert educators.</p>
+              <ArrowRight className="w-5 h-5 text-primary absolute bottom-6 right-6" />
+            </div>
+            <div className="relative p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="absolute -top-4 left-6 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold">3</div>
+              <h3 className="text-xl font-semibold mb-3 mt-2">Achieve Goals</h3>
+              <p className="text-gray-600 mb-4">Track your progress and celebrate achievements as you master new skills.</p>
+              <ArrowRight className="w-5 h-5 text-primary absolute bottom-6 right-6" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-8 bg-white border-t border-gray-100">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-center gap-6 items-center">
+            <div className="flex items-center gap-2 text-gray-600">
+              <CheckCircle className="w-5 h-5 text-primary" />
+              <span>Verified Educators</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <CheckCircle className="w-5 h-5 text-primary" />
+              <span>Secure Payments</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <CheckCircle className="w-5 h-5 text-primary" />
+              <span>Money Back Guarantee</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <CheckCircle className="w-5 h-5 text-primary" />
+              <span>24/7 Support</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <main className="container mx-auto py-8 flex gap-8 flex-1">
         <Sidebar categories={categories} />
