@@ -42,11 +42,11 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
         <div className="container mx-auto">
           <div className="flex items-center justify-between py-4 relative">
             <div className="flex gap-8 absolute left-1/2 -translate-x-1/2">
-              <a href="/" className="nav-link">HOME</a>
-              <a href="/listings" className="nav-link">LISTINGS</a>
-              <a href="/about" className="nav-link">ABOUT</a>
-              <a href="/pricing" className="nav-link">PRICING</a>
-              <a href="/support" className="nav-link">SUPPORT</a>
+              <a href="#" className="nav-link">HOME</a>
+              <a href="#" className="nav-link">LISTINGS</a>
+              <a href="#" className="nav-link">ABOUT</a>
+              <a href="#" className="nav-link">PRICING</a>
+              <a href="#" className="nav-link">SUPPORT</a>
             </div>
             <div className="ml-auto">
               <Button className="bg-primary hover:bg-primary/90">
