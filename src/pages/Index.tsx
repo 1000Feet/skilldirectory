@@ -66,7 +66,7 @@ const businesses = [
     name: "DC Farm For Vets",
     description: "DC Farm for Vets is a rehabilitation farm that provides educational...",
     distance: "4,714.2",
-    image: "/lovable-uploads/3f5de50d-e64f-455c-852f-b483dffd5fa4.png",
+    image: "/lovable-uploads/4b13a5a8-5fbc-428f-959f-bd76d1df0010.png",
   },
   {
     id: 9,
