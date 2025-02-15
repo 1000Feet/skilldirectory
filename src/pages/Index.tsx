@@ -166,7 +166,7 @@ const Index = () => {
         </div>
       </div>
 
-      <section className="py-6 bg-gray-50">
+      <section className="py-6 bg-[#F1F1F1]">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -217,7 +217,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-[#F1F1F1]">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4">Featured Categories</h2>
           <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
@@ -247,7 +247,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-12 bg-gray-50">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4">Featured Educators</h2>
           <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
@@ -293,7 +293,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-8 bg-white border-t border-gray-100">
+      <section className="py-8 bg-[#F1F1F1] border-t border-gray-100">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-6 items-center">
             <div className="flex items-center gap-2 text-gray-600">
