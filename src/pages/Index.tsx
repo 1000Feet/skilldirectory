@@ -222,7 +222,7 @@ const Index = () => {
         <div className="container mx-auto py-8">
           <div className="flex justify-between items-center">
             <img 
-              src="/lovable-uploads/0c1ccb31-3ef9-47c3-b4d8-84e010027418.png" 
+              src="/lovable-uploads/b71f5020-bb1c-464a-8ba8-60e008e8c40a.png" 
               alt="Skill Directory" 
               className="h-8"
             />
