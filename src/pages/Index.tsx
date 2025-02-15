@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Header } from "@/components/Header";
+import { Sidebar } from "@/components/Sidebar";
+import { Footer } from "@/components/Footer";
 import { 
   Pagination, 
   PaginationContent, 
@@ -103,87 +104,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header>
-        <div className="bg-black text-white">
-          <div className="container mx-auto py-2 text-center text-sm">
-            INVEST IN YOURSELF
-          </div>
-        </div>
-        <div className="bg-[#F2FCE2] py-8">
-          <div className="container mx-auto">
-            <img 
-              src="/lovable-uploads/0a56a419-7e3e-4266-a1e3-6fdd59c00442.png" 
-              alt="Skill Directory" 
-              className="h-20 mx-auto mb-8"
-            />
-            <div className="max-w-2xl mx-auto relative">
-              <Input
-                type="text"
-                placeholder="Which skill would you like to learn?"
-                className="search-input pr-12"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button 
-                className="absolute right-1 top-1 bottom-1 bg-primary hover:bg-primary/90 rounded-full w-10 p-0"
-              >
-                🔍
-              </Button>
-            </div>
-          </div>
-        </div>
-        <nav className="bg-black border-t border-gray-800">
-          <div className="container mx-auto">
-            <div className="flex items-center justify-between py-4 relative">
-              <div className="flex gap-8 absolute left-1/2 -translate-x-1/2">
-                <a href="#" className="nav-link">HOME</a>
-                <a href="#" className="nav-link">LISTINGS</a>
-                <a href="#" className="nav-link">ABOUT</a>
-                <a href="#" className="nav-link">PRICING</a>
-                <a href="#" className="nav-link">SUPPORT</a>
-              </div>
-              <div className="ml-auto">
-                <Button className="bg-primary hover:bg-primary/90">
-                  LOGIN / SIGN UP
-                </Button>
-              </div>
-            </div>
-          </div>
-        </nav>
-      </header>
+      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <main className="container mx-auto py-8 flex gap-8 flex-1">
-        <aside className="w-64 flex-shrink-0">
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h2 className="text-xl font-semibold mb-4 bg-primary text-white p-2 rounded-md">
-              Find Businesses
-            </h2>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Search by name</label>
-              <Input 
-                type="text" 
-                placeholder="Name or Keyword"
-                className="w-full"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Order</label>
-              <select className="w-full border rounded-md p-2">
-                <option>Default</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Category</label>
-              <div className="space-y-1">
-                {categories.map((category) => (
-                  <button key={category} className="category-link">
-                    {category}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </aside>
+        <Sidebar categories={categories} />
 
         <div className="flex-1 space-y-6">
           {businesses.map((business) => (
@@ -218,35 +142,7 @@ const Index = () => {
         </div>
       </main>
 
-      <footer className="bg-[#333333] text-white mt-auto">
-        <div className="container mx-auto py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <img 
-              src="/lovable-uploads/b71f5020-bb1c-464a-8ba8-60e008e8c40a.png" 
-              alt="Skill Directory" 
-              className="h-8"
-            />
-            <nav className="flex flex-wrap gap-6 text-sm items-center">
-              <a href="#" className="hover:text-primary-foreground/90">ABOUT</a>
-              <a href="#" className="hover:text-primary-foreground/90">PRICING</a>
-              <a href="#" className="hover:text-primary-foreground/90">PRIVACY POLICY</a>
-              <a href="#" className="hover:text-primary-foreground/90">TERMS & CONDITIONS</a>
-              <a href="#" className="hover:text-primary-foreground/90">SUPPORT</a>
-              <a href="#" className="bg-[#88C440] text-white px-4 py-2 rounded-md hover:bg-[#78b32d] transition-colors font-medium">
-                SKILL PROVIDER? SIGN UP HERE
-              </a>
-            </nav>
-          </div>
-          <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-700 text-sm text-gray-400">
-            <div>
-              Copyright © 2025 <span className="text-[#88C440]">SKILLDIRECTORY.COM</span>. All Rights Reserved.
-            </div>
-            <div>
-              Website by <a href="#" className="text-[#88C440]">1000FEET</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
