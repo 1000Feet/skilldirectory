@@ -120,7 +120,7 @@ const Index = () => {
             <div className="max-w-2xl mx-auto relative">
               <Input
                 type="text"
-                placeholder="Invest in yourself"
+                placeholder="Invest in yourself! Which skill would you like to learn?"
                 className="search-input pr-12"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
