@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Globe, Facebook, Instagram, MapPin, Phone, Mail } from "lucide-react";
+import { Globe, Facebook, Instagram, MapPin, Phone, Mail, MessageSquare, Video, Calendar } from "lucide-react";
 
 // Sample data (in a real app, this would come from an API)
 const businessData = {
@@ -104,7 +103,7 @@ const BusinessProfile = () => {
                 </div>
               </Card>
 
-              {/* Additional sections can be added here */}
+              {/* About Section */}
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">About the Business</h2>
                 <p className="text-gray-600">
@@ -113,6 +112,45 @@ const BusinessProfile = () => {
                   and even try your hand at this ancient craft through our hands-on classes.
                 </p>
               </Card>
+
+              {/* New Interactive Features */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* AI Voice Agent */}
+                <Card className="p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-primary/5 to-primary/10">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <div className="p-3 bg-primary/10 rounded-full">
+                      <MessageSquare className="w-6 h-6 text-primary" />
+                    </div>
+                    <h3 className="font-semibold">Chat with AI Assistant</h3>
+                    <p className="text-sm text-gray-600">Ask about our services to our AI Voice Agent!</p>
+                    <Button variant="outline" className="w-full">Start Chat</Button>
+                  </div>
+                </Card>
+
+                {/* Video Presentation */}
+                <Card className="p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-blue-50 to-blue-100">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <div className="p-3 bg-blue-100 rounded-full">
+                      <Video className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h3 className="font-semibold">Watch Our Studio</h3>
+                    <p className="text-sm text-gray-600">YouTube video presentation of our work</p>
+                    <Button variant="outline" className="w-full">Watch Video</Button>
+                  </div>
+                </Card>
+
+                {/* Booking */}
+                <Card className="p-6 hover:shadow-lg transition-all cursor-pointer bg-gradient-to-br from-green-50 to-green-100">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <div className="p-3 bg-green-100 rounded-full">
+                      <Calendar className="w-6 h-6 text-green-600" />
+                    </div>
+                    <h3 className="font-semibold">Book a Lesson</h3>
+                    <p className="text-sm text-gray-600">Free introductory lesson (in person or online)</p>
+                    <Button variant="outline" className="w-full">Schedule Now</Button>
+                  </div>
+                </Card>
+              </div>
             </div>
 
             {/* Right Column - Contact Information */}
