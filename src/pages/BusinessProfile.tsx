@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { ClaimBanner } from "@/components/business/ClaimBanner";
 import { BusinessInfo } from "@/components/business/BusinessInfo";
 import { ContactInfo } from "@/components/business/ContactInfo";
 import { ActionCards } from "@/components/business/ActionCards";
+import { VideoLesson } from "@/components/business/VideoLesson";
 
 const businessData = {
   id: 5,
@@ -55,6 +57,7 @@ const BusinessProfile = () => {
             </div>
 
             <div className="space-y-6">
+              <VideoLesson />
               <ContactInfo business={businessData} />
             </div>
           </div>
