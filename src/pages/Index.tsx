@@ -107,9 +107,9 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       
-      <div className="bg-white py-6 shadow-sm">
+      <div className="bg-gradient-to-r from-primary/5 to-primary/10 py-12 shadow-sm border-b border-primary/10">
         <div className="container mx-auto text-center">
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto px-4">
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto px-6 leading-relaxed font-light tracking-wide animate-fadeIn">
             Empowering learners by connecting them with top educators, fueling passions, and fostering sustainable growth for a brighter future.
           </p>
         </div>
