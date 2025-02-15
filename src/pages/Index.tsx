@@ -195,6 +195,7 @@ const Index = () => {
           {businesses.map((business) => (
             <BusinessCard
               key={business.id}
+              id={business.id}
               name={business.name}
               description={business.description}
               distance={business.distance}
