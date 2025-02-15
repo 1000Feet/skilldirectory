@@ -17,7 +17,7 @@ const businesses = [
     name: "The Princess Co.",
     description: "The Princess Co. is a professional children's entertainment company...",
     distance: "4,714.2",
-    image: "/lovable-uploads/cf274023-7236-4db8-aa3c-458996702198.png",
+    image: "/lovable-uploads/9845c1eb-dafb-4d19-8c8b-2014f389a748.png",
   },
   {
     id: 2,
@@ -103,7 +103,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header>
         <div className="bg-black text-white">
           <div className="container mx-auto py-2 text-center text-sm">
@@ -151,9 +150,7 @@ const Index = () => {
         </nav>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto py-8 flex gap-8 flex-1">
-        {/* Sidebar */}
         <aside className="w-64 flex-shrink-0">
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-xl font-semibold mb-4 bg-primary text-white p-2 rounded-md">
@@ -186,7 +183,6 @@ const Index = () => {
           </div>
         </aside>
 
-        {/* Business Listings */}
         <div className="flex-1 space-y-6">
           {businesses.map((business) => (
             <BusinessCard
@@ -198,7 +194,6 @@ const Index = () => {
             />
           ))}
 
-          {/* Pagination */}
           <Pagination className="mt-8">
             <PaginationContent>
               <PaginationItem>
@@ -221,7 +216,6 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="bg-[#333333] text-white mt-auto">
         <div className="container mx-auto py-8">
           <div className="flex justify-between items-center">
