@@ -131,7 +131,7 @@ const Index = () => {
   return <div className="min-h-screen flex flex-col">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       
-      <div className="bg-gradient-to-r from-primary/5 to-primary/10 py-8 shadow-sm border-b border-primary/10">
+      <div className="bg-[#F2FCE2] py-8 shadow-sm border-b border-[#F2FCE2]/20">
         <div className="container mx-auto text-center">
           <p className="text-xl text-black max-w-3xl mx-auto px-6 leading-relaxed font-light tracking-wide animate-fadeIn">
             Empowering learners by connecting them with top educators
