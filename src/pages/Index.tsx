@@ -321,15 +321,13 @@ const Index = () => {
       </section>
 
       <main className="container mx-auto py-8 flex gap-8 flex-1">
-        <Sidebar categories={categories} />
+        <Sidebar 
+          categories={categories} 
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
 
         <div className="flex-1 space-y-6">
-          <CategoryFilter 
-            categories={categoryNames}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
-          
           {businesses.map((business) => (
             <BusinessCard
               key={business.id}
