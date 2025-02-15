@@ -1,41 +1,35 @@
 
-import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+type Category = {
+  name: string;
+  icon: React.ComponentType<any>;
+};
 
 interface SidebarProps {
-  categories: string[];
+  categories: Category[];
 }
 
 export const Sidebar = ({ categories }: SidebarProps) => {
   return (
-    <aside className="w-64 flex-shrink-0">
-      <div className="bg-white rounded-lg shadow-sm p-4">
-        <h2 className="text-xl font-semibold mb-4 bg-primary text-white p-2 rounded-md">
-          Find Businesses
-        </h2>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Search by name</label>
-          <Input 
-            type="text" 
-            placeholder="Name or Keyword"
-            className="w-full"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Order</label>
-          <select className="w-full border rounded-md p-2">
-            <option>Default</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Category</label>
-          <div className="space-y-1">
-            {categories.map((category) => (
-              <button key={category} className="category-link">
-                {category}
+    <aside className="w-64 hidden md:block">
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h2 className="font-semibold mb-4">Categories</h2>
+        <ul className="space-y-2">
+          {categories.map((category) => (
+            <li key={category.name}>
+              <button
+                className={cn(
+                  "w-full text-left px-4 py-2 rounded-md hover:bg-primary/5 hover:text-primary transition-colors",
+                  "flex items-center gap-2"
+                )}
+              >
+                <category.icon className="w-4 h-4" />
+                <span>{category.name}</span>
               </button>
-            ))}
-          </div>
-        </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </aside>
   );
