@@ -1,8 +1,14 @@
 
 import { Input } from "@/components/ui/input";
 
+interface Category {
+  name: string;
+  icon: string;
+  count: number;
+}
+
 interface SidebarProps {
-  categories: string[];
+  categories: Category[];
 }
 
 export const Sidebar = ({ categories }: SidebarProps) => {
@@ -30,8 +36,13 @@ export const Sidebar = ({ categories }: SidebarProps) => {
           <label className="block text-sm font-medium mb-2">Category</label>
           <div className="space-y-1">
             {categories.map((category) => (
-              <button key={category} className="category-link">
-                {category}
+              <button 
+                key={category.name} 
+                className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded-md flex items-center gap-2"
+              >
+                <span>{category.icon}</span>
+                <span>{category.name}</span>
+                <span className="text-sm text-gray-500 ml-auto">({category.count})</span>
               </button>
             ))}
           </div>
