@@ -52,7 +52,7 @@ const businesses = [
     name: "Green Bay Botanical Gardens",
     description: "Green Bay Botanical Garden connects people with plants by providing...",
     distance: "4,714.2",
-    image: "/lovable-uploads/a49fdb90-1d77-496a-91c5-15d63ef1be38.png",
+    image: "/lovable-uploads/f3524239-b0b7-4ed3-9de5-0b7688ad8ca5.png",
   },
   {
     id: 7,
