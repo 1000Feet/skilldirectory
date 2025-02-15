@@ -1,21 +1,16 @@
-
 import { Header } from "@/components/business/Header";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
-
 const AboutPage = () => {
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-1 bg-[#F2FCE2] py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold text-center mb-16">
+            <h1 className="text-4xl font-bold text-center mb-16 md:text-4xl">
               About <span className="text-primary">SKILL</span>DIRECTORY
-              <span className="block text-neutral-700 mt-2">
-                – Empowering Lifelong Learning & Growth
-              </span>
+              <span className="block text-neutral-700 mt-2 font-light text-3xl">Empowering Lifelong Learning & Growth</span>
             </h1>
 
             <div className="space-y-8">
@@ -45,7 +40,7 @@ const AboutPage = () => {
                       Fostering a supportive and collaborative environment for students and instructors.
                     </p>
                   </Card>
-                  <Card className="p-6 bg-[#EAFBD8] hover:shadow-md transition-shadow">
+                  <Card className="p-6 bg-[#F2FCE2] hover:shadow-md transition-shadow">
                     <h3 className="text-xl font-semibold mb-2 text-primary">Integrity</h3>
                     <p className="text-lg text-gray-700">
                       Encouraging transparency, honesty, and ethical practices in all interactions between students and instructors.
@@ -77,8 +72,6 @@ const AboutPage = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default AboutPage;
