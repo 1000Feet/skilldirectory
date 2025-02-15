@@ -28,7 +28,7 @@ const AboutPage = () => {
               </Card>
 
               {/* Vision Section */}
-              <Card className="p-8 bg-[#EAFBD8] hover:shadow-lg transition-shadow">
+              <Card className="p-8 hover:shadow-lg transition-shadow">
                 <h2 className="text-3xl font-bold mb-4 text-primary">Vision</h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
                   We are dedicated to making a meaningful impact by becoming a trusted platform where individuals can seamlessly connect with top-tier instructors. Our platform aims to empower individuals to unlock their limitless potential by connecting learners with passionate and knowledgeable instructors. It is our goal to cultivate an innovative community and contribute to a brighter, more skilled future.
