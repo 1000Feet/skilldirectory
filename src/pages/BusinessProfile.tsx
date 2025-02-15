@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Header } from "@/components/business/Header";
@@ -29,6 +29,10 @@ const businessData = {
 const BusinessProfile = () => {
   const { id } = useParams();
   const [showClaimBanner, setShowClaimBanner] = useState(true);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
