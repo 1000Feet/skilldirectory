@@ -1,15 +1,17 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface BusinessCardProps {
   name: string;
   description: string;
   distance: string;
   image: string;
+  id?: number;
 }
 
-export function BusinessCard({ name, description, distance, image }: BusinessCardProps) {
+export function BusinessCard({ name, description, distance, image, id }: BusinessCardProps) {
   return (
     <Card className="flex overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="w-48 h-48 flex-shrink-0 bg-gray-100 p-4">
@@ -28,8 +30,8 @@ export function BusinessCard({ name, description, distance, image }: BusinessCar
           <span className="inline-flex items-center rounded-full bg-gray-600 px-3 py-1 text-sm text-white">
             {distance} Miles Away
           </span>
-          <Button variant="default" className="bg-primary hover:bg-primary/90">
-            DETAILS
+          <Button variant="default" className="bg-primary hover:bg-primary/90" asChild>
+            <Link to={`/business/${id}`}>DETAILS</Link>
           </Button>
         </div>
       </CardContent>
