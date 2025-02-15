@@ -11,6 +11,13 @@ import {
   PaginationNext
 } from "@/components/ui/pagination";
 import { CheckCircle, Users, GraduationCap, Trophy, ArrowRight } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const businesses = [
   {
@@ -85,18 +92,61 @@ const businesses = [
   },
 ];
 
+const featuredEducators = [
+  {
+    id: 1,
+    name: "The Princess Co.",
+    expertise: "Children's Entertainment",
+    rating: 4.9,
+    image: "/lovable-uploads/9845c1eb-dafb-4d19-8c8b-2014f389a748.png",
+  },
+  {
+    id: 2,
+    name: "Hinnendael Studios",
+    expertise: "Music Production",
+    rating: 4.8,
+    image: "/lovable-uploads/77ef91f8-c568-43b4-8b0b-472abea9b6f0.png",
+  },
+  {
+    id: 3,
+    name: "Kayla Peeters Music",
+    expertise: "Music Education",
+    rating: 5.0,
+    image: "/lovable-uploads/bb36ffc0-6b79-40df-af4c-b088ee7d30bb.png",
+  },
+];
+
 const categories = [
-  "Animals",
-  "Arts & Crafts",
-  "Food and Beverage",
-  "Martial Arts",
-  "Music and Performing Arts",
-  "Outdoor Recreation",
-  "Personal Fitness/ Sports",
-  "Shooting Sports",
-  "Trades",
-  "Vehicle Operation",
-  "Water Recreation",
+  {
+    name: "Music & Arts",
+    icon: "🎨",
+    count: 245
+  },
+  {
+    name: "Sports & Fitness",
+    icon: "⚽",
+    count: 189
+  },
+  {
+    name: "Academic",
+    icon: "📚",
+    count: 312
+  },
+  {
+    name: "Technology",
+    icon: "💻",
+    count: 167
+  },
+  {
+    name: "Languages",
+    icon: "🗣️",
+    count: 143
+  },
+  {
+    name: "Crafts",
+    icon: "🎨",
+    count: 98
+  }
 ];
 
 const Index = () => {
@@ -113,6 +163,59 @@ const Index = () => {
           </p>
         </div>
       </div>
+
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Popular Categories</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {categories.map((category) => (
+              <div 
+                key={category.name}
+                className="p-6 bg-gray-50 rounded-lg text-center hover:bg-primary/5 transition-colors cursor-pointer"
+              >
+                <div className="text-4xl mb-3">{category.icon}</div>
+                <h3 className="font-semibold mb-1">{category.name}</h3>
+                <p className="text-sm text-gray-600">{category.count} educators</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Featured Educators</h2>
+          <Carousel className="w-full max-w-5xl mx-auto">
+            <CarouselContent>
+              {featuredEducators.map((educator) => (
+                <CarouselItem key={educator.id} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-4">
+                    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                      <img 
+                        src={educator.image} 
+                        alt={educator.name}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <h3 className="font-semibold text-lg mb-1">{educator.name}</h3>
+                        <p className="text-gray-600 text-sm mb-2">{educator.expertise}</p>
+                        <div className="flex items-center text-yellow-500">
+                          {"★".repeat(Math.floor(educator.rating))}
+                          <span className="ml-1 text-sm text-gray-600">
+                            ({educator.rating})
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </div>
+      </section>
 
       <section className="py-12 bg-white">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4">
@@ -167,23 +270,21 @@ const Index = () => {
 
       <section className="py-8 bg-white border-t border-gray-100">
         <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-6 items-center">
-            <div className="flex items-center gap-2 text-gray-600">
-              <CheckCircle className="w-5 h-5 text-primary" />
-              <span>Verified Educators</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <CheckCircle className="w-5 h-5 text-primary" />
-              <span>Secure Payments</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <CheckCircle className="w-5 h-5 text-primary" />
-              <span>Money Back Guarantee</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <CheckCircle className="w-5 h-5 text-primary" />
-              <span>24/7 Support</span>
-            </div>
+          <div className="flex flex-wrap justify-center gap-2 text-gray-600">
+            <CheckCircle className="w-5 h-5 text-primary" />
+            <span>Verified Educators</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 text-gray-600">
+            <CheckCircle className="w-5 h-5 text-primary" />
+            <span>Secure Payments</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 text-gray-600">
+            <CheckCircle className="w-5 h-5 text-primary" />
+            <span>Money Back Guarantee</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 text-gray-600">
+            <CheckCircle className="w-5 h-5 text-primary" />
+            <span>24/7 Support</span>
           </div>
         </div>
       </section>
