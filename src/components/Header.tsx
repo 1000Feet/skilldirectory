@@ -11,7 +11,7 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
   return (
     <header>
       <div className="bg-[#333333] text-white">
-        <div className="container mx-auto py-2 text-center text-sm">
+        <div className="container mx-auto py-2 text-center text-sm italic">
           INVEST IN YOURSELF
         </div>
       </div>
