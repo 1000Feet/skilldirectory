@@ -134,12 +134,17 @@ const Index = () => {
         </div>
         <nav className="bg-black border-t border-gray-800">
           <div className="container mx-auto">
-            <div className="flex items-center justify-center py-4 gap-8">
-              <a href="#" className="nav-link">HOME</a>
-              <a href="#" className="nav-link">LISTINGS</a>
-              <a href="#" className="nav-link">ABOUT</a>
-              <a href="#" className="nav-link">PRICING</a>
-              <a href="#" className="nav-link">SUPPORT</a>
+            <div className="flex items-center justify-between py-4">
+              <div className="flex gap-8">
+                <a href="#" className="nav-link">HOME</a>
+                <a href="#" className="nav-link">LISTINGS</a>
+                <a href="#" className="nav-link">ABOUT</a>
+                <a href="#" className="nav-link">PRICING</a>
+                <a href="#" className="nav-link">SUPPORT</a>
+              </div>
+              <Button className="bg-primary hover:bg-primary/90">
+                LOGIN / SIGN UP
+              </Button>
             </div>
           </div>
         </nav>
