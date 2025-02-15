@@ -28,7 +28,7 @@ const AboutPage = () => {
               </Card>
 
               {/* Vision Section */}
-              <Card className="p-8 bg-[#E5DEFF] hover:shadow-lg transition-shadow">
+              <Card className="p-8 bg-[#EAFBD8] hover:shadow-lg transition-shadow">
                 <h2 className="text-3xl font-bold mb-4 text-primary">Vision</h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
                   We are dedicated to making a meaningful impact by becoming a trusted platform where individuals can seamlessly connect with top-tier instructors. Our platform aims to empower individuals to unlock their limitless potential by connecting learners with passionate and knowledgeable instructors. It is our goal to cultivate an innovative community and contribute to a brighter, more skilled future.
@@ -45,25 +45,25 @@ const AboutPage = () => {
                       Fostering a supportive and collaborative environment for students and instructors.
                     </p>
                   </Card>
-                  <Card className="p-6 bg-[#E5DEFF] hover:shadow-md transition-shadow">
+                  <Card className="p-6 bg-[#EAFBD8] hover:shadow-md transition-shadow">
                     <h3 className="text-xl font-semibold mb-2 text-primary">Integrity</h3>
                     <p className="text-lg text-gray-700">
                       Encouraging transparency, honesty, and ethical practices in all interactions between students and instructors.
                     </p>
                   </Card>
-                  <Card className="p-6 bg-[#D3E4FD] hover:shadow-md transition-shadow">
+                  <Card className="p-6 bg-[#F2FCE2] hover:shadow-md transition-shadow">
                     <h3 className="text-xl font-semibold mb-2 text-primary">Growth</h3>
                     <p className="text-lg text-gray-700">
                       Committing to the personal and professional growth of all students and instructors.
                     </p>
                   </Card>
-                  <Card className="p-6 bg-[#F2FCE2] hover:shadow-md transition-shadow">
+                  <Card className="p-6 bg-[#EAFBD8] hover:shadow-md transition-shadow">
                     <h3 className="text-xl font-semibold mb-2 text-primary">Curiosity</h3>
                     <p className="text-lg text-gray-700">
                       Encouraging a love for learning and exploration of new skills and knowledge.
                     </p>
                   </Card>
-                  <Card className="p-6 bg-[#E5DEFF] hover:shadow-md transition-shadow md:col-span-2">
+                  <Card className="p-6 bg-[#F2FCE2] hover:shadow-md transition-shadow md:col-span-2">
                     <h3 className="text-xl font-semibold mb-2 text-primary">Adaptability</h3>
                     <p className="text-lg text-gray-700">
                       Staying Flexible and open to change in order to meet the evolving needs of students and instructors.
