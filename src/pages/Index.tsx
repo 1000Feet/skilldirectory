@@ -3,6 +3,7 @@ import { BusinessCard } from "@/components/BusinessCard";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { Footer } from "@/components/Footer";
+import { Button } from "@/components/ui/button";
 import { 
   Pagination, 
   PaginationContent, 
@@ -23,7 +24,8 @@ import {
   TreePine,
   Car,
   Waves,
-  Hammer
+  Hammer,
+  ChevronRight
 } from "lucide-react";
 
 const businesses = [
@@ -194,6 +196,14 @@ const Index = () => {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="flex justify-center mt-8">
+            <Button 
+              className="bg-primary hover:bg-primary/90 text-white gap-2"
+            >
+              More Categories
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </section>
