@@ -1,101 +1,135 @@
 
 import { useState } from "react";
-import { SkillCard } from "@/components/SkillCard";
-import { CategoryFilter } from "@/components/CategoryFilter";
+import { BusinessCard } from "@/components/BusinessCard";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-// Sample data - in a real app, this would come from a backend
-const skills = [
+// Sample data
+const businesses = [
   {
     id: 1,
-    name: "React Development",
-    category: "Frontend",
-    description: "Building modern web applications with React and its ecosystem",
-    proficiency: 90,
+    name: "The Princess Co.",
+    description: "The Princess Co. is a professional children's entertainment company...",
+    distance: "4,714.2",
+    image: "/lovable-uploads/2a1e1a7c-3432-4772-aae6-82d34dcbc604.png",
   },
   {
     id: 2,
-    name: "Node.js",
-    category: "Backend",
-    description: "Server-side JavaScript runtime environment and API development",
-    proficiency: 85,
-  },
-  {
-    id: 3,
-    name: "UI/UX Design",
-    category: "Design",
-    description: "Creating intuitive and beautiful user interfaces",
-    proficiency: 75,
-  },
-  {
-    id: 4,
-    name: "TypeScript",
-    category: "Frontend",
-    description: "Strongly typed programming for JavaScript applications",
-    proficiency: 88,
-  },
-  {
-    id: 5,
-    name: "Python",
-    category: "Backend",
-    description: "Versatile programming language for various applications",
-    proficiency: 82,
-  },
-  {
-    id: 6,
-    name: "Figma",
-    category: "Design",
-    description: "Collaborative interface design tool",
-    proficiency: 70,
+    name: "Hinnendael Studios",
+    description: "Hinnendael Studios offers full music production, including audio re...",
+    distance: "4,714.2",
+    image: "/path-to-hinnendael-logo.png",
   },
 ];
 
-const categories = Array.from(new Set(skills.map((skill) => skill.category)));
+const categories = [
+  "Animals",
+  "Arts & Crafts",
+  "Food and Beverage",
+  "Martial Arts",
+  "Music and Performing Arts",
+  "Outdoor Recreation",
+  "Personal Fitness/ Sports",
+  "Sports",
+];
 
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const filteredSkills = selectedCategory
-    ? skills.filter((skill) => skill.category === selectedCategory)
-    : skills;
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container px-4 py-16 mx-auto">
-        <div className="text-center mb-16 animate-fadeIn">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">
-            Discover Professional Skills
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Explore a curated collection of professional skills across various domains.
-            Filter by category to find exactly what you're looking for.
-          </p>
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="bg-black text-white">
+        <div className="container mx-auto py-2 text-center text-sm">
+          INVEST IN YOURSELF
         </div>
-
-        <CategoryFilter
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSkills.map((skill, index) => (
-            <div
-              key={skill.id}
-              style={{
-                animationDelay: `${index * 100}ms`,
-              }}
-              className="animate-fadeIn opacity-0"
+        <div className="container mx-auto py-8">
+          <img 
+            src="/lovable-uploads/2a1e1a7c-3432-4772-aae6-82d34dcbc604.png" 
+            alt="Skill Directory" 
+            className="h-16 mx-auto mb-8"
+          />
+          <div className="max-w-2xl mx-auto relative">
+            <Input
+              type="text"
+              placeholder="Invest in yourself"
+              className="search-input pr-12"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Button 
+              className="absolute right-1 top-1 bottom-1 bg-primary hover:bg-primary/90 rounded-full w-10 p-0"
             >
-              <SkillCard
-                name={skill.name}
-                category={skill.category}
-                description={skill.description}
-                proficiency={skill.proficiency}
+              🔍
+            </Button>
+          </div>
+        </div>
+        <nav className="bg-black border-t border-gray-800">
+          <div className="container mx-auto">
+            <div className="flex items-center justify-between py-4">
+              <div className="flex gap-8">
+                <a href="#" className="nav-link">HOME</a>
+                <a href="#" className="nav-link">LISTINGS</a>
+                <a href="#" className="nav-link">ABOUT</a>
+                <a href="#" className="nav-link">PRICING</a>
+                <a href="#" className="nav-link">SUPPORT</a>
+              </div>
+              <Button className="bg-primary hover:bg-primary/90">
+                LOGIN / SIGN UP
+              </Button>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto py-8 flex gap-8">
+        {/* Sidebar */}
+        <aside className="w-64 flex-shrink-0">
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <h2 className="text-xl font-semibold mb-4 bg-primary text-white p-2 rounded-md">
+              Find Businesses
+            </h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Search by name</label>
+              <Input 
+                type="text" 
+                placeholder="Name or Keyword"
+                className="w-full"
               />
             </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Order</label>
+              <select className="w-full border rounded-md p-2">
+                <option>Default</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Category</label>
+              <div className="space-y-1">
+                {categories.map((category) => (
+                  <button key={category} className="category-link">
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Business Listings */}
+        <div className="flex-1 space-y-6">
+          {businesses.map((business) => (
+            <BusinessCard
+              key={business.id}
+              name={business.name}
+              description={business.description}
+              distance={business.distance}
+              image={business.image}
+            />
           ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
