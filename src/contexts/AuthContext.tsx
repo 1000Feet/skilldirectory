@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, userType: 'student' | 'educator') => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -88,13 +88,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       if (error) throw error;
-
-      if (data.user) {
-        await supabase
-          .from('profiles')
-          .update({ user_type: userType })
-          .eq('id', data.user.id);
-      }
 
       toast.success('Registration successful! Please check your email to verify your account.');
       navigate('/auth');
