@@ -13,7 +13,9 @@ interface BusinessInfoProps {
 }
 
 export const BusinessInfo = ({ business }: BusinessInfoProps) => {
-  const imagePath = business.image.startsWith('/') ? `/skilldirectory${business.image}` : business.image;
+  const imagePath = business.image.startsWith('/') 
+    ? `/skilldirectory${business.image}`
+    : `/skilldirectory/${business.image}`;
   
   return (
     <Card className="p-6">

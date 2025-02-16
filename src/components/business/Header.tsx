@@ -15,7 +15,7 @@ export const Header = () => {
             <div className="flex-shrink-0">
               <a href="/" className="block">
                 <img 
-                  src="/lovable-uploads/fdb072b4-fc90-4554-a180-2b2ec2559037.png" 
+                  src="/skilldirectory/lovable-uploads/fdb072b4-fc90-4554-a180-2b2ec2559037.png" 
                   alt="Skill Directory" 
                   className="h-8"
                 />
@@ -38,4 +38,4 @@ export const Header = () => {
       </nav>
     </header>
   );
-};
+}

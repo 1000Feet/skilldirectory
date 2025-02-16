@@ -5,7 +5,7 @@ export const Footer = () => {
       <div className="container mx-auto py-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <img 
-            src="/lovable-uploads/b71f5020-bb1c-464a-8ba8-60e008e8c40a.png" 
+            src="/skilldirectory/lovable-uploads/b71f5020-bb1c-464a-8ba8-60e008e8c40a.png" 
             alt="Skill Directory" 
             className="h-8"
           />
