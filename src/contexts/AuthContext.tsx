@@ -28,7 +28,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: session.user.id,
           email: session.user.email!,
         });
+        
+        // Fetch profile data
+        fetchProfile(session.user.id);
       }
+      setLoading(false);
     });
 
     // Listen for auth changes
@@ -42,15 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         
         // Fetch profile data
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (profile) {
-          setUser(prev => prev ? { ...prev, profile } : null);
-        }
+        await fetchProfile(session.user.id);
       } else {
         setUser(null);
       }
@@ -62,9 +58,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const fetchProfile = async (userId: string) => {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+      
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return;
+    }
+    
+    if (profile) {
+      setUser(prev => prev ? { ...prev, profile } : null);
+    }
+  };
+
   const signUp = async (email: string, password: string, userType: 'student' | 'educator') => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -73,7 +86,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         },
       });
+      
       if (error) throw error;
+
+      if (data.user) {
+        await supabase
+          .from('profiles')
+          .update({ user_type: userType })
+          .eq('id', data.user.id);
+      }
+
       toast.success('Registration successful! Please check your email to verify your account.');
       navigate('/auth');
     } catch (error: any) {
