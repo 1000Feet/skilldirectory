@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   searchQuery: string;
@@ -9,6 +10,8 @@ interface HeaderProps {
 }
 
 export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
+  const { user, signOut } = useAuth();
+
   return (
     <header>
       <div className="bg-[#333333] text-white">
@@ -50,9 +53,25 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
               <Link to="/support" className="nav-link">SUPPORT</Link>
             </div>
             <div className="ml-auto">
-              <Button className="bg-primary hover:bg-primary/90">
-                LOGIN / SIGN UP
-              </Button>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-white">
+                    {user.profile?.user_type === 'educator' ? '👨‍🏫' : '👨‍🎓'} {user.email}
+                  </span>
+                  <Button 
+                    onClick={() => signOut()} 
+                    variant="secondary"
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Link to="/auth">
+                  <Button className="bg-primary hover:bg-primary/90">
+                    LOGIN / SIGN UP
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
