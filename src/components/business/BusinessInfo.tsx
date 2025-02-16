@@ -13,12 +13,14 @@ interface BusinessInfoProps {
 }
 
 export const BusinessInfo = ({ business }: BusinessInfoProps) => {
+  const imagePath = business.image.startsWith('/') ? `/skilldirectory${business.image}` : business.image;
+  
   return (
     <Card className="p-6">
       <div className="flex items-start gap-6">
         <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
           <img 
-            src={business.image}
+            src={imagePath}
             alt={business.name}
             className="w-full h-full object-contain"
           />
