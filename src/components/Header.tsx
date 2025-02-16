@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
   searchQuery: string;
@@ -42,11 +43,11 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
         <div className="container mx-auto">
           <div className="flex items-center justify-between py-4 relative">
             <div className="flex gap-8 absolute left-1/2 -translate-x-1/2">
-              <a href="/" className="nav-link">HOME</a>
-              <a href="/listings" className="nav-link">LISTINGS</a>
-              <a href="/about" className="nav-link">ABOUT</a>
-              <a href="/pricing" className="nav-link">PRICING</a>
-              <a href="/support" className="nav-link">SUPPORT</a>
+              <Link to="/" className="nav-link">HOME</Link>
+              <Link to="/listings" className="nav-link">LISTINGS</Link>
+              <Link to="/about" className="nav-link">ABOUT</Link>
+              <Link to="/pricing" className="nav-link">PRICING</Link>
+              <Link to="/support" className="nav-link">SUPPORT</Link>
             </div>
             <div className="ml-auto">
               <Button className="bg-primary hover:bg-primary/90">
