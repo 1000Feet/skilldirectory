@@ -13,7 +13,7 @@ const businessData = {
   id: 5,
   name: "Burnt Bluff Glassworks",
   description: "Stop in and watch us blow glass on your next visit to Door County or sign up for a class to experience creating glass art yourself! Follow us on Facebook or Instagram for more information.",
-  image: "/skilldirectory/lovable-uploads/8c99f035-57fd-4069-a2ec-21faa352e4d1.png",
+  image: "/lovable-uploads/8c99f035-57fd-4069-a2ec-21faa352e4d1.png",
   address: "8819 WI-42, Fish Creek, WI, 54212",
   phone: "920-395-5191",
   email: "kari@Burntbluff.com",
@@ -66,7 +66,7 @@ const BusinessProfile = () => {
         <div className="container mx-auto py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <img 
-              src="/skilldirectory/lovable-uploads/b71f5020-bb1c-464a-8ba8-60e008e8c40a.png" 
+              src="/lovable-uploads/b71f5020-bb1c-464a-8ba8-60e008e8c40a.png" 
               alt="Skill Directory" 
               className="h-8"
             />
