@@ -15,18 +15,18 @@ export const Header = () => {
             <div className="flex-shrink-0">
               <a href="/" className="block">
                 <img 
-                  src="/skilldirectory/lovable-uploads/fdb072b4-fc90-4554-a180-2b2ec2559037.png" 
+                  src="/lovable-uploads/fdb072b4-fc90-4554-a180-2b2ec2559037.png" 
                   alt="Skill Directory" 
                   className="h-8"
                 />
               </a>
             </div>
             <div className="flex gap-8 absolute left-1/2 -translate-x-1/2">
-              <a href="/skilldirectory/" className="nav-link">HOME</a>
-              <a href="/skilldirectory/listings" className="nav-link">LISTINGS</a>
-              <a href="/skilldirectory/about" className="nav-link">ABOUT</a>
-              <a href="/skilldirectory/pricing" className="nav-link">PRICING</a>
-              <a href="/skilldirectory/support" className="nav-link">SUPPORT</a>
+              <a href="/" className="nav-link">HOME</a>
+              <a href="/listings" className="nav-link">LISTINGS</a>
+              <a href="/about" className="nav-link">ABOUT</a>
+              <a href="/pricing" className="nav-link">PRICING</a>
+              <a href="/support" className="nav-link">SUPPORT</a>
             </div>
             <div className="ml-auto">
               <Button className="bg-primary hover:bg-primary/90">
