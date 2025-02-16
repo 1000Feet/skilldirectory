@@ -12,11 +12,13 @@ interface BusinessCardProps {
 }
 
 export function BusinessCard({ name, description, distance, image, id }: BusinessCardProps) {
+  const imagePath = image.startsWith('/') ? `/skilldirectory${image}` : image;
+  
   return (
     <Card className="flex overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="w-48 h-48 flex-shrink-0 bg-gray-100 p-4">
         <img 
-          src={image} 
+          src={imagePath} 
           alt={name}
           className="w-full h-full object-contain"
         />
