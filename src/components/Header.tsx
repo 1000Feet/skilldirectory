@@ -46,11 +46,11 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
         <div className="container mx-auto">
           <div className="flex items-center justify-between py-4 relative">
             <div className="flex gap-8 absolute left-1/2 -translate-x-1/2">
-              <Link to="/skilldirectory/" className="nav-link">HOME</Link>
-              <Link to="/skilldirectory/listings" className="nav-link">LISTINGS</Link>
-              <Link to="/skilldirectory/about" className="nav-link">ABOUT</Link>
-              <Link to="/skilldirectory/pricing" className="nav-link">PRICING</Link>
-              <Link to="/skilldirectory/support" className="nav-link">SUPPORT</Link>
+              <Link to="/" className="nav-link">HOME</Link>
+              <Link to="/listings" className="nav-link">LISTINGS</Link>
+              <Link to="/about" className="nav-link">ABOUT</Link>
+              <Link to="/pricing" className="nav-link">PRICING</Link>
+              <Link to="/support" className="nav-link">SUPPORT</Link>
             </div>
             <div className="ml-auto">
               {user ? (
@@ -66,7 +66,7 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
                   </Button>
                 </div>
               ) : (
-                <Link to="/skilldirectory/auth">
+                <Link to="/auth">
                   <Button className="bg-primary hover:bg-primary/90">
                     LOGIN / SIGN UP
                   </Button>
