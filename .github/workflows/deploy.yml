@@ -40,6 +40,8 @@ jobs:
         server-dir: /public_html/skilldirectory/
         port: 21
         dangerous-clean-slate: true
+        protocol: ftp
+        timeout: 60000
         exclude: |
           **/.git*
           **/.git*/**
