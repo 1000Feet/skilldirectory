@@ -3,7 +3,8 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ main, master ]  # Added master branch as a trigger
+    branches: [ main, master ]
+  workflow_dispatch:    # Added manual trigger option
 
 jobs:
   deploy:
