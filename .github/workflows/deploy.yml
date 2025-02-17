@@ -32,18 +32,11 @@ jobs:
         ls -la dist/assets/
       
     - name: Deploy to Server
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: 167.88.41.22
-        username: u32707381.1000feetabove.com
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: dist/
-        server-dir: /domains/1000feetabove.com/public_html/skilldirectory/
-        port: 21
-        dangerous-clean-slate: true
-        protocol: ftp
-        timeout: 60000
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
+      uses: easingthemes/ssh-deploy@main
+      env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: "167.88.41.22"
+          REMOTE_USER: "u32707381"
+          SOURCE: "dist/"
+          TARGET: "/home/u32707381/domains/1000feetabove.com/public_html/skilldirectory/"
+          EXCLUDE: "/dist/, /node_modules/, /.git/, /.github/"
