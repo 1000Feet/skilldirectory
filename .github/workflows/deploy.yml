@@ -24,7 +24,11 @@ jobs:
       run: npm run build
       
     - name: List build directory
-      run: ls -la dist/
+      run: |
+        echo "Contents of dist directory:"
+        ls -la dist/
+        echo "Contents of dist/assets directory:"
+        ls -la dist/assets/
       
     - name: Deploy to Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -35,3 +39,7 @@ jobs:
         local-dir: dist/
         server-dir: /c16ae67fd73a910b/files/public_html/skilldirectory/
         dangerous-clean-slate: true
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
