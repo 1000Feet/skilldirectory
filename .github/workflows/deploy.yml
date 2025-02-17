@@ -34,7 +34,7 @@ jobs:
     - name: Deploy to Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: 1000feetabove.com
+        server: 167.88.41.22
         username: u32707381.1000feetabove.com
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: dist/
