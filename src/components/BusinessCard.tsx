@@ -12,9 +12,8 @@ interface BusinessCardProps {
 }
 
 export function BusinessCard({ name, description, distance, image, id }: BusinessCardProps) {
-  const imagePath = image.startsWith('/') 
-    ? `/skilldirectory${image}`
-    : `/skilldirectory/${image}`;
+  // Remove duplicate /skilldirectory prefix
+  const imagePath = image.startsWith('/') ? image : `/${image}`;
   
   return (
     <Card className="flex overflow-hidden hover:shadow-lg transition-shadow duration-300">
