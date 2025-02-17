@@ -33,11 +33,12 @@ jobs:
     - name: Deploy to Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: srv1771-files.hstgr.io
-        username: ${{ secrets.FTP_USERNAME }}
+        server: ftp://167.88.41.22
+        username: u32707381.1000feetabove.com
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: dist/
-        server-dir: /c16ae67fd73a910b/files/public_html/skilldirectory/
+        server-dir: public_html/skilldirectory/
+        port: 21
         dangerous-clean-slate: true
         exclude: |
           **/.git*
