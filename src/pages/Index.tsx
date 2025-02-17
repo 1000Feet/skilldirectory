@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
 import { Header } from "@/components/Header";
@@ -11,6 +10,7 @@ import { Stats } from "@/components/home/Stats";
 import { FeaturedCategories } from "@/components/home/FeaturedCategories";
 import { FeaturedEducators } from "@/components/home/FeaturedEducators";
 import { TrustIndicators } from "@/components/home/TrustIndicators";
+import { Music, Palette, Utensils, Dumbbell, TreePine, Car, Waves, Hammer } from "lucide-react";
 
 const businesses = [{
   id: 1,
