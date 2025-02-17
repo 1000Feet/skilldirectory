@@ -34,7 +34,7 @@ jobs:
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: 167.88.41.22
-        username: u32707381.1000feetabove.com
+        username: u32707381
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: dist/
         server-dir: /domains/1000feetabove.com/public_html/skilldirectory/
