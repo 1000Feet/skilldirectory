@@ -37,7 +37,7 @@ jobs:
         username: u32707381.1000feetabove.com
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: dist/
-        server-dir: /public_html/skilldirectory/
+        server-dir: /domains/1000feetabove.com/public_html/skilldirectory/
         port: 21
         dangerous-clean-slate: true
         protocol: ftp
