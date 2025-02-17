@@ -8,6 +8,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext } from "@/components/ui/pagination";
 import { CheckCircle, Users, GraduationCap, Trophy, ArrowRight, Music, Palette, Utensils, Dumbbell, TreePine, Car, Waves, Hammer, Star } from "lucide-react";
 import { CategoryFilter } from "@/components/CategoryFilter";
+
 const businesses = [{
   id: 1,
   name: "The Princess Co.",
@@ -69,6 +70,7 @@ const businesses = [{
   distance: "4,714.2",
   image: "/lovable-uploads/96771fd3-ae5e-408b-9c0d-ccca29477e11.png"
 }];
+
 const categories = [{
   name: "Music and Performing Arts",
   icon: Music
@@ -94,6 +96,7 @@ const categories = [{
   name: "Trades",
   icon: Hammer
 }];
+
 const featuredEducators = [{
   id: 1,
   name: "The Princess Co.",
@@ -119,11 +122,20 @@ const featuredEducators = [{
   rating: "4.7",
   category: "Agriculture"
 }];
+
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const categoryNames = categories.map(cat => cat.name);
-  return <div className="min-h-screen flex flex-col">
+
+  const getImagePath = (image: string) => {
+    return image.startsWith('/lovable-uploads') 
+      ? `/skilldirectory${image}`
+      : `/skilldirectory/lovable-uploads/${image}`;
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       
       <div className="bg-[#F2FCE2] py-8 shadow-sm border-b border-[#F2FCE2]/20">
@@ -218,11 +230,16 @@ const Index = () => {
           loop: true
         }} className="w-full max-w-6xl mx-auto">
             <CarouselContent>
-              {featuredEducators.map(educator => <CarouselItem key={educator.id} className="md:basis-1/2 lg:basis-1/3">
+              {featuredEducators.map(educator => (
+                <CarouselItem key={educator.id} className="md:basis-1/2 lg:basis-1/3">
                   <div className="p-4">
                     <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
                       <div className="relative h-48 w-full">
-                        <img src={educator.image} alt={educator.name} className="w-full h-full object-cover" />
+                        <img 
+                          src={getImagePath(educator.image)} 
+                          alt={educator.name} 
+                          className="w-full h-full object-cover" 
+                        />
                       </div>
                       <div className="p-4">
                         <h3 className="font-semibold text-lg mb-1">{educator.name}</h3>
@@ -234,7 +251,8 @@ const Index = () => {
                       </div>
                     </div>
                   </div>
-                </CarouselItem>)}
+                </CarouselItem>
+              ))}
             </CarouselContent>
             <div className="hidden md:block">
               <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2" />
@@ -296,6 +314,8 @@ const Index = () => {
       </main>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
