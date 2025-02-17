@@ -40,3 +40,5 @@ jobs:
           SOURCE: "dist/"
           TARGET: "/home/u32707381/domains/1000feetabove.com/public_html/skilldirectory/"
           EXCLUDE: "/dist/, /node_modules/, /.git/, /.github/"
+          ARGS: "-rltgoDzvO --delete"
+          SSH_CMD_ARGS: "-o StrictHostKeyChecking=no -p 22"
