@@ -26,7 +26,7 @@ jobs:
     - name: Deploy to Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: 167.88.41.22
+        server: srv1771-files.hstgr.io
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: dist/
