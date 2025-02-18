@@ -49,5 +49,5 @@ jobs:
         git add dist -f
         git commit -m "Add build files for deployment"
         
-        # Push to Hostinger (deploying to root directory)
+        # Push to Hostinger (trigger new deployment)
         git push --force "ssh://u32707381@167.88.41.22:65002/~/public_html" deployment:main
