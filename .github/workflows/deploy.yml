@@ -24,6 +24,9 @@ jobs:
     - name: Build
       run: npm run build
       
+    - name: List dist directory
+      run: ls -la dist/
+      
     - name: Deploy to FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
@@ -32,6 +35,7 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
         server-dir: ./public_html/skilldirectory/
+        dangerous-clean-slate: true
         
     - name: Trigger Hostinger Webhook
       run: |

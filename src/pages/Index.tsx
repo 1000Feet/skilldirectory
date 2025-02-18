@@ -13,11 +13,11 @@ import { FeaturedEducators } from "@/components/home/FeaturedEducators";
 import { TrustIndicators } from "@/components/home/TrustIndicators";
 import { Music, Palette, Utensils, Dumbbell, TreePine, Car, Waves, Hammer } from "lucide-react";
 
-// Test deployment 2 - triggering new build with correct FTP server
+// Test deployment 3 - Adding a very obvious change to test deployment
 const businesses = [{
   id: 1,
-  name: "The Princess Co.",
-  description: "The Princess Co. is a professional children's entertainment company...",
+  name: "DEPLOYMENT TEST - The Princess Co.",
+  description: "TESTING DEPLOYMENT - The Princess Co. is a professional children's entertainment company...",
   distance: "4,714.2",
   image: "/lovable-uploads/9845c1eb-dafb-4d19-8c8b-2014f389a748.png"
 }, {
