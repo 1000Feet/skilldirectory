@@ -69,10 +69,9 @@ const PricingPage = () => {
                 <div className={`p-6 text-center ${plan.highlight ? 'bg-primary' : 'bg-primary'}`}>
                   <h3 className="text-2xl font-semibold text-white">{plan.name}</h3>
                 </div>
-                <div className="p-6 text-center border-b">
+                <div className="p-6 text-center border-b h-24 flex flex-col justify-center">
                   <div className="text-4xl font-bold">{plan.price}</div>
                   {plan.price !== "FREE" && <div className="text-gray-500">/month</div>}
-                  <div className="mt-4 text-sm text-gray-600">Billing starts March 1st</div>
                 </div>
                 <div className="p-6 space-y-4 flex-1">
                   {plan.features.map((feature, featureIndex) => (
