@@ -26,28 +26,28 @@ jobs:
     - name: Build
       run: npm run build
       
-    - name: Setup Git Config
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "github-actions@github.com"
-        
-    - name: Deploy to Hostinger
+    - name: Setup Git and SSH
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
-        echo "$DEPLOY_KEY" > deploy_key
-        chmod 600 deploy_key
+        # Setup SSH
         mkdir -p ~/.ssh
-        cp deploy_key ~/.ssh/id_rsa
+        echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -p 65002 167.88.41.22 >> ~/.ssh/known_hosts
         
-        # Initialize Git repo on server first
-        ssh -p 65002 -i deploy_key u32707381@167.88.41.22 'cd /home/u32707381/domains/1000feetabove.com/public_html/skilldirectory && git init'
+        # Setup Git
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "github-actions@github.com"
         
-        # Set up Git remote for Hostinger with .git extension
-        git remote add hostinger ssh://u32707381@167.88.41.22:65002/home/u32707381/domains/1000feetabove.com/public_html/skilldirectory/.git
+    - name: Deploy
+      run: |
+        # Create a new branch for deployment
+        git checkout -b deployment
         
-        # Push the dist directory to Hostinger
+        # Add dist folder
         git add dist -f
-        git commit -m "Deploy build files"
-        git push -u hostinger HEAD:main --force
+        git commit -m "Add build files for deployment"
+        
+        # Push to Hostinger
+        git push --force ssh://u32707381@167.88.41.22:65002/home/u32707381/domains/1000feetabove.com/public_html/skilldirectory deployment:main
