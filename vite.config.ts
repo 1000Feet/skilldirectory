@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  base: '/skilldirectory/',
+  base: '/skilldirectory2/',
   plugins: [
     react(),
     mode === 'development' &&
