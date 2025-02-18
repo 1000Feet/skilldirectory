@@ -2,8 +2,14 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { Dispatch, SetStateAction } from "react";
 
-export const Header = () => {
+interface HeaderProps {
+  searchQuery?: string;
+  onSearchChange?: Dispatch<SetStateAction<string>>;
+}
+
+export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
   const { user, signOut } = useAuth();
 
   return (
