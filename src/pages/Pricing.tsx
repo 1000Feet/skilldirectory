@@ -3,6 +3,7 @@ import { Header } from "@/components/business/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Check } from "lucide-react";
 
 const plans = [
   {
@@ -73,19 +74,7 @@ const PricingPage = () => {
                 <div className="p-6 space-y-4 flex-1">
                   {plan.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center text-gray-600">
-                      <svg
-                        className="w-5 h-5 text-primary mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                      <Check className="w-5 h-5 text-primary mr-2" />
                       {feature}
                     </div>
                   ))}
