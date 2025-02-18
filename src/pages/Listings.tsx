@@ -1,10 +1,8 @@
-
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
-import { Header } from "@/components/Header";
+import { Header } from "@/components/business/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { Footer } from "@/components/Footer";
-import { Hero } from "@/components/home/Hero";
 import { 
   Pagination, 
   PaginationContent, 
@@ -119,7 +117,6 @@ const Listings = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <Hero />
       <main className="container mx-auto py-8 flex gap-8">
         <Sidebar 
           categories={categories} 
