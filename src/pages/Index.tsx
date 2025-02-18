@@ -108,7 +108,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <Hero />
       <HowItWorks />
       <Stats />
