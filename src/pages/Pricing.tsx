@@ -71,7 +71,7 @@ const PricingPage = () => {
                 </div>
                 <div className="p-6 text-center border-b">
                   <div className="text-4xl font-bold">{plan.price}</div>
-                  <div className="text-gray-500">/month</div>
+                  {plan.price !== "FREE" && <div className="text-gray-500">/month</div>}
                   <div className="mt-4 text-sm text-gray-600">Billing starts March 1st</div>
                 </div>
                 <div className="p-6 space-y-4">
