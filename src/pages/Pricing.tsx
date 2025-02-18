@@ -73,8 +73,8 @@ const PricingPage = () => {
                 </div>
                 <div className="p-6 space-y-4 flex-1">
                   {plan.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-center text-gray-600">
-                      <Check className="w-5 h-5 text-primary mr-2" />
+                    <div key={featureIndex} className="flex items-center text-gray-600 text-base">
+                      <Check className="w-6 h-6 text-primary mr-2 flex-shrink-0" />
                       {feature}
                     </div>
                   ))}
