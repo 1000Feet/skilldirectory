@@ -65,7 +65,7 @@ const PricingPage = () => {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {plans.map((plan, index) => (
-              <Card key={index} className="overflow-hidden">
+              <Card key={index} className="overflow-hidden flex flex-col h-full">
                 <div className={`p-6 text-center ${plan.highlight ? 'bg-primary' : 'bg-primary'}`}>
                   <h3 className="text-2xl font-semibold text-white">{plan.name}</h3>
                 </div>
@@ -74,7 +74,7 @@ const PricingPage = () => {
                   {plan.price !== "FREE" && <div className="text-gray-500">/month</div>}
                   <div className="mt-4 text-sm text-gray-600">Billing starts March 1st</div>
                 </div>
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-4 flex-1">
                   {plan.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center text-gray-600">
                       <svg
@@ -94,7 +94,7 @@ const PricingPage = () => {
                     </div>
                   ))}
                 </div>
-                <div className="p-6">
+                <div className="p-6 mt-auto">
                   <Button
                     className="w-full text-lg py-6"
                     variant={plan.highlight ? "default" : "default"}
