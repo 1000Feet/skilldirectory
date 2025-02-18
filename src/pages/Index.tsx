@@ -110,10 +110,10 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <Hero />
-      <HowItWorks />
       <Stats />
       <FeaturedCategories />
       <FeaturedEducators />
+      <HowItWorks />
       <TrustIndicators />
 
       <main className="container mx-auto py-8 flex gap-8 flex-1">
