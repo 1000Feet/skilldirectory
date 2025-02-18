@@ -44,6 +44,13 @@ const plans = [
   }
 ];
 
+const Feature = ({ text }: { text: string }) => (
+  <div className="flex items-center text-gray-600 text-base">
+    <Check className="w-6 h-6 text-primary mr-2 flex-shrink-0" />
+    {text}
+  </div>
+);
+
 const PricingPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
@@ -73,10 +80,7 @@ const PricingPage = () => {
                 </div>
                 <div className="p-6 space-y-4 flex-1">
                   {plan.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-center text-gray-600 text-base">
-                      <Check className="w-6 h-6 text-primary mr-2 flex-shrink-0" />
-                      {feature}
-                    </div>
+                    <Feature key={featureIndex} text={feature} />
                   ))}
                 </div>
                 <div className="p-6 mt-auto">
