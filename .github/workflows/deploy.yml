@@ -41,8 +41,11 @@ jobs:
         cp deploy_key ~/.ssh/id_rsa
         ssh-keyscan -p 65002 167.88.41.22 >> ~/.ssh/known_hosts
         
-        # Set up Git remote for Hostinger
-        git remote add hostinger ssh://u32707381@167.88.41.22:65002/home/u32707381/domains/1000feetabove.com/public_html/skilldirectory
+        # Initialize Git repo on server first
+        ssh -p 65002 -i deploy_key u32707381@167.88.41.22 'cd /home/u32707381/domains/1000feetabove.com/public_html/skilldirectory && git init'
+        
+        # Set up Git remote for Hostinger with .git extension
+        git remote add hostinger ssh://u32707381@167.88.41.22:65002/home/u32707381/domains/1000feetabove.com/public_html/skilldirectory/.git
         
         # Push the dist directory to Hostinger
         git add dist -f
