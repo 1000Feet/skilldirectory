@@ -112,8 +112,8 @@ const Index = () => {
       <Hero />
       <HowItWorks />
       <FeaturedCategories />
-      <Stats />
       <FeaturedEducators />
+      <Stats />
       <TrustIndicators />
 
       <main className="container mx-auto py-8 flex gap-8 flex-1">
