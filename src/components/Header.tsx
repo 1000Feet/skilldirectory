@@ -22,7 +22,7 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
       <div className="bg-[#F2FCE2] py-8">
         <div className="container mx-auto">
           <img 
-            src="/skilldirectory/lovable-uploads/0a56a419-7e3e-4266-a1e3-6fdd59c00442.png" 
+            src="/skilldirectory2/lovable-uploads/0a56a419-7e3e-4266-a1e3-6fdd59c00442.png" 
             alt="Skill Directory" 
             className="h-20 mx-auto"
           />
