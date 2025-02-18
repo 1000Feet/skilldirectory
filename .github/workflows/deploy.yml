@@ -12,9 +12,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    
+      
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
@@ -26,28 +24,8 @@ jobs:
     - name: Build
       run: npm run build
       
-    - name: Setup Git and SSH
-      env:
-        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Trigger Hostinger Webhook
       run: |
-        # Setup SSH
-        mkdir -p ~/.ssh
-        echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -p 65002 167.88.41.22 >> ~/.ssh/known_hosts
-        
-        # Setup Git
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "github-actions@github.com"
-        
-    - name: Deploy
-      run: |
-        # Create a new branch for deployment
-        git checkout -b deployment
-        
-        # Add dist folder
-        git add dist -f
-        git commit -m "Add build files for deployment"
-        
-        # Push to Hostinger (trigger new deployment)
-        git push --force "ssh://u32707381@167.88.41.22:65002/~/public_html" deployment:main
+        curl -X POST https://webhooks.hostinger.com/deploy/45106596bf39f2b56912fba7307d37dd \
+          -H "Content-Type: application/json" \
+          -d '{"ref": "refs/heads/main"}'
