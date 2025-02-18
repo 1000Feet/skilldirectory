@@ -29,9 +29,7 @@ const featuredEducators = [{
 }];
 
 const getImagePath = (image: string) => {
-  return image.startsWith('/lovable-uploads') 
-    ? `/skilldirectory${image}`
-    : `/skilldirectory/lovable-uploads/${image}`;
+  return `/skilldirectory2${image}`;
 };
 
 export const FeaturedEducators = () => {
