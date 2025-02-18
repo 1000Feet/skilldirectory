@@ -12,7 +12,7 @@ export const ActionCards = () => {
             <MessageSquare className="w-6 h-6 text-primary" />
           </div>
           <h3 className="font-semibold">Chat with AI Assistant</h3>
-          <p className="text-sm text-gray-600">Ask about our services to our AI Voice Agent!</p>
+          <p className="text-sm text-gray-600">Ask about our services to our AI Chatbot!</p>
           <div className="flex-grow" />
           <Button variant="outline" className="w-full">Start Chat</Button>
         </div>
