@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
 import { Header } from "@/components/Header";
@@ -12,6 +13,7 @@ import { FeaturedEducators } from "@/components/home/FeaturedEducators";
 import { TrustIndicators } from "@/components/home/TrustIndicators";
 import { Music, Palette, Utensils, Dumbbell, TreePine, Car, Waves, Hammer } from "lucide-react";
 
+// Test deployment - this comment triggers a new build
 const businesses = [{
   id: 1,
   name: "The Princess Co.",
