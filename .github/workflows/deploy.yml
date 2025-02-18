@@ -38,3 +38,4 @@ jobs:
         curl -X POST https://webhooks.hostinger.com/deploy/45106596bf39f2b56912fba7307d37dd \
           -H "Content-Type: application/json" \
           -d '{"ref": "refs/heads/main"}'
+
