@@ -26,8 +26,8 @@ const plans = [
       "Links to Social Media",
       "Email + Phone Number",
       "Analytics Tracker",
-      "Photos / Files Upload",
-      "Search Tags"
+      "Videos Upload",
+      "Custom AI Chatbot"
     ],
     highlight: true
   },
