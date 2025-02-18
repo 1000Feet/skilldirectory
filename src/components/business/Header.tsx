@@ -22,7 +22,7 @@ export const Header = () => {
                 />
               </Link>
             </div>
-            <div className="flex gap-8 absolute left-1/2 -translate-x-1/2">
+            <div className="flex gap-8 absolute left-1/3 -translate-x-1/2">
               <Link to="/" className="nav-link">HOME</Link>
               <Link to="/listings" className="nav-link">LISTINGS</Link>
               <Link to="/about" className="nav-link">ABOUT</Link>
