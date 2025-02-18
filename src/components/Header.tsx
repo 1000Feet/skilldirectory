@@ -1,15 +1,9 @@
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
-interface HeaderProps {
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-}
-
-export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
+export const Header = () => {
   const { user, signOut } = useAuth();
 
   return (
@@ -24,22 +18,8 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
           <img 
             src="/skilldirectory/lovable-uploads/0a56a419-7e3e-4266-a1e3-6fdd59c00442.png" 
             alt="Skill Directory" 
-            className="h-20 mx-auto mb-8"
+            className="h-20 mx-auto"
           />
-          <div className="max-w-2xl mx-auto relative">
-            <Input
-              type="text"
-              placeholder="Which skill would you like to learn?"
-              className="search-input pr-12"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-            />
-            <Button 
-              className="absolute right-1 top-1 bottom-1 bg-primary hover:bg-primary/90 rounded-full w-10 p-0"
-            >
-              🔍
-            </Button>
-          </div>
         </div>
       </div>
       <nav className="bg-[#333333] border-t border-gray-700">
