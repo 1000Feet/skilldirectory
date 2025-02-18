@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/business/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -33,9 +34,10 @@ const plans = [
     price: "$50",
     features: [
       "Includes everything in standard subscription",
-      "Class Listings",
-      "Links to Class Signup",
-      "Priority Placement in Search"
+      "Lesson Booking Module",
+      "Custom AI Voice Agent",
+      "Priority Placement in Search",
+      "Featured on Homepage Carousel"
     ],
     highlight: false
   }
