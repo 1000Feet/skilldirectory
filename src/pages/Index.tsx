@@ -13,7 +13,7 @@ import { FeaturedEducators } from "@/components/home/FeaturedEducators";
 import { TrustIndicators } from "@/components/home/TrustIndicators";
 import { Music, Palette, Utensils, Dumbbell, TreePine, Car, Waves, Hammer } from "lucide-react";
 
-// Test deployment - this comment triggers a new build
+// Test deployment 2 - triggering new build with correct FTP server
 const businesses = [{
   id: 1,
   name: "The Princess Co.",
