@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/business/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ const plans = [
     features: [
       "Profile Picture",
       "Business Name",
-      "About (100 words)",
       "Link to Website",
       "Search Visibility (Limited)",
       "Ads"
@@ -37,7 +35,6 @@ const plans = [
     features: [
       "Includes everything in standard subscription",
       "Class Listings",
-      "About (500 words)",
       "Links to Class Signup",
       "Priority Placement in Search",
       "Analytics tracking for Class"
