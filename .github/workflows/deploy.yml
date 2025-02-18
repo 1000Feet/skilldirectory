@@ -4,7 +4,7 @@ name: Deploy to Production
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:    # Added manual trigger option
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -12,6 +12,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -24,23 +26,25 @@ jobs:
     - name: Build
       run: npm run build
       
-    - name: List build directory
+    - name: Setup Git Config
       run: |
-        echo "Contents of dist directory:"
-        ls -la dist/
-        echo "Contents of dist/assets directory:"
-        ls -la dist/assets/
-      
-    - name: Deploy to Server
-      uses: easingthemes/ssh-deploy@main
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "github-actions@github.com"
+        
+    - name: Deploy to Hostinger
       env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: "167.88.41.22"
-          REMOTE_USER: "u32707381"
-          SOURCE: "dist/"
-          TARGET: "/home/u32707381/domains/1000feetabove.com/public_html/skilldirectory/"
-          EXCLUDE: "/dist/, /node_modules/, /.git/, /.github/"
-          ARGS: "-rltgoDzvO --delete"
-          SSH_CMD_ARGS: "-o StrictHostKeyChecking=no"
-          REMOTE_PORT: "65002"
-
+        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        echo "$DEPLOY_KEY" > deploy_key
+        chmod 600 deploy_key
+        mkdir -p ~/.ssh
+        cp deploy_key ~/.ssh/id_rsa
+        ssh-keyscan -p 65002 167.88.41.22 >> ~/.ssh/known_hosts
+        
+        # Set up Git remote for Hostinger
+        git remote add hostinger ssh://u32707381@167.88.41.22:65002/home/u32707381/domains/1000feetabove.com/public_html/skilldirectory
+        
+        # Push the dist directory to Hostinger
+        git add dist -f
+        git commit -m "Deploy build files"
+        git push -u hostinger HEAD:main --force
