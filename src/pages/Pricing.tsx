@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 const plans = [
   {
     name: "Basic: Get Listed",
-    price: "$10",
+    price: "FREE",
     features: [
       "Profile Picture",
       "Business Name",
