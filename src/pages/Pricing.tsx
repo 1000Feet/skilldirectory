@@ -23,7 +23,6 @@ const plans = [
       "Includes everything in basic subscription",
       "Links to Social Media",
       "Email + Phone Number",
-      "Analytics Tracker",
       "Videos Upload",
       "Custom AI Chatbot"
     ],
@@ -36,8 +35,7 @@ const plans = [
       "Includes everything in standard subscription",
       "Class Listings",
       "Links to Class Signup",
-      "Priority Placement in Search",
-      "Analytics tracking for Class"
+      "Priority Placement in Search"
     ],
     highlight: false
   }
