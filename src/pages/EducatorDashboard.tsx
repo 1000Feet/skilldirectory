@@ -16,37 +16,44 @@ export default function EducatorDashboard() {
 
   useEffect(() => {
     const initializeDashboard = async () => {
+      console.log('Initializing dashboard...', { user });
+      
       if (!user) {
+        console.log('No user found, redirecting to auth');
         navigate('/auth');
         return;
       }
 
       // Check if user is an educator
+      console.log('Checking user type:', user.user_metadata?.user_type);
       if (user.user_metadata?.user_type !== 'educator') {
+        console.log('User is not an educator');
         toast.error('Access denied. This page is only for educators.');
         navigate('/');
         return;
       }
 
       try {
+        console.log('Fetching business profile for user:', user.id);
         const { data, error } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
-          .maybeSingle(); // Use maybeSingle instead of single to handle no data case
+          .maybeSingle();
 
         if (error) {
-          console.error('Error fetching business profile:', error);
+          console.error('Supabase error:', error);
           toast.error('Error loading dashboard data');
+          setLoading(false);
           return;
         }
 
-        // It's okay if data is null - that just means no profile exists yet
+        console.log('Business profile data:', data);
         setBusinessProfile(data);
+        setLoading(false);
       } catch (error: any) {
-        console.error('Dashboard initialization error:', error);
+        console.error('Unexpected error:', error);
         toast.error('Error loading dashboard');
-      } finally {
         setLoading(false);
       }
     };
