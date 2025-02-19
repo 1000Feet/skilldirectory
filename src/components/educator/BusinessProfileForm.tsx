@@ -51,6 +51,9 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
     try {
       setLoading(true);
+      console.log('Current user:', user);
+      console.log('Initial data:', initialData);
+      
       const profileData = {
         ...formData,
         user_id: user.id,
@@ -59,27 +62,35 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
       console.log('Submitting profile data:', profileData);
 
-      const { data, error } = initialData?.id
-        ? await supabase
-            .from('business_profiles')
-            .update(profileData)
-            .eq('id', initialData.id)
-            .select()
-            .single()
-        : await supabase
-            .from('business_profiles')
-            .insert([profileData])
-            .select()
-            .single();
+      let result;
+      if (initialData?.id) {
+        // Update existing profile
+        result = await supabase
+          .from('business_profiles')
+          .update(profileData)
+          .eq('id', initialData.id)
+          .select()
+          .single();
+      } else {
+        // Insert new profile
+        result = await supabase
+          .from('business_profiles')
+          .insert([profileData])
+          .select()
+          .single();
+      }
+
+      const { data, error } = result;
 
       if (error) {
         console.error('Error saving profile:', error);
-        throw error;
+        toast.error(error.message || 'Error saving business profile');
+        return;
       }
 
       console.log('Profile saved successfully:', data);
-      onSuccess?.();
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
+      onSuccess?.();
     } catch (error: any) {
       console.error('Error in form submission:', error);
       toast.error(error.message || 'Error saving business profile');
