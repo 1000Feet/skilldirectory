@@ -10,7 +10,7 @@ import { toast } from "sonner";
 interface EducatorProfile {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   image: string | null;
   address: string | null;
   phone: string | null;
@@ -39,14 +39,27 @@ const EducatorProfile = () => {
           .from('business_profiles')
           .select('*')
           .eq('id', id)
-          .single();
+          .maybeSingle();
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
         if (data) {
-          setProfile(data as EducatorProfile);
+          // Safely convert the data to match our EducatorProfile interface
+          const formattedProfile: EducatorProfile = {
+            id: data.id,
+            name: data.name,
+            description: data.description,
+            image: data.image,
+            address: data.address,
+            phone: data.phone,
+            email: data.email,
+            website: data.website,
+            categories: data.categories,
+            tags: data.tags,
+            about_business: data.about_business,
+            social: data.social as { facebook: string; instagram: string; youtube?: string }
+          };
+          setProfile(formattedProfile);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -100,7 +113,7 @@ const EducatorProfile = () => {
               <Card className="p-6">
                 <div className="flex gap-6">
                   <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    {profile.image ? (
+                    {profile?.image ? (
                       <img 
                         src={profile.image} 
                         alt={profile.name}
@@ -113,9 +126,9 @@ const EducatorProfile = () => {
                     )}
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold mb-2">{profile.name}</h1>
-                    <p className="text-gray-600 mb-4">{profile.description}</p>
-                    {profile.categories && profile.categories.length > 0 && (
+                    <h1 className="text-3xl font-bold mb-2">{profile?.name}</h1>
+                    <p className="text-gray-600 mb-4">{profile?.description}</p>
+                    {profile?.categories && profile.categories.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {profile.categories.map((category) => (
                           <span 
@@ -135,7 +148,7 @@ const EducatorProfile = () => {
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">About the Educator</h2>
                 <p className="text-gray-600">
-                  {profile.about_business || profile.description}
+                  {profile?.about_business || profile?.description}
                 </p>
               </Card>
             </div>
@@ -145,13 +158,13 @@ const EducatorProfile = () => {
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
                 <div className="space-y-4">
-                  {profile.address && (
+                  {profile?.address && (
                     <div>
                       <h3 className="font-medium">Address</h3>
                       <p className="text-gray-600">{profile.address}</p>
                     </div>
                   )}
-                  {profile.phone && (
+                  {profile?.phone && (
                     <div>
                       <h3 className="font-medium">Phone</h3>
                       <p className="text-gray-600">{profile.phone}</p>
@@ -159,9 +172,9 @@ const EducatorProfile = () => {
                   )}
                   <div>
                     <h3 className="font-medium">Email</h3>
-                    <p className="text-gray-600">{profile.email}</p>
+                    <p className="text-gray-600">{profile?.email}</p>
                   </div>
-                  {profile.website && (
+                  {profile?.website && (
                     <div>
                       <h3 className="font-medium">Website</h3>
                       <a 
@@ -177,7 +190,7 @@ const EducatorProfile = () => {
                 </div>
 
                 {/* Social Links */}
-                {profile.social && (
+                {profile?.social && (
                   <div className="mt-6">
                     <h3 className="font-medium mb-3">Social Media</h3>
                     <div className="flex gap-4">

@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import BusinessProfile from "./pages/BusinessProfile";
+import EducatorProfile from "./pages/EducatorProfile";
 import PricingPage from "./pages/Pricing";
 import AboutPage from "./pages/About";
 import ListingsPage from "./pages/Listings";
@@ -29,7 +29,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/listings" element={<ListingsPage />} />
-            <Route path="/business/:id" element={<BusinessProfile />} />
+            <Route path="/educator/:id" element={<EducatorProfile />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/support" element={<SupportPage />} />
