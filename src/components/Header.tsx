@@ -19,7 +19,9 @@ interface HeaderProps {
 export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
   const { user, signOut } = useAuth();
 
-  console.log('Current user:', user); // Debug log to see user data
+  console.log('Current user in header:', user?.user_metadata); // Debug log
+
+  const isEducator = user?.user_metadata?.user_type === 'educator';
 
   return (
     <header>
@@ -51,19 +53,21 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
               {user ? (
                 <div className="flex items-center gap-4">
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center gap-2 text-white hover:text-gray-200">
-                      {user.user_metadata?.user_type === 'educator' ? '👨‍🏫' : '👨‍🎓'} {user.email}
-                      <ChevronDown className="h-4 w-4" />
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center gap-2 text-white hover:text-gray-200">
+                        {isEducator ? '👨‍🏫' : '👨‍🎓'} {user.email}
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {user.user_metadata?.user_type === 'educator' && (
+                    <DropdownMenuContent align="end" className="w-[200px]">
+                      {isEducator && (
                         <DropdownMenuItem asChild>
-                          <Link to="/dashboard" className="w-full">
-                            Dashboard
+                          <Link to="/dashboard" className="w-full cursor-pointer">
+                            Educator Dashboard
                           </Link>
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem onClick={() => signOut()}>
+                      <DropdownMenuItem onSelect={() => signOut()} className="cursor-pointer">
                         Sign Out
                       </DropdownMenuItem>
                     </DropdownMenuContent>
