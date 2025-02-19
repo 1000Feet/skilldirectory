@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, GraduationCap } from "lucide-react";
 
 interface HeaderProps {
   searchQuery?: string;
@@ -19,10 +19,12 @@ interface HeaderProps {
 export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
   const { user, signOut } = useAuth();
 
-  console.log('Current user:', user); // Debug log to see user data
+  console.log('Current user in header:', user?.user_metadata);
+
+  const isEducator = user?.user_metadata?.user_type === 'educator';
 
   return (
-    <header>
+    <header className="relative z-50">
       <div className="bg-[#333333] text-white">
         <div className="container mx-auto py-2 text-center text-sm italic">
           INVEST IN YOURSELF
@@ -39,31 +41,35 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
       </div>
       <nav className="bg-[#333333] border-t border-gray-700">
         <div className="container mx-auto">
-          <div className="flex items-center justify-between py-4 relative">
-            <div className="flex gap-8 absolute left-1/2 -translate-x-1/2">
-              <Link to="/" className="nav-link">HOME</Link>
-              <Link to="/listings" className="nav-link">LISTINGS</Link>
-              <Link to="/about" className="nav-link">ABOUT</Link>
-              <Link to="/pricing" className="nav-link">PRICING</Link>
-              <Link to="/support" className="nav-link">SUPPORT</Link>
+          <div className="flex items-center justify-between py-4">
+            <div className="flex gap-8 mx-auto">
+              <Link to="/" className="text-white hover:text-gray-200">HOME</Link>
+              <Link to="/listings" className="text-white hover:text-gray-200">LISTINGS</Link>
+              <Link to="/about" className="text-white hover:text-gray-200">ABOUT</Link>
+              <Link to="/pricing" className="text-white hover:text-gray-200">PRICING</Link>
+              <Link to="/support" className="text-white hover:text-gray-200">SUPPORT</Link>
             </div>
-            <div className="ml-auto">
+            <div className="absolute right-4">
               {user ? (
                 <div className="flex items-center gap-4">
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center gap-2 text-white hover:text-gray-200">
-                      {user.profile?.user_type === 'educator' ? '👨‍🏫' : '👨‍🎓'} {user.email}
-                      <ChevronDown className="h-4 w-4" />
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center gap-2 text-white hover:text-gray-200">
+                        <GraduationCap className="h-4 w-4" />
+                        {user.email}
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {user.profile?.user_type === 'educator' && (
+                    <DropdownMenuContent align="end" className="w-[200px]">
+                      {isEducator && (
                         <DropdownMenuItem asChild>
-                          <Link to="/dashboard" className="w-full">
-                            Dashboard
+                          <Link to="/dashboard" className="w-full cursor-pointer flex items-center gap-2">
+                            <GraduationCap className="h-4 w-4" />
+                            Educator Dashboard
                           </Link>
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem onClick={() => signOut()}>
+                      <DropdownMenuItem onSelect={() => signOut()} className="cursor-pointer">
                         Sign Out
                       </DropdownMenuItem>
                     </DropdownMenuContent>

@@ -27,6 +27,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
+          user_metadata: {
+            user_type: session.user.user_metadata.user_type,
+          },
         });
         
         // Fetch profile data
@@ -44,6 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
+          user_metadata: {
+            user_type: session.user.user_metadata.user_type,
+          },
         });
         
         // Fetch profile data
@@ -103,11 +109,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
       if (error) throw error;
+
+      // Set user with metadata immediately after successful sign in
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email!,
+          user_metadata: {
+            user_type: data.user.user_metadata.user_type,
+          },
+        });
+      }
+
       navigate('/');
     } catch (error: any) {
       toast.error(error.message);
