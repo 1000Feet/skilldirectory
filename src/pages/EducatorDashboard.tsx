@@ -9,29 +9,38 @@ import { VoiceSelection } from '@/components/educator/VoiceSelection';
 import { toast } from 'sonner';
 
 export default function EducatorDashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [businessProfile, setBusinessProfile] = useState(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Dashboard useEffect triggered', { user });
+    console.log('Dashboard useEffect triggered', { user, authLoading });
 
-    const initializeDashboard = async () => {
-      if (!user) {
-        console.log('No user found, redirecting to auth');
-        navigate('/auth');
-        return;
-      }
+    // Don't do anything while auth is loading
+    if (authLoading) {
+      return;
+    }
 
-      if (user.user_metadata?.user_type !== 'educator') {
-        console.log('User is not an educator, redirecting to home');
-        toast.error('Access denied. This page is only for educators.');
-        navigate('/');
-        return;
-      }
+    // If no user after auth has loaded, redirect to auth
+    if (!user) {
+      console.log('No user found, redirecting to auth');
+      navigate('/auth');
+      return;
+    }
 
+    // If user is not an educator, redirect to home
+    if (user.user_metadata?.user_type !== 'educator') {
+      console.log('User is not an educator, redirecting to home');
+      toast.error('Access denied. This page is only for educators.');
+      navigate('/');
+      return;
+    }
+
+    // Only fetch profile if we have a valid educator user
+    const fetchProfile = async () => {
+      setLoading(true);
       try {
         console.log('Fetching business profile for user:', user.id);
         const { data, error } = await supabase
@@ -59,13 +68,24 @@ export default function EducatorDashboard() {
       }
     };
 
-    initializeDashboard();
-  }, [user, navigate]);
+    fetchProfile();
+  }, [user, authLoading, navigate]);
 
-  if (!user) {
-    return null; // Return null while redirecting to auth
+  // Show loading while auth is being checked
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
+  // Show nothing while redirecting
+  if (!user) {
+    return null;
+  }
+
+  // Show loading while fetching profile
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
