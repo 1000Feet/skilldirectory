@@ -5,116 +5,62 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { BusinessProfileForm } from '@/components/educator/BusinessProfileForm';
 import { toast } from 'sonner';
-import type { BusinessProfile } from '@/components/educator/types';
-import { Header } from '@/components/Header';
 
 export default function EducatorDashboard() {
-  const navigate = useNavigate();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [businessProfile, setBusinessProfile] = useState(null);
 
   useEffect(() => {
     if (!user) {
-      setLoading(false);
       navigate('/auth');
       return;
     }
 
-    if (user.user_metadata?.user_type !== 'educator') {
-      toast.error('Access denied. This page is only for educators.');
-      setLoading(false);
-      navigate('/');
-      return;
-    }
-
-    const fetchProfile = async () => {
+    const fetchBusinessProfile = async () => {
       try {
-        const { data, error: profileError } = await supabase
+        const { data, error } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
-          .maybeSingle();
+          .single();
 
-        if (profileError) {
-          setError('Failed to load profile data');
-          toast.error('Error loading profile data');
-          return;
+        if (error) throw error;
+        setBusinessProfile(data);
+      } catch (error: any) {
+        if (error.code !== 'PGRST116') { // Don't show error for no data found
+          toast.error('Error fetching business profile');
         }
-
-        if (data) {
-          setBusinessProfile({
-            id: data.id,
-            user_id: data.user_id,
-            name: data.name,
-            description: data.description || '',
-            website: data.website || '',
-            address: data.address || '',
-            phone: data.phone || '',
-            email: data.email || user.email || '',
-            about_business: data.about_business || '',
-            social: {
-              facebook: '',
-              instagram: ''
-            }
-          });
-        }
-      } catch (err) {
-        console.error('Dashboard error:', err);
-        setError('Failed to load profile data');
-        toast.error('Error loading profile data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
+    fetchBusinessProfile();
   }, [user, navigate]);
-
-  if (!user) return null;
 
   if (loading) {
     return (
-      <>
-        <Header />
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <Header />
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Dashboard</h2>
-            <p className="text-gray-600">{error}</p>
-          </div>
-        </div>
-      </>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <Header />
-      <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-8">Educator Dashboard</h1>
         <div className="grid grid-cols-1 gap-8">
-          <div className="bg-white rounded-lg shadow">
-            <BusinessProfileForm 
-              initialData={businessProfile}
-              onSuccess={() => {
-                toast.success('Business profile updated successfully');
-              }}
-            />
-          </div>
+          <BusinessProfileForm 
+            initialData={businessProfile}
+            onSuccess={() => {
+              toast.success('Business profile updated successfully');
+            }}
+          />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

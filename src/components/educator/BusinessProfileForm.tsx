@@ -6,8 +6,29 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Camera } from 'lucide-react';
 import { toast } from 'sonner';
-import type { BusinessProfileFormProps } from './types';
+
+interface BusinessProfileFormProps {
+  initialData?: {
+    id?: string;
+    name?: string;
+    description?: string;
+    image?: string;
+    website?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+    categories?: string[];
+    tags?: string[];
+    social?: {
+      facebook: string;
+      instagram: string;
+    };
+    about_business?: string;
+  };
+  onSuccess?: () => void;
+}
 
 export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileFormProps) {
   const { user } = useAuth();
@@ -15,13 +36,44 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
+    image: initialData?.image || '',
     website: initialData?.website || '',
     address: initialData?.address || '',
     phone: initialData?.phone || '',
     email: initialData?.email || user?.email || '',
+    categories: initialData?.categories || [],
+    tags: initialData?.tags || [],
+    social: initialData?.social || { facebook: '', instagram: '' },
     about_business: initialData?.about_business || '',
-    social: initialData?.social || { facebook: '', instagram: '' }
   });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setLoading(true);
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('business-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('business-images')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, image: publicUrl }));
+      toast.success('Image uploaded successfully');
+    } catch (error: any) {
+      toast.error('Error uploading image');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +97,6 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
       if (error) throw error;
       onSuccess?.();
-      toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
     } catch (error: any) {
       toast.error('Error saving business profile');
     } finally {
@@ -54,12 +105,12 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 p-6">
+    <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 rounded-lg shadow">
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="businessName">Business Name</Label>
+          <Label htmlFor="name">Business Name *</Label>
           <Input
-            id="businessName"
+            id="name"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
             required
@@ -67,13 +118,44 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">Short Description *</Label>
           <Textarea
             id="description"
             value={formData.description}
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Business Image</Label>
+          <div className="flex items-center gap-4">
+            {formData.image && (
+              <img 
+                src={formData.image} 
+                alt="Business" 
+                className="w-32 h-32 object-cover rounded-lg"
+              />
+            )}
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('imageUpload')?.click()}
+                disabled={loading}
+              >
+                <Camera className="mr-2 h-4 w-4" />
+                Upload Image
+              </Button>
+              <input
+                id="imageUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -87,7 +169,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="address">Address</Label>
+          <Label htmlFor="address">Address *</Label>
           <Input
             id="address"
             value={formData.address}
@@ -98,7 +180,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">Phone *</Label>
             <Input
               id="phone"
               type="tel"
@@ -109,7 +191,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email *</Label>
             <Input
               id="email"
               type="email"
@@ -121,9 +203,9 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="aboutBusiness">About Your Business</Label>
+          <Label htmlFor="about">About Your Business</Label>
           <Textarea
-            id="aboutBusiness"
+            id="about"
             value={formData.about_business}
             onChange={(e) => setFormData(prev => ({ ...prev, about_business: e.target.value }))}
             className="h-32"

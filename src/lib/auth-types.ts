@@ -14,7 +14,4 @@ export interface AuthUser {
   id: string;
   email: string;
   profile?: Profile;
-  user_metadata: {
-    user_type: UserType;
-  };
 }
