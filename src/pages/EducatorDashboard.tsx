@@ -15,38 +15,43 @@ export default function EducatorDashboard() {
   const [businessProfile, setBusinessProfile] = useState(null);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
+    const initializeDashboard = async () => {
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
 
-    // Check if user is an educator
-    if (user.user_metadata?.user_type !== 'educator') {
-      toast.error('Access denied. This page is only for educators.');
-      navigate('/');
-      return;
-    }
+      // Check if user is an educator
+      if (user.user_metadata?.user_type !== 'educator') {
+        toast.error('Access denied. This page is only for educators.');
+        navigate('/');
+        return;
+      }
 
-    const fetchBusinessProfile = async () => {
       try {
         const { data, error } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle(); // Use maybeSingle instead of single to handle no data case
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching business profile:', error);
+          toast.error('Error loading dashboard data');
+          return;
+        }
+
+        // It's okay if data is null - that just means no profile exists yet
         setBusinessProfile(data);
       } catch (error: any) {
-        if (error.code !== 'PGRST116') { // Don't show error for no data found
-          toast.error('Error fetching business profile');
-        }
+        console.error('Dashboard initialization error:', error);
+        toast.error('Error loading dashboard');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBusinessProfile();
+    initializeDashboard();
   }, [user, navigate]);
 
   if (loading) {
