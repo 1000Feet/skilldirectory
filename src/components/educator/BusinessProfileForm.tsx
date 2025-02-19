@@ -44,19 +44,18 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error('You must be logged in to update your profile');
-      return;
-    }
 
-    // Validate required fields
-    if (!formData.name || !formData.email) {
-      toast.error('Name and email are required');
-      return;
-    }
-
-    setLoading(true);
     try {
+      setLoading(true);
+
+      if (!user) {
+        throw new Error('You must be logged in to update your profile');
+      }
+
+      if (!formData.name || !formData.email) {
+        throw new Error('Name and email are required');
+      }
+
       const profileData = {
         name: formData.name,
         description: formData.description,
@@ -73,34 +72,24 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         tags: []
       };
 
-      console.log('Submitting profile with data:', profileData);
+      let query = supabase.from('business_profiles');
 
-      let { data, error } = initialData?.id 
-        ? await supabase
-            .from('business_profiles')
-            .update(profileData)
-            .eq('id', initialData.id)
-            .select()
-            .maybeSingle()
-        : await supabase
-            .from('business_profiles')
-            .insert([profileData])
-            .select()
-            .maybeSingle();
+      if (initialData?.id) {
+        query = query.update(profileData).eq('id', initialData.id);
+      } else {
+        query = query.insert([profileData]);
+      }
 
-      console.log('Supabase response:', { data, error });
+      const { data, error } = await query.select().maybeSingle();
 
       if (error) {
-        console.error('Supabase error:', error);
         throw error;
       }
 
       if (!data) {
-        console.error('No data returned from Supabase');
-        throw new Error('Failed to save profile data');
+        throw new Error('No data returned from server');
       }
 
-      console.log('Profile saved successfully:', data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
       
       if (onSuccess) {
