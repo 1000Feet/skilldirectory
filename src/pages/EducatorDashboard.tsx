@@ -15,26 +15,25 @@ export default function EducatorDashboard() {
   const [businessProfile, setBusinessProfile] = useState(null);
 
   useEffect(() => {
+    // Reset states when component mounts
+    setLoading(true);
+    setBusinessProfile(null);
+
     const initializeDashboard = async () => {
-      console.log('Initializing dashboard...', { user });
-      
       if (!user) {
-        console.log('No user found, redirecting to auth');
+        setLoading(false);
         navigate('/auth');
         return;
       }
 
-      // Check if user is an educator
-      console.log('Checking user type:', user.user_metadata?.user_type);
       if (user.user_metadata?.user_type !== 'educator') {
-        console.log('User is not an educator');
+        setLoading(false);
         toast.error('Access denied. This page is only for educators.');
         navigate('/');
         return;
       }
 
       try {
-        console.log('Fetching business profile for user:', user.id);
         const { data, error } = await supabase
           .from('business_profiles')
           .select('*')
@@ -42,18 +41,17 @@ export default function EducatorDashboard() {
           .maybeSingle();
 
         if (error) {
-          console.error('Supabase error:', error);
-          toast.error('Error loading dashboard data');
-          setLoading(false);
-          return;
+          console.error('Error fetching business profile:', error);
+          toast.error('Error loading profile data');
         }
 
-        console.log('Business profile data:', data);
+        // Even if data is null, we still want to show the form
         setBusinessProfile(data);
-        setLoading(false);
-      } catch (error: any) {
+      } catch (error) {
         console.error('Unexpected error:', error);
         toast.error('Error loading dashboard');
+      } finally {
+        // Always set loading to false, regardless of success or failure
         setLoading(false);
       }
     };
