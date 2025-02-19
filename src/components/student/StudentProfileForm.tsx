@@ -182,7 +182,7 @@ export function StudentProfileForm() {
             />
 
             <Button type="submit" className="w-full">
-              {loading ? "Loading..." : "Update Profile"}
+              Update Profile
             </Button>
           </form>
         </Form>
