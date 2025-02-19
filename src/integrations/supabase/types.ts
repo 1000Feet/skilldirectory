@@ -9,6 +9,71 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      business_profiles: {
+        Row: {
+          about_business: string | null
+          address: string | null
+          categories: string[] | null
+          created_at: string
+          description: string | null
+          email: string
+          id: string
+          image: string | null
+          name: string
+          phone: string | null
+          social: Json | null
+          subscription_tier: string | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          about_business?: string | null
+          address?: string | null
+          categories?: string[] | null
+          created_at?: string
+          description?: string | null
+          email: string
+          id?: string
+          image?: string | null
+          name: string
+          phone?: string | null
+          social?: Json | null
+          subscription_tier?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          about_business?: string | null
+          address?: string | null
+          categories?: string[] | null
+          created_at?: string
+          description?: string | null
+          email?: string
+          id?: string
+          image?: string | null
+          name?: string
+          phone?: string | null
+          social?: Json | null
+          subscription_tier?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
