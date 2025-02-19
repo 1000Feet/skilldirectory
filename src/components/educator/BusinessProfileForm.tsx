@@ -6,29 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface BusinessProfileFormProps {
-  initialData?: {
-    id?: string;
-    name?: string;
-    description?: string;
-    image?: string;
-    website?: string;
-    address?: string;
-    phone?: string;
-    email?: string;
-    categories?: string[];
-    tags?: string[];
-    social?: {
-      facebook: string;
-      instagram: string;
-    };
-    about_business?: string;
-  };
-  onSuccess?: () => void;
-}
+import { BusinessImageUpload } from './BusinessImageUpload';
+import { SocialMediaInputs } from './SocialMediaInputs';
+import type { BusinessProfileFormProps } from './types';
 
 export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileFormProps) {
   const { user } = useAuth();
@@ -46,34 +27,6 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
     social: initialData?.social || { facebook: '', instagram: '' },
     about_business: initialData?.about_business || '',
   });
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setLoading(true);
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('business-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('business-images')
-        .getPublicUrl(filePath);
-
-      setFormData(prev => ({ ...prev, image: publicUrl }));
-      toast.success('Image uploaded successfully');
-    } catch (error: any) {
-      toast.error('Error uploading image');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,6 +50,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
       if (error) throw error;
       onSuccess?.();
+      toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
     } catch (error: any) {
       toast.error('Error saving business profile');
     } finally {
@@ -129,37 +83,11 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="imageUpload">Business Image</Label>
-          <div className="flex items-center gap-4">
-            {formData.image && (
-              <img 
-                src={formData.image} 
-                alt="Business" 
-                className="w-32 h-32 object-cover rounded-lg"
-              />
-            )}
-            <div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById('imageUpload')?.click()}
-                disabled={loading}
-              >
-                <Camera className="mr-2 h-4 w-4" />
-                Upload Image
-              </Button>
-              <input
-                id="imageUpload"
-                name="imageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </div>
-          </div>
-        </div>
+        <BusinessImageUpload
+          currentImage={formData.image}
+          onImageUpload={(url) => setFormData(prev => ({ ...prev, image: url }))}
+          loading={loading}
+        />
 
         <div className="space-y-2">
           <Label htmlFor="website">Website</Label>
@@ -220,31 +148,11 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
           />
         </div>
 
-        <div className="space-y-2">
-          <Label>Social Media</Label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              id="facebook"
-              name="facebook"
-              placeholder="Facebook URL"
-              value={formData.social.facebook}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                social: { ...prev.social, facebook: e.target.value }
-              }))}
-            />
-            <Input
-              id="instagram"
-              name="instagram"
-              placeholder="Instagram URL"
-              value={formData.social.instagram}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                social: { ...prev.social, instagram: e.target.value }
-              }))}
-            />
-          </div>
-        </div>
+        <SocialMediaInputs
+          facebook={formData.social.facebook}
+          instagram={formData.social.instagram}
+          onChange={(social) => setFormData(prev => ({ ...prev, social }))}
+        />
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>
