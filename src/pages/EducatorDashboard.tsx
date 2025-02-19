@@ -20,6 +20,13 @@ export default function EducatorDashboard() {
       return;
     }
 
+    // Check if user is an educator
+    if (user.user_metadata?.user_type !== 'educator') {
+      toast.error('Access denied. This page is only for educators.');
+      navigate('/');
+      return;
+    }
+
     const fetchBusinessProfile = async () => {
       try {
         const { data, error } = await supabase
