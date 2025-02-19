@@ -3,6 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dispatch, SetStateAction } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 interface HeaderProps {
   searchQuery?: string;
@@ -41,15 +48,24 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
             <div className="ml-auto">
               {user ? (
                 <div className="flex items-center gap-4">
-                  <span className="text-white">
-                    {user.profile?.user_type === 'educator' ? '👨‍🏫' : '👨‍🎓'} {user.email}
-                  </span>
-                  <Button 
-                    onClick={() => signOut()} 
-                    variant="secondary"
-                  >
-                    Sign Out
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex items-center gap-2 text-white hover:text-gray-200">
+                      {user.profile?.user_type === 'educator' ? '👨‍🏫' : '👨‍🎓'} {user.email}
+                      <ChevronDown className="h-4 w-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                      {user.profile?.user_type === 'educator' && (
+                        <DropdownMenuItem>
+                          <Link to="/dashboard" className="w-full">
+                            Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onClick={() => signOut()}>
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ) : (
                 <Link to="/auth">
