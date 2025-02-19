@@ -27,20 +27,18 @@ interface LessonRequest {
 export function LessonRequests() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<LessonRequest[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
 
     const fetchRequests = async () => {
       try {
+        console.log('Fetching requests for educator:', user.id);
         const { data, error } = await supabase
           .from('lesson_requests')
           .select(`
-            id,
-            student_id,
-            proposed_date,
-            status,
-            message,
+            *,
             student:profiles!lesson_requests_student_id_fkey(
               id,
               first_name,
@@ -48,14 +46,20 @@ export function LessonRequests() {
               email
             )
           `)
-          .eq('educator_id', user.id)
-          .order('created_at', { ascending: false });
+          .eq('educator_id', user.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error details:', error);
+          throw error;
+        }
+
+        console.log('Fetched requests:', data);
         setRequests(data || []);
       } catch (error) {
         console.error('Error fetching lesson requests:', error);
         toast.error('Failed to load lesson requests');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -67,8 +71,7 @@ export function LessonRequests() {
     toast.info('Reply functionality coming soon!');
   };
 
-  // Show loading state only when we don't have user data yet
-  if (!user) {
+  if (loading) {
     return (
       <Card>
         <CardHeader>
