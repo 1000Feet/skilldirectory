@@ -8,6 +8,7 @@ import { KnowledgeBaseUpload } from '@/components/educator/KnowledgeBaseUpload';
 import { VoiceSelection } from '@/components/educator/VoiceSelection';
 import { toast } from 'sonner';
 import type { BusinessProfile } from '@/components/educator/types';
+import { Header } from '@/components/Header';
 
 export default function EducatorDashboard() {
   const navigate = useNavigate();
@@ -89,49 +90,63 @@ export default function EducatorDashboard() {
   if (loading) {
     console.log('Rendering loading state');
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <>
+        <Header />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </>
     );
   }
 
   if (error) {
     console.log('Rendering error state:', error);
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Dashboard</h2>
-          <p className="text-gray-600">{error}</p>
+      <>
+        <Header />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Dashboard</h2>
+            <p className="text-gray-600">{error}</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   console.log('Rendering dashboard with profile:', businessProfile);
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-8">Educator Dashboard</h1>
-        <div className="grid grid-cols-1 gap-8">
-          <BusinessProfileForm 
-            initialData={businessProfile}
-            onSuccess={() => {
-              toast.success('Business profile updated successfully');
-            }}
-          />
-          
-          <div className="space-y-8">
-            <h2 className="text-2xl font-semibold">AI Chatbot</h2>
-            <KnowledgeBaseUpload />
-          </div>
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-bold mb-8">Educator Dashboard</h1>
+          <div className="grid grid-cols-1 gap-8">
+            <div className="bg-white rounded-lg shadow">
+              <BusinessProfileForm 
+                initialData={businessProfile}
+                onSuccess={() => {
+                  toast.success('Business profile updated successfully');
+                }}
+              />
+            </div>
+            
+            <div className="bg-white rounded-lg shadow p-6 space-y-6">
+              <h2 className="text-2xl font-semibold">AI Chatbot</h2>
+              <KnowledgeBaseUpload />
+            </div>
 
-          <div className="space-y-8">
-            <h2 className="text-2xl font-semibold">AI Voice Agent</h2>
-            <VoiceSelection />
-            <KnowledgeBaseUpload />
+            <div className="bg-white rounded-lg shadow p-6 space-y-6">
+              <h2 className="text-2xl font-semibold">AI Voice Agent</h2>
+              <VoiceSelection />
+              <div className="mt-6">
+                <h3 className="text-lg font-medium mb-4">Voice Knowledge Base</h3>
+                <KnowledgeBaseUpload />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
