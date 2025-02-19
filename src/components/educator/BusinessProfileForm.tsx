@@ -68,22 +68,32 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         social: formData.social,
         ai_chatbot: formData.ai_chatbot,
         ai_voice_agent: formData.ai_voice_agent,
-        user_id: user.id
+        user_id: user.id,
+        categories: [], // Add default empty array for categories
+        tags: [] // Add default empty array for tags
       };
 
       console.log('Submitting profile with data:', profileData);
 
-      const { error } = initialData?.id 
-        ? await supabase
-            .from('business_profiles')
-            .update(profileData)
-            .eq('id', initialData.id)
-        : await supabase
-            .from('business_profiles')
-            .insert([profileData]);
+      let result;
+      
+      if (initialData?.id) {
+        result = await supabase
+          .from('business_profiles')
+          .update(profileData)
+          .eq('id', initialData.id)
+          .select()
+          .single();
+      } else {
+        result = await supabase
+          .from('business_profiles')
+          .insert([profileData])
+          .select()
+          .single();
+      }
 
-      if (error) {
-        throw error;
+      if (result.error) {
+        throw result.error;
       }
 
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
