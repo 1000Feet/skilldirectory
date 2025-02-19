@@ -10,40 +10,33 @@ import { Header } from '@/components/Header';
 
 export default function EducatorDashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    // Wait for auth to be initialized before making any navigation decisions
+    if (authLoading) return;
 
-    const checkAuth = async () => {
-      if (!user) {
-        if (isMounted) {
-          setLoading(false);
-          navigate('/auth');
-        }
-        return;
-      }
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
 
-      if (user.user_metadata?.user_type !== 'educator') {
-        if (isMounted) {
-          toast.error('Access denied. This page is only for educators.');
-          setLoading(false);
-          navigate('/');
-        }
-        return;
-      }
+    if (user.user_metadata?.user_type !== 'educator') {
+      toast.error('Access denied. This page is only for educators.');
+      navigate('/');
+      return;
+    }
 
+    const fetchProfile = async () => {
       try {
         const { data, error: profileError } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
-
-        if (!isMounted) return;
 
         if (profileError) {
           setError('Failed to load profile data');
@@ -69,28 +62,19 @@ export default function EducatorDashboard() {
           });
         }
       } catch (err) {
-        if (isMounted) {
-          console.error('Dashboard error:', err);
-          setError('Failed to load profile data');
-          toast.error('Error loading profile data');
-        }
+        console.error('Dashboard error:', err);
+        setError('Failed to load profile data');
+        toast.error('Error loading profile data');
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
-    checkAuth();
+    fetchProfile();
+  }, [user, authLoading, navigate]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [user?.id, navigate]); // Only depend on user.id instead of entire user object
-
-  if (!user) return null;
-
-  if (loading) {
+  // Show loading state while auth is being checked
+  if (authLoading || loading) {
     return (
       <>
         <Header />
@@ -100,6 +84,9 @@ export default function EducatorDashboard() {
       </>
     );
   }
+
+  // Only check user after auth loading is complete
+  if (!user) return null;
 
   if (error) {
     return (
