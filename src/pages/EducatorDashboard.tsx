@@ -9,38 +9,41 @@ import { VoiceSelection } from '@/components/educator/VoiceSelection';
 import { toast } from 'sonner';
 
 export default function EducatorDashboard() {
-  const { user } = useAuth();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [businessProfile, setBusinessProfile] = useState(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-
-    if (user.user_metadata?.user_type !== 'educator') {
-      toast.error('Access denied. This page is only for educators.');
-      navigate('/');
-      return;
-    }
-
-    const fetchProfile = async () => {
+    const checkAuthAndFetchProfile = async () => {
       try {
-        const { data, error } = await supabase
+        if (!user) {
+          navigate('/auth');
+          return;
+        }
+
+        if (user.user_metadata?.user_type !== 'educator') {
+          toast.error('Access denied. This page is only for educators.');
+          navigate('/');
+          return;
+        }
+
+        const { data, error: profileError } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (error) throw error;
+        if (profileError) {
+          console.error('Error fetching business profile:', profileError);
+          throw profileError;
+        }
 
         setBusinessProfile(data);
         setError(null);
-      } catch (error) {
-        console.error('Error fetching business profile:', error);
+      } catch (err) {
+        console.error('Dashboard error:', err);
         setError('Failed to load profile data');
         toast.error('Error loading profile data');
       } finally {
@@ -48,13 +51,10 @@ export default function EducatorDashboard() {
       }
     };
 
-    fetchProfile();
+    checkAuthAndFetchProfile();
   }, [user, navigate]);
 
-  if (!user) {
-    return null;
-  }
-
+  // Show initial loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -63,6 +63,7 @@ export default function EducatorDashboard() {
     );
   }
 
+  // Show error state if something went wrong
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -72,6 +73,11 @@ export default function EducatorDashboard() {
         </div>
       </div>
     );
+  }
+
+  // Return null if no user (will redirect)
+  if (!user) {
+    return null;
   }
 
   return (
