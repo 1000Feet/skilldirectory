@@ -27,7 +27,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          user_metadata: session.user.user_metadata,
+          user_metadata: {
+            user_type: session.user.user_metadata.user_type,
+          },
         });
         
         // Fetch profile data
@@ -45,7 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          user_metadata: session.user.user_metadata,
+          user_metadata: {
+            user_type: session.user.user_metadata.user_type,
+          },
         });
         
         // Fetch profile data
@@ -117,7 +121,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: data.user.id,
           email: data.user.email!,
-          user_metadata: data.user.user_metadata,
+          user_metadata: {
+            user_type: data.user.user_metadata.user_type,
+          },
         });
       }
 
