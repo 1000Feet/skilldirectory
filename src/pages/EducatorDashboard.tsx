@@ -13,6 +13,7 @@ export default function EducatorDashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [businessProfile, setBusinessProfile] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('Dashboard useEffect triggered', { user });
@@ -20,14 +21,12 @@ export default function EducatorDashboard() {
     const initializeDashboard = async () => {
       if (!user) {
         console.log('No user found, redirecting to auth');
-        setLoading(false);
         navigate('/auth');
         return;
       }
 
       if (user.user_metadata?.user_type !== 'educator') {
         console.log('User is not an educator, redirecting to home');
-        setLoading(false);
         toast.error('Access denied. This page is only for educators.');
         navigate('/');
         return;
@@ -43,16 +42,19 @@ export default function EducatorDashboard() {
 
         if (error) {
           console.error('Error fetching business profile:', error);
+          setError('Failed to load profile data');
           toast.error('Error loading profile data');
+          return;
         }
 
         console.log('Business profile data:', data);
         setBusinessProfile(data);
+        setError(null);
       } catch (error) {
         console.error('Unexpected error:', error);
+        setError('An unexpected error occurred');
         toast.error('Error loading dashboard');
       } finally {
-        console.log('Setting loading to false');
         setLoading(false);
       }
     };
@@ -60,12 +62,25 @@ export default function EducatorDashboard() {
     initializeDashboard();
   }, [user, navigate]);
 
-  console.log('Dashboard render', { loading, user });
+  if (!user) {
+    return null; // Return null while redirecting to auth
+  }
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Dashboard</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
       </div>
     );
   }
