@@ -15,14 +15,21 @@ export default function EducatorDashboard() {
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  console.log('Dashboard render - user:', user);
+  console.log('Dashboard render - loading:', loading);
+
   useEffect(() => {
+    console.log('useEffect triggered - user:', user);
+
     if (!user) {
+      console.log('No user found, redirecting to auth');
       setLoading(false);
       navigate('/auth');
       return;
     }
 
     if (user.user_metadata?.user_type !== 'educator') {
+      console.log('User is not an educator, redirecting to home');
       toast.error('Access denied. This page is only for educators.');
       setLoading(false);
       navigate('/');
@@ -30,6 +37,7 @@ export default function EducatorDashboard() {
     }
 
     const fetchBusinessProfile = async () => {
+      console.log('Fetching business profile for user:', user.id);
       try {
         const { data, error: profileError } = await supabase
           .from('business_profiles')
@@ -37,9 +45,12 @@ export default function EducatorDashboard() {
           .eq('user_id', user.id)
           .maybeSingle();
 
+        console.log('Supabase response - data:', data, 'error:', profileError);
+
         if (profileError) throw profileError;
 
         if (data) {
+          console.log('Processing profile data');
           const socialData = typeof data.social === 'string' 
             ? JSON.parse(data.social)
             : (data.social as { facebook: string; instagram: string } || { facebook: '', instagram: '' });
@@ -58,8 +69,10 @@ export default function EducatorDashboard() {
               instagram: socialData.instagram || ''
             }
           };
+          console.log('Setting business profile:', transformedData);
           setBusinessProfile(transformedData);
         } else {
+          console.log('No business profile found');
           setBusinessProfile(null);
         }
         setError(null);
@@ -68,6 +81,7 @@ export default function EducatorDashboard() {
         setError('Failed to load profile data');
         toast.error('Error loading profile data');
       } finally {
+        console.log('Setting loading to false');
         setLoading(false);
       }
     };
@@ -75,9 +89,15 @@ export default function EducatorDashboard() {
     fetchBusinessProfile();
   }, [user, navigate]);
 
-  if (!user) return null;
+  console.log('Before render conditions - loading:', loading, 'error:', error);
+
+  if (!user) {
+    console.log('Rendering null due to no user');
+    return null;
+  }
 
   if (loading) {
+    console.log('Rendering loading state');
     return (
       <>
         <Header />
@@ -89,6 +109,7 @@ export default function EducatorDashboard() {
   }
 
   if (error) {
+    console.log('Rendering error state:', error);
     return (
       <>
         <Header />
@@ -102,6 +123,7 @@ export default function EducatorDashboard() {
     );
   }
 
+  console.log('Rendering main dashboard');
   return (
     <div className="min-h-screen">
       <Header />
