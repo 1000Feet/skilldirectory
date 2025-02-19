@@ -18,18 +18,13 @@ export default function EducatorDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Debug logging
-    console.log('Auth state:', { user, userType: user?.user_metadata?.user_type });
-
     if (!user) {
-      console.log('No user found, redirecting to auth page');
       setLoading(false);
       navigate('/auth');
       return;
     }
 
     if (user.user_metadata?.user_type !== 'educator') {
-      console.log('User is not an educator, redirecting to home');
       toast.error('Access denied. This page is only for educators.');
       setLoading(false);
       navigate('/');
@@ -37,7 +32,6 @@ export default function EducatorDashboard() {
     }
 
     const fetchBusinessProfile = async () => {
-      console.log('Fetching business profile for user:', user.id);
       try {
         const { data, error: profileError } = await supabase
           .from('business_profiles')
@@ -45,20 +39,21 @@ export default function EducatorDashboard() {
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (profileError) {
-          console.error('Error fetching business profile:', profileError);
-          throw profileError;
-        }
+        if (profileError) throw profileError;
 
-        console.log('Received profile data:', data);
-
-        // Transform the social data to ensure it matches our type
         if (data) {
           const transformedData: BusinessProfile = {
             ...data,
-            social: typeof data.social === 'object' ? data.social as { facebook: string; instagram: string } : {
-              facebook: '',
-              instagram: ''
+            name: data.name || '',
+            description: data.description || '',
+            website: data.website || '',
+            address: data.address || '',
+            phone: data.phone || '',
+            email: data.email || user.email || '',
+            about_business: data.about_business || '',
+            social: {
+              facebook: data.social?.facebook || '',
+              instagram: data.social?.instagram || ''
             }
           };
           setBusinessProfile(transformedData);
@@ -71,7 +66,6 @@ export default function EducatorDashboard() {
         setError('Failed to load profile data');
         toast.error('Error loading profile data');
       } finally {
-        console.log('Setting loading to false');
         setLoading(false);
       }
     };
@@ -79,16 +73,9 @@ export default function EducatorDashboard() {
     fetchBusinessProfile();
   }, [user, navigate]);
 
-  // Debug loading state
-  console.log('Current loading state:', loading);
-
-  if (!user) {
-    console.log('Rendering null due to no user');
-    return null;
-  }
+  if (!user) return null;
 
   if (loading) {
-    console.log('Rendering loading state');
     return (
       <>
         <Header />
@@ -100,7 +87,6 @@ export default function EducatorDashboard() {
   }
 
   if (error) {
-    console.log('Rendering error state:', error);
     return (
       <>
         <Header />
@@ -114,39 +100,36 @@ export default function EducatorDashboard() {
     );
   }
 
-  console.log('Rendering dashboard with profile:', businessProfile);
   return (
-    <>
+    <div className="min-h-screen">
       <Header />
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold mb-8">Educator Dashboard</h1>
-          <div className="grid grid-cols-1 gap-8">
-            <div className="bg-white rounded-lg shadow">
-              <BusinessProfileForm 
-                initialData={businessProfile}
-                onSuccess={() => {
-                  toast.success('Business profile updated successfully');
-                }}
-              />
-            </div>
-            
-            <div className="bg-white rounded-lg shadow p-6 space-y-6">
-              <h2 className="text-2xl font-semibold">AI Chatbot</h2>
-              <KnowledgeBaseUpload />
-            </div>
+      <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold mb-8">Educator Dashboard</h1>
+        <div className="grid grid-cols-1 gap-8">
+          <div className="bg-white rounded-lg shadow">
+            <BusinessProfileForm 
+              initialData={businessProfile}
+              onSuccess={() => {
+                toast.success('Business profile updated successfully');
+              }}
+            />
+          </div>
+          
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+            <h2 className="text-2xl font-semibold">AI Chatbot</h2>
+            <KnowledgeBaseUpload />
+          </div>
 
-            <div className="bg-white rounded-lg shadow p-6 space-y-6">
-              <h2 className="text-2xl font-semibold">AI Voice Agent</h2>
-              <VoiceSelection />
-              <div className="mt-6">
-                <h3 className="text-lg font-medium mb-4">Voice Knowledge Base</h3>
-                <KnowledgeBaseUpload />
-              </div>
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+            <h2 className="text-2xl font-semibold">AI Voice Agent</h2>
+            <VoiceSelection />
+            <div className="mt-6">
+              <h3 className="text-lg font-medium mb-4">Voice Knowledge Base</h3>
+              <KnowledgeBaseUpload />
             </div>
           </div>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
