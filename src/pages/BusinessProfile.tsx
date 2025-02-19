@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Header } from "@/components/business/Header";
+import { Header } from "@/components/Header";
 import { ClaimBanner } from "@/components/business/ClaimBanner";
 import { BusinessInfo } from "@/components/business/BusinessInfo";
 import { ContactInfo } from "@/components/business/ContactInfo";
