@@ -13,6 +13,8 @@ export type Database = {
         Row: {
           about_business: string | null
           address: string | null
+          ai_chatbot: Json | null
+          ai_voice_agent: Json | null
           categories: string[] | null
           created_at: string
           description: string | null
@@ -31,6 +33,8 @@ export type Database = {
         Insert: {
           about_business?: string | null
           address?: string | null
+          ai_chatbot?: Json | null
+          ai_voice_agent?: Json | null
           categories?: string[] | null
           created_at?: string
           description?: string | null
@@ -49,6 +53,8 @@ export type Database = {
         Update: {
           about_business?: string | null
           address?: string | null
+          ai_chatbot?: Json | null
+          ai_voice_agent?: Json | null
           categories?: string[] | null
           created_at?: string
           description?: string | null
