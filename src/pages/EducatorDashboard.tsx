@@ -9,83 +9,52 @@ import { VoiceSelection } from '@/components/educator/VoiceSelection';
 import { toast } from 'sonner';
 
 export default function EducatorDashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [businessProfile, setBusinessProfile] = useState(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Dashboard useEffect triggered', { user, authLoading });
-
-    // Don't do anything while auth is loading
-    if (authLoading) {
-      return;
-    }
-
-    // If no user after auth has loaded, redirect to auth
     if (!user) {
-      console.log('No user found, redirecting to auth');
       navigate('/auth');
       return;
     }
 
-    // If user is not an educator, redirect to home
     if (user.user_metadata?.user_type !== 'educator') {
-      console.log('User is not an educator, redirecting to home');
       toast.error('Access denied. This page is only for educators.');
       navigate('/');
       return;
     }
 
-    // Only fetch profile if we have a valid educator user
     const fetchProfile = async () => {
-      setLoading(true);
       try {
-        console.log('Fetching business profile for user:', user.id);
         const { data, error } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching business profile:', error);
-          setError('Failed to load profile data');
-          toast.error('Error loading profile data');
-          return;
-        }
+        if (error) throw error;
 
-        console.log('Business profile data:', data);
         setBusinessProfile(data);
         setError(null);
       } catch (error) {
-        console.error('Unexpected error:', error);
-        setError('An unexpected error occurred');
-        toast.error('Error loading dashboard');
+        console.error('Error fetching business profile:', error);
+        setError('Failed to load profile data');
+        toast.error('Error loading profile data');
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [user, authLoading, navigate]);
+  }, [user, navigate]);
 
-  // Show loading while auth is being checked
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // Show nothing while redirecting
   if (!user) {
     return null;
   }
 
-  // Show loading while fetching profile
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
