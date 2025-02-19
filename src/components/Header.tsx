@@ -19,8 +19,6 @@ interface HeaderProps {
 export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
   const { user, signOut } = useAuth();
 
-  console.log('Current user:', user); // Debug log to see user data
-
   return (
     <header>
       <div className="bg-[#333333] text-white">
@@ -55,9 +53,9 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
                       {user.profile?.user_type === 'educator' ? '👨‍🏫' : '👨‍🎓'} {user.email}
                       <ChevronDown className="h-4 w-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent className="w-56">
                       {user.profile?.user_type === 'educator' && (
-                        <DropdownMenuItem asChild>
+                        <DropdownMenuItem>
                           <Link to="/dashboard" className="w-full">
                             Dashboard
                           </Link>
