@@ -8,6 +8,7 @@ import { LessonRequests } from '@/components/educator/LessonRequests';
 import { toast } from 'sonner';
 import type { BusinessProfile } from '@/components/educator/types';
 import { Header } from '@/components/Header';
+import { Card } from '@/components/ui/card';
 
 export default function EducatorDashboard() {
   const navigate = useNavigate();
@@ -101,6 +102,9 @@ export default function EducatorDashboard() {
         <div className="grid grid-cols-1 gap-8">
           <LessonRequests />
           <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-semibold">Educator Profile</h2>
+            </div>
             <BusinessProfileForm 
               initialData={businessProfile}
               onSuccess={() => {
