@@ -57,7 +57,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         updated_at: new Date().toISOString()
       };
 
-      console.log('Starting profile submission...');
+      console.log('Starting profile submission...', { profileData, user_id: user.id });
       
       let result;
       if (initialData?.id) {
@@ -65,28 +65,29 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         result = await supabase
           .from('business_profiles')
           .update(profileData)
-          .eq('id', initialData.id);
+          .eq('id', initialData.id)
+          .select();
       } else {
         console.log('Creating new profile...');
         result = await supabase
           .from('business_profiles')
-          .insert([profileData]);
+          .insert([profileData])
+          .select();
       }
 
       if (result.error) {
-        console.error('Database operation failed:', result.error);
-        toast.error(result.error.message || 'Failed to save profile');
-        setLoading(false);
-        return;
+        throw result.error;
       }
 
       console.log('Database operation successful:', result.data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
-      setLoading(false);
-      onSuccess?.();
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: any) {
-      console.error('Unexpected error:', error);
-      toast.error('An unexpected error occurred');
+      console.error('Error in profile submission:', error);
+      toast.error(error.message || 'Failed to save profile');
+    } finally {
       setLoading(false);
     }
   };
