@@ -16,27 +16,27 @@ export default function EducatorDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      navigate('/auth');
-      return;
-    }
+    const fetchProfile = async () => {
+      if (!user) {
+        setLoading(false);
+        navigate('/auth');
+        return;
+      }
 
-    // Check if user is an educator
-    if (user.user_metadata?.user_type !== 'educator') {
-      toast.error('Access denied. This page is only for educators.');
-      setLoading(false);
-      navigate('/');
-      return;
-    }
+      if (user.user_metadata?.user_type !== 'educator') {
+        toast.error('Access denied. This page is only for educators.');
+        setLoading(false);
+        navigate('/');
+        return;
+      }
 
-    // Fetch business profile
-    supabase
-      .from('business_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle()
-      .then(({ data, error: profileError }) => {
+      try {
+        const { data, error: profileError } = await supabase
+          .from('business_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
         if (profileError) {
           setError('Failed to load profile data');
           toast.error('Error loading profile data');
@@ -65,15 +65,16 @@ export default function EducatorDashboard() {
         } else {
           setBusinessProfile(null);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Dashboard error:', err);
         setError('Failed to load profile data');
         toast.error('Error loading profile data');
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchProfile();
   }, [user, navigate]);
 
   if (!user) return null;
