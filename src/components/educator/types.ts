@@ -13,6 +13,13 @@ export interface BusinessProfile {
     facebook: string;
     instagram: string;
   };
+  ai_chatbot?: {
+    knowledge_base: string[];
+  };
+  ai_voice_agent?: {
+    knowledge_base: string[];
+    voice_id: string;
+  };
 }
 
 export interface BusinessProfileFormProps {
