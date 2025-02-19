@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
-import { Header } from "@/components/business/Header";
+import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/home/Hero";
