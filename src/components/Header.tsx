@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, GraduationCap } from "lucide-react";
 
 interface HeaderProps {
   searchQuery?: string;
@@ -55,14 +55,20 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center gap-2 text-white hover:text-gray-200">
-                        {isEducator ? '👨‍🏫' : '👨‍🎓'} {user.email}
+                        {isEducator ? (
+                          <GraduationCap className="h-4 w-4" />
+                        ) : (
+                          '👨‍🎓'
+                        )} 
+                        {user.email}
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[200px] z-50">
+                    <DropdownMenuContent align="end" className="w-[200px]">
                       {isEducator && (
                         <DropdownMenuItem asChild>
-                          <Link to="/dashboard" className="w-full cursor-pointer">
+                          <Link to="/dashboard" className="w-full cursor-pointer flex items-center gap-2">
+                            <GraduationCap className="h-4 w-4" />
                             Educator Dashboard
                           </Link>
                         </DropdownMenuItem>
