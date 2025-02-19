@@ -27,9 +27,10 @@ interface LessonRequest {
 export function LessonRequests() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<LessonRequest[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) return;
+
     const fetchRequests = async () => {
       try {
         const { data, error } = await supabase
@@ -47,7 +48,7 @@ export function LessonRequests() {
               email
             )
           `)
-          .eq('educator_id', user?.id)
+          .eq('educator_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -55,14 +56,10 @@ export function LessonRequests() {
       } catch (error) {
         console.error('Error fetching lesson requests:', error);
         toast.error('Failed to load lesson requests');
-      } finally {
-        setLoading(false);
       }
     };
 
-    if (user) {
-      fetchRequests();
-    }
+    fetchRequests();
   }, [user]);
 
   const handleReply = (requestId: string) => {
@@ -70,7 +67,8 @@ export function LessonRequests() {
     toast.info('Reply functionality coming soon!');
   };
 
-  if (loading) {
+  // Show loading state only when we don't have user data yet
+  if (!user) {
     return (
       <Card>
         <CardHeader>
