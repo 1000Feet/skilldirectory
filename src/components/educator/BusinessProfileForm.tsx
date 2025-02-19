@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import type { BusinessProfileFormProps } from './types';
 import { BasicInfoSection } from './BasicInfoSection';
 import { SocialMediaSection } from './SocialMediaSection';
+import { AIChatbotSection } from './AIChatbotSection';
+import { VoiceAgentSection } from './VoiceAgentSection';
 
 export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileFormProps) {
   const { user } = useAuth();
@@ -30,6 +32,14 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
   const handleSocialChange = (social: { facebook: string; instagram: string; youtube?: string }) => {
     setFormData(prev => ({ ...prev, social }));
+  };
+
+  const handleChatbotChange = (ai_chatbot: { knowledge_base: string[] }) => {
+    setFormData(prev => ({ ...prev, ai_chatbot }));
+  };
+
+  const handleVoiceAgentChange = (ai_voice_agent: { knowledge_base: string[], voice_id: string }) => {
+    setFormData(prev => ({ ...prev, ai_voice_agent }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,6 +106,16 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       <SocialMediaSection
         social={formData.social}
         onChange={handleSocialChange}
+      />
+
+      <AIChatbotSection
+        chatbot={formData.ai_chatbot}
+        onChange={handleChatbotChange}
+      />
+
+      <VoiceAgentSection
+        voiceAgent={formData.ai_voice_agent}
+        onChange={handleVoiceAgentChange}
       />
 
       <Button type="submit" className="w-full" disabled={loading}>
