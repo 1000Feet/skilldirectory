@@ -49,52 +49,44 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
-      console.log('Current user:', user);
-      console.log('Initial data:', initialData);
-      
       const profileData = {
         ...formData,
         user_id: user.id,
         updated_at: new Date().toISOString()
       };
 
-      console.log('Submitting profile data:', profileData);
-
+      console.log('Starting profile submission...');
+      
       let result;
       if (initialData?.id) {
-        // Update existing profile
+        console.log('Updating existing profile...');
         result = await supabase
           .from('business_profiles')
           .update(profileData)
-          .eq('id', initialData.id)
-          .select()
-          .single();
+          .eq('id', initialData.id);
       } else {
-        // Insert new profile
+        console.log('Creating new profile...');
         result = await supabase
           .from('business_profiles')
-          .insert([profileData])
-          .select()
-          .single();
+          .insert([profileData]);
       }
 
-      const { data, error } = result;
-
-      if (error) {
-        console.error('Error saving profile:', error);
-        toast.error(error.message || 'Error saving business profile');
+      if (result.error) {
+        console.error('Database operation failed:', result.error);
+        toast.error(result.error.message || 'Failed to save profile');
+        setLoading(false);
         return;
       }
 
-      console.log('Profile saved successfully:', data);
+      console.log('Database operation successful:', result.data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
+      setLoading(false);
       onSuccess?.();
     } catch (error: any) {
-      console.error('Error in form submission:', error);
-      toast.error(error.message || 'Error saving business profile');
-    } finally {
+      console.error('Unexpected error:', error);
+      toast.error('An unexpected error occurred');
       setLoading(false);
     }
   };
