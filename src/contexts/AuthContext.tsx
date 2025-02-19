@@ -86,29 +86,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         },
       });
-      
+
       if (error) throw error;
 
-      if (data.user) {
-        // Create or update profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert({
-            id: data.user.id,
-            email: email,
-            user_type: userType,
-          });
-          
-        if (profileError) {
-          console.error('Error updating profile:', profileError);
-          throw profileError;
-        }
-      }
-
+      // Success message regardless of email confirmation being required
       toast.success('Registration successful! Please check your email to verify your account.');
       navigate('/auth');
     } catch (error: any) {
       toast.error(error.message);
+      throw error;
     }
   };
 
@@ -122,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       navigate('/');
     } catch (error: any) {
       toast.error(error.message);
+      throw error;
     }
   };
 
@@ -132,6 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       navigate('/auth');
     } catch (error: any) {
       toast.error(error.message);
+      throw error;
     }
   };
 
