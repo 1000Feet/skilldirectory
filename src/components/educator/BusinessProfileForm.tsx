@@ -20,9 +20,9 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
     phone: initialData?.phone || '',
     email: initialData?.email || user?.email || '',
     about_business: initialData?.about_business || '',
-    social: initialData?.social || { facebook: '', instagram: '' },
+    social: initialData?.social || { facebook: '', instagram: '', youtube: '' },
     ai_chatbot: initialData?.ai_chatbot || { knowledge_base: [] },
-    ai_voice_agent: initialData?.ai_voice_agent || { knowledge_base: [], voice_id: 'cjVigY5qzO86Huf0OWal' } // Eric's voice ID as default
+    ai_voice_agent: initialData?.ai_voice_agent || { knowledge_base: [], voice_id: 'cjVigY5qzO86Huf0OWal' }
   });
 
   const [chatbotUrl, setChatbotUrl] = useState('');
@@ -201,6 +201,19 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
               }))}
             />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Introduction Video</Label>
+          <Input
+            placeholder="YouTube Video URL"
+            value={formData.social.youtube}
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              social: { ...prev.social, youtube: e.target.value }
+            }))}
+          />
+          <p className="text-sm text-gray-600">Add the URL of your introductory video from YouTube</p>
         </div>
       </div>
 

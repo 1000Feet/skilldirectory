@@ -12,6 +12,7 @@ export interface BusinessProfile {
   social: {
     facebook: string;
     instagram: string;
+    youtube?: string;
   };
   ai_chatbot?: {
     knowledge_base: string[];
