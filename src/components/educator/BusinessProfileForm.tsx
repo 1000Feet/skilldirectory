@@ -154,7 +154,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Saving...' : (initialData ? 'Update Profile' : 'Create Profile')}
+        {loading ? 'Saving...' : 'Update Profile'}
       </Button>
     </form>
   );
