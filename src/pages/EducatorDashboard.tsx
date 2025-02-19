@@ -16,26 +16,26 @@ export default function EducatorDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      navigate('/auth');
+      return;
+    }
+
+    if (user.user_metadata?.user_type !== 'educator') {
+      toast.error('Access denied. This page is only for educators.');
+      setLoading(false);
+      navigate('/');
+      return;
+    }
+
     const fetchProfile = async () => {
-      if (!user) {
-        setLoading(false);
-        navigate('/auth');
-        return;
-      }
-
-      if (user.user_metadata?.user_type !== 'educator') {
-        toast.error('Access denied. This page is only for educators.');
-        setLoading(false);
-        navigate('/');
-        return;
-      }
-
       try {
         const { data, error: profileError } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
-          .maybeSingle();
+          .single();
 
         if (profileError) {
           setError('Failed to load profile data');
@@ -44,10 +44,6 @@ export default function EducatorDashboard() {
         }
 
         if (data) {
-          const socialData = typeof data.social === 'string' 
-            ? JSON.parse(data.social)
-            : (data.social as { facebook: string; instagram: string } || { facebook: '', instagram: '' });
-
           setBusinessProfile({
             ...data,
             name: data.name || '',
@@ -58,12 +54,10 @@ export default function EducatorDashboard() {
             email: data.email || user.email || '',
             about_business: data.about_business || '',
             social: {
-              facebook: socialData.facebook || '',
-              instagram: socialData.instagram || ''
+              facebook: data.social?.facebook || '',
+              instagram: data.social?.instagram || ''
             }
           });
-        } else {
-          setBusinessProfile(null);
         }
       } catch (err) {
         console.error('Dashboard error:', err);
