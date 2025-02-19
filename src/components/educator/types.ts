@@ -1,13 +1,13 @@
 
 export interface BusinessProfile {
   id?: string;
-  name?: string;
+  name: string;
   description?: string;
   image?: string;
   website?: string;
   address?: string;
   phone?: string;
-  email?: string;
+  email: string;
   categories?: string[];
   tags?: string[];
   social?: {
@@ -15,6 +15,10 @@ export interface BusinessProfile {
     instagram: string;
   };
   about_business?: string;
+  user_id?: string;
+  subscription_tier?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface BusinessProfileFormProps {

@@ -41,7 +41,19 @@ export default function EducatorDashboard() {
           throw profileError;
         }
 
-        setBusinessProfile(data);
+        // Transform the social data to ensure it matches our type
+        if (data) {
+          const transformedData: BusinessProfile = {
+            ...data,
+            social: typeof data.social === 'object' ? data.social as { facebook: string; instagram: string } : {
+              facebook: '',
+              instagram: ''
+            }
+          };
+          setBusinessProfile(transformedData);
+        } else {
+          setBusinessProfile(null);
+        }
         setError(null);
       } catch (err) {
         console.error('Dashboard error:', err);
