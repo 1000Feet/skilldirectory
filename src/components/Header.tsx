@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, GraduationCap } from "lucide-react";
+import { ChevronDown, GraduationCap, User } from "lucide-react";
 
 interface HeaderProps {
   searchQuery?: string;
@@ -22,6 +22,7 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
   console.log('Current user in header:', user?.user_metadata);
 
   const isEducator = user?.user_metadata?.user_type === 'educator';
+  const isStudent = user?.user_metadata?.user_type === 'student';
 
   return (
     <header className="relative z-50">
@@ -55,7 +56,11 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center gap-2 text-white hover:text-gray-200">
-                        <GraduationCap className="h-4 w-4" />
+                        {isEducator ? (
+                          <GraduationCap className="h-4 w-4" />
+                        ) : (
+                          <User className="h-4 w-4" />
+                        )}
                         {user.email}
                         <ChevronDown className="h-4 w-4" />
                       </Button>
@@ -66,6 +71,14 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
                           <Link to="/dashboard" className="w-full cursor-pointer flex items-center gap-2">
                             <GraduationCap className="h-4 w-4" />
                             Educator Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      {isStudent && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/student-dashboard" className="w-full cursor-pointer flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            Student Dashboard
                           </Link>
                         </DropdownMenuItem>
                       )}
