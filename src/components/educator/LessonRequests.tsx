@@ -30,7 +30,10 @@ export function LessonRequests() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const fetchRequests = async () => {
       try {
@@ -46,7 +49,8 @@ export function LessonRequests() {
               email
             )
           `)
-          .eq('educator_id', user.id);
+          .eq('educator_id', user.id)
+          .order('created_at', { ascending: false });
 
         if (error) {
           console.error('Error details:', error);
@@ -63,13 +67,40 @@ export function LessonRequests() {
       }
     };
 
+    // Initial fetch
     fetchRequests();
+
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('lesson_requests_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lesson_requests',
+          filter: `educator_id=eq.${user.id}`,
+        },
+        () => {
+          fetchRequests();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [user]);
 
   const handleReply = (requestId: string) => {
     // This will be implemented later when we add the reply functionality
     toast.info('Reply functionality coming soon!');
   };
+
+  if (!user) {
+    return null;
+  }
 
   if (loading) {
     return (
