@@ -75,32 +75,34 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
       console.log('Submitting profile with data:', profileData);
 
-      let result;
-      
-      if (initialData?.id) {
-        result = await supabase
-          .from('business_profiles')
-          .update(profileData)
-          .eq('id', initialData.id)
-          .select()
-          .maybeSingle();
-      } else {
-        result = await supabase
-          .from('business_profiles')
-          .insert([profileData])
-          .select()
-          .maybeSingle();
+      let { data, error } = initialData?.id 
+        ? await supabase
+            .from('business_profiles')
+            .update(profileData)
+            .eq('id', initialData.id)
+            .select()
+            .maybeSingle()
+        : await supabase
+            .from('business_profiles')
+            .insert([profileData])
+            .select()
+            .maybeSingle();
+
+      console.log('Supabase response:', { data, error });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
       }
 
-      if (result.error) {
-        throw result.error;
-      }
-
-      if (!result.data) {
+      if (!data) {
+        console.error('No data returned from Supabase');
         throw new Error('Failed to save profile data');
       }
 
+      console.log('Profile saved successfully:', data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
+      
       if (onSuccess) {
         onSuccess();
       }
