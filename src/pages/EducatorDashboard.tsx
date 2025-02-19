@@ -7,28 +7,29 @@ import { BusinessProfileForm } from '@/components/educator/BusinessProfileForm';
 import { KnowledgeBaseUpload } from '@/components/educator/KnowledgeBaseUpload';
 import { VoiceSelection } from '@/components/educator/VoiceSelection';
 import { toast } from 'sonner';
+import type { BusinessProfile } from '@/components/educator/types';
 
 export default function EducatorDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [businessProfile, setBusinessProfile] = useState(null);
+  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAuthAndFetchProfile = async () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    if (user.user_metadata?.user_type !== 'educator') {
+      toast.error('Access denied. This page is only for educators.');
+      navigate('/');
+      return;
+    }
+
+    const fetchBusinessProfile = async () => {
       try {
-        if (!user) {
-          navigate('/auth');
-          return;
-        }
-
-        if (user.user_metadata?.user_type !== 'educator') {
-          toast.error('Access denied. This page is only for educators.');
-          navigate('/');
-          return;
-        }
-
         const { data, error: profileError } = await supabase
           .from('business_profiles')
           .select('*')
@@ -51,10 +52,13 @@ export default function EducatorDashboard() {
       }
     };
 
-    checkAuthAndFetchProfile();
+    fetchBusinessProfile();
   }, [user, navigate]);
 
-  // Show initial loading state
+  if (!user) {
+    return null;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -63,7 +67,6 @@ export default function EducatorDashboard() {
     );
   }
 
-  // Show error state if something went wrong
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -73,11 +76,6 @@ export default function EducatorDashboard() {
         </div>
       </div>
     );
-  }
-
-  // Return null if no user (will redirect)
-  if (!user) {
-    return null;
   }
 
   return (
