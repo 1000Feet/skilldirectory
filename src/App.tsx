@@ -14,6 +14,7 @@ import ListingsPage from "./pages/Listings";
 import SupportPage from "./pages/Support";
 import NotFound from "./pages/NotFound";
 import EducatorDashboard from "./pages/EducatorDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/about" element={<AboutPage />} />
             <Route path="/support" element={<SupportPage />} />
             <Route path="/dashboard" element={<EducatorDashboard />} />
+            <Route path="/student-dashboard" element={<StudentDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
