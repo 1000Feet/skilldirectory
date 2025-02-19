@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session);
       if (session) {
         setUser({
           id: session.user.id,
@@ -116,12 +117,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      console.log('Signing out...');
+      // First clear the user state
+      setUser(null);
+      
+      // Then sign out from Supabase
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setUser(null); // Explicitly clear user state
+      if (error) {
+        console.error('Supabase sign out error:', error);
+        throw error;
+      }
+      
+      console.log('Successfully signed out from Supabase');
       toast.success('Signed out successfully');
-      navigate('/auth');
+      
+      // Finally navigate to auth page
+      console.log('Navigating to auth page...');
+      navigate('/auth', { replace: true });
     } catch (error: any) {
+      console.error('Sign out error:', error);
       toast.error(error.message);
       throw error;
     }
