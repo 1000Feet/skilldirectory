@@ -10,15 +10,11 @@ import { Header } from '@/components/Header';
 
 export default function EducatorDashboard() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Wait for auth to be initialized before making any navigation decisions
-    if (authLoading) return;
-
     if (!user) {
       navigate('/auth');
       return;
@@ -65,16 +61,13 @@ export default function EducatorDashboard() {
         console.error('Dashboard error:', err);
         setError('Failed to load profile data');
         toast.error('Error loading profile data');
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [user, authLoading, navigate]);
+  }, [user, navigate]);
 
-  // Show loading state while auth is being checked
-  if (authLoading || loading) {
+  if (!user) {
     return (
       <>
         <Header />
@@ -84,9 +77,6 @@ export default function EducatorDashboard() {
       </>
     );
   }
-
-  // Only check user after auth loading is complete
-  if (!user) return null;
 
   if (error) {
     return (
