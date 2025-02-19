@@ -35,7 +35,7 @@ export default function EducatorDashboard() {
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError) {
           setError('Failed to load profile data');
@@ -44,33 +44,20 @@ export default function EducatorDashboard() {
         }
 
         if (data) {
-          // Parse social data safely
-          let socialData = { facebook: '', instagram: '' };
-          if (data.social) {
-            if (typeof data.social === 'string') {
-              try {
-                socialData = JSON.parse(data.social);
-              } catch (e) {
-                console.error('Error parsing social data:', e);
-              }
-            } else if (typeof data.social === 'object') {
-              socialData = {
-                facebook: (data.social as any).facebook || '',
-                instagram: (data.social as any).instagram || ''
-              };
-            }
-          }
-
           setBusinessProfile({
-            ...data,
-            name: data.name || '',
+            id: data.id,
+            user_id: data.user_id,
+            name: data.name,
             description: data.description || '',
             website: data.website || '',
             address: data.address || '',
             phone: data.phone || '',
             email: data.email || user.email || '',
             about_business: data.about_business || '',
-            social: socialData
+            social: {
+              facebook: '',
+              instagram: ''
+            }
           });
         }
       } catch (err) {
