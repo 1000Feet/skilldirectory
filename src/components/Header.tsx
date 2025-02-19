@@ -55,11 +55,7 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center gap-2 text-white hover:text-gray-200">
-                        {isEducator ? (
-                          <GraduationCap className="h-4 w-4" />
-                        ) : (
-                          '👨‍🎓'
-                        )} 
+                        <GraduationCap className="h-4 w-4" />
                         {user.email}
                         <ChevronDown className="h-4 w-4" />
                       </Button>
