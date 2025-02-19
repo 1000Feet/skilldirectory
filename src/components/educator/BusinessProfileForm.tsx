@@ -30,29 +30,45 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast.error('You must be logged in to update your profile');
+      return;
+    }
 
     try {
       setLoading(true);
       const profileData = {
         ...formData,
         user_id: user.id,
+        updated_at: new Date().toISOString()
       };
 
-      const { error } = initialData?.id
+      console.log('Submitting profile data:', profileData);
+
+      const { data, error } = initialData?.id
         ? await supabase
             .from('business_profiles')
             .update(profileData)
             .eq('id', initialData.id)
+            .select()
+            .single()
         : await supabase
             .from('business_profiles')
-            .insert([profileData]);
+            .insert([profileData])
+            .select()
+            .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving profile:', error);
+        throw error;
+      }
+
+      console.log('Profile saved successfully:', data);
       onSuccess?.();
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
     } catch (error: any) {
-      toast.error('Error saving business profile');
+      console.error('Error in form submission:', error);
+      toast.error(error.message || 'Error saving business profile');
     } finally {
       setLoading(false);
     }
@@ -308,4 +324,4 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       </Button>
     </form>
   );
-}
+};
