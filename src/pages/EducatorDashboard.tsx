@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { BusinessProfileForm } from '@/components/educator/BusinessProfileForm';
-import { KnowledgeBaseUpload } from '@/components/educator/KnowledgeBaseUpload';
-import { VoiceSelection } from '@/components/educator/VoiceSelection';
 import { toast } from 'sonner';
 
 export default function EducatorDashboard() {
@@ -61,17 +59,6 @@ export default function EducatorDashboard() {
               toast.success('Business profile updated successfully');
             }}
           />
-          
-          <div className="space-y-8">
-            <h2 className="text-2xl font-semibold">AI Chatbot</h2>
-            <KnowledgeBaseUpload />
-          </div>
-
-          <div className="space-y-8">
-            <h2 className="text-2xl font-semibold">AI Voice Agent</h2>
-            <VoiceSelection />
-            <KnowledgeBaseUpload />
-          </div>
         </div>
       </div>
     </div>

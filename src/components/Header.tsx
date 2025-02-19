@@ -52,11 +52,11 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
                 <div className="flex items-center gap-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center gap-2 text-white hover:text-gray-200">
-                      {user.user_metadata?.user_type === 'educator' ? '👨‍🏫' : '👨‍🎓'} {user.email}
+                      {user.profile?.user_type === 'educator' ? '👨‍🏫' : '👨‍🎓'} {user.email}
                       <ChevronDown className="h-4 w-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {user.user_metadata?.user_type === 'educator' && (
+                      {user.profile?.user_type === 'educator' && (
                         <DropdownMenuItem asChild>
                           <Link to="/dashboard" className="w-full">
                             Dashboard
