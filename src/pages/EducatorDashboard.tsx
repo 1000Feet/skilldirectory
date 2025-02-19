@@ -16,26 +16,34 @@ export default function EducatorDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      navigate('/auth');
-      return;
-    }
+    let isMounted = true;
 
-    if (user.user_metadata?.user_type !== 'educator') {
-      toast.error('Access denied. This page is only for educators.');
-      setLoading(false);
-      navigate('/');
-      return;
-    }
+    const checkAuth = async () => {
+      if (!user) {
+        if (isMounted) {
+          setLoading(false);
+          navigate('/auth');
+        }
+        return;
+      }
 
-    const fetchProfile = async () => {
+      if (user.user_metadata?.user_type !== 'educator') {
+        if (isMounted) {
+          toast.error('Access denied. This page is only for educators.');
+          setLoading(false);
+          navigate('/');
+        }
+        return;
+      }
+
       try {
         const { data, error: profileError } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
+
+        if (!isMounted) return;
 
         if (profileError) {
           setError('Failed to load profile data');
@@ -44,46 +52,41 @@ export default function EducatorDashboard() {
         }
 
         if (data) {
-          // Parse social data safely
-          let socialData = { facebook: '', instagram: '' };
-          if (data.social) {
-            if (typeof data.social === 'string') {
-              try {
-                socialData = JSON.parse(data.social);
-              } catch (e) {
-                console.error('Error parsing social data:', e);
-              }
-            } else if (typeof data.social === 'object') {
-              socialData = {
-                facebook: (data.social as any).facebook || '',
-                instagram: (data.social as any).instagram || ''
-              };
-            }
-          }
-
           setBusinessProfile({
-            ...data,
-            name: data.name || '',
+            id: data.id,
+            user_id: data.user_id,
+            name: data.name,
             description: data.description || '',
             website: data.website || '',
             address: data.address || '',
             phone: data.phone || '',
             email: data.email || user.email || '',
             about_business: data.about_business || '',
-            social: socialData
+            social: {
+              facebook: '',
+              instagram: ''
+            }
           });
         }
       } catch (err) {
-        console.error('Dashboard error:', err);
-        setError('Failed to load profile data');
-        toast.error('Error loading profile data');
+        if (isMounted) {
+          console.error('Dashboard error:', err);
+          setError('Failed to load profile data');
+          toast.error('Error loading profile data');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchProfile();
-  }, [user, navigate]);
+    checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, navigate]); // Only depend on user.id instead of entire user object
 
   if (!user) return null;
 
