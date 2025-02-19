@@ -49,37 +49,43 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       return;
     }
 
+    // Validate required fields
+    if (!formData.name || !formData.email) {
+      toast.error('Name and email are required');
+      return;
+    }
+
     setLoading(true);
     try {
       const profileData = {
-        ...formData,
-        user_id: user.id,
-        updated_at: new Date().toISOString()
+        name: formData.name,
+        description: formData.description,
+        website: formData.website,
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+        about_business: formData.about_business,
+        social: formData.social,
+        ai_chatbot: formData.ai_chatbot,
+        ai_voice_agent: formData.ai_voice_agent,
+        user_id: user.id
       };
 
-      console.log('Starting profile submission...', { profileData, user_id: user.id });
-      
-      let result;
-      if (initialData?.id) {
-        console.log('Updating existing profile...');
-        result = await supabase
-          .from('business_profiles')
-          .update(profileData)
-          .eq('id', initialData.id)
-          .select();
-      } else {
-        console.log('Creating new profile...');
-        result = await supabase
-          .from('business_profiles')
-          .insert([profileData])
-          .select();
+      console.log('Submitting profile with data:', profileData);
+
+      const { error } = initialData?.id 
+        ? await supabase
+            .from('business_profiles')
+            .update(profileData)
+            .eq('id', initialData.id)
+        : await supabase
+            .from('business_profiles')
+            .insert([profileData]);
+
+      if (error) {
+        throw error;
       }
 
-      if (result.error) {
-        throw result.error;
-      }
-
-      console.log('Database operation successful:', result.data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
       if (onSuccess) {
         onSuccess();
