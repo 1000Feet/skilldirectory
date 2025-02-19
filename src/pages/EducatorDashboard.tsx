@@ -17,18 +17,26 @@ export default function EducatorDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Debug logging
+    console.log('Auth state:', { user, userType: user?.user_metadata?.user_type });
+
     if (!user) {
+      console.log('No user found, redirecting to auth page');
+      setLoading(false);
       navigate('/auth');
       return;
     }
 
     if (user.user_metadata?.user_type !== 'educator') {
+      console.log('User is not an educator, redirecting to home');
       toast.error('Access denied. This page is only for educators.');
+      setLoading(false);
       navigate('/');
       return;
     }
 
     const fetchBusinessProfile = async () => {
+      console.log('Fetching business profile for user:', user.id);
       try {
         const { data, error: profileError } = await supabase
           .from('business_profiles')
@@ -40,6 +48,8 @@ export default function EducatorDashboard() {
           console.error('Error fetching business profile:', profileError);
           throw profileError;
         }
+
+        console.log('Received profile data:', data);
 
         // Transform the social data to ensure it matches our type
         if (data) {
@@ -60,6 +70,7 @@ export default function EducatorDashboard() {
         setError('Failed to load profile data');
         toast.error('Error loading profile data');
       } finally {
+        console.log('Setting loading to false');
         setLoading(false);
       }
     };
@@ -67,11 +78,16 @@ export default function EducatorDashboard() {
     fetchBusinessProfile();
   }, [user, navigate]);
 
+  // Debug loading state
+  console.log('Current loading state:', loading);
+
   if (!user) {
+    console.log('Rendering null due to no user');
     return null;
   }
 
   if (loading) {
+    console.log('Rendering loading state');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -80,6 +96,7 @@ export default function EducatorDashboard() {
   }
 
   if (error) {
+    console.log('Rendering error state:', error);
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -90,6 +107,7 @@ export default function EducatorDashboard() {
     );
   }
 
+  console.log('Rendering dashboard with profile:', businessProfile);
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto py-8">
