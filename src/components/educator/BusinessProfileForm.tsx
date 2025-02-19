@@ -69,8 +69,8 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         ai_chatbot: formData.ai_chatbot,
         ai_voice_agent: formData.ai_voice_agent,
         user_id: user.id,
-        categories: [], // Add default empty array for categories
-        tags: [] // Add default empty array for tags
+        categories: [],
+        tags: []
       };
 
       console.log('Submitting profile with data:', profileData);
@@ -83,17 +83,21 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
           .update(profileData)
           .eq('id', initialData.id)
           .select()
-          .single();
+          .maybeSingle();
       } else {
         result = await supabase
           .from('business_profiles')
           .insert([profileData])
           .select()
-          .single();
+          .maybeSingle();
       }
 
       if (result.error) {
         throw result.error;
+      }
+
+      if (!result.data) {
+        throw new Error('Failed to save profile data');
       }
 
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
