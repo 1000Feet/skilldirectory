@@ -91,7 +91,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Success message regardless of email confirmation being required
       toast.success('Registration successful! Please check your email to verify your account.');
-      navigate('/auth');
+      
+      // Don't navigate away if email confirmation is required
+      if (!data?.user?.confirmation_sent_at) {
+        navigate('/');
+      }
     } catch (error: any) {
       toast.error(error.message);
       throw error;
