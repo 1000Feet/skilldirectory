@@ -28,10 +28,6 @@ const featuredEducators = [{
   category: "Agriculture"
 }];
 
-const getImagePath = (image: string) => {
-  return `/skilldirectory2${image}`;
-};
-
 export const FeaturedEducators = () => {
   return (
     <section className="py-12 bg-white">
@@ -51,7 +47,7 @@ export const FeaturedEducators = () => {
                   <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
                     <div className="relative h-48 w-full">
                       <img 
-                        src={getImagePath(educator.image)} 
+                        src={educator.image} 
                         alt={educator.name} 
                         className="w-full h-full object-cover" 
                       />
