@@ -27,6 +27,7 @@ export function BasicInfoSection({ info, onChange }: BasicInfoSectionProps) {
           id="businessName"
           value={info.name}
           onChange={(e) => onChange('name', e.target.value)}
+          className="bg-white focus:bg-white"
           required
         />
       </div>
@@ -37,6 +38,7 @@ export function BasicInfoSection({ info, onChange }: BasicInfoSectionProps) {
           id="description"
           value={info.description}
           onChange={(e) => onChange('description', e.target.value)}
+          className="bg-white focus:bg-white"
           required
         />
       </div>
@@ -48,6 +50,7 @@ export function BasicInfoSection({ info, onChange }: BasicInfoSectionProps) {
           type="url"
           value={info.website}
           onChange={(e) => onChange('website', e.target.value)}
+          className="bg-white focus:bg-white"
         />
       </div>
 
@@ -57,6 +60,7 @@ export function BasicInfoSection({ info, onChange }: BasicInfoSectionProps) {
           id="address"
           value={info.address}
           onChange={(e) => onChange('address', e.target.value)}
+          className="bg-white focus:bg-white"
           required
         />
       </div>
@@ -69,6 +73,7 @@ export function BasicInfoSection({ info, onChange }: BasicInfoSectionProps) {
             type="tel"
             value={info.phone}
             onChange={(e) => onChange('phone', e.target.value)}
+            className="bg-white focus:bg-white"
             required
           />
         </div>
@@ -80,6 +85,7 @@ export function BasicInfoSection({ info, onChange }: BasicInfoSectionProps) {
             type="email"
             value={info.email}
             onChange={(e) => onChange('email', e.target.value)}
+            className="bg-white focus:bg-white"
             required
           />
         </div>
@@ -91,7 +97,7 @@ export function BasicInfoSection({ info, onChange }: BasicInfoSectionProps) {
           id="aboutBusiness"
           value={info.about_business}
           onChange={(e) => onChange('about_business', e.target.value)}
-          className="h-32"
+          className="h-32 bg-white focus:bg-white"
         />
       </div>
     </div>
