@@ -80,6 +80,64 @@ export type Database = {
           },
         ]
       }
+      lesson_requests: {
+        Row: {
+          business_profile_id: string
+          created_at: string
+          educator_id: string
+          id: string
+          message: string | null
+          proposed_date: string
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          business_profile_id: string
+          created_at?: string
+          educator_id: string
+          id?: string
+          message?: string | null
+          proposed_date: string
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          business_profile_id?: string
+          created_at?: string
+          educator_id?: string
+          id?: string
+          message?: string | null
+          proposed_date?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_requests_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_requests_educator_id_fkey"
+            columns: ["educator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
