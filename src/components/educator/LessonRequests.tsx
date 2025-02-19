@@ -35,8 +35,17 @@ export function LessonRequests() {
         const { data, error } = await supabase
           .from('lesson_requests')
           .select(`
-            *,
-            student:profiles(id, first_name, last_name, email)
+            id,
+            student_id,
+            proposed_date,
+            status,
+            message,
+            student:profiles!lesson_requests_student_id_fkey(
+              id,
+              first_name,
+              last_name,
+              email
+            )
           `)
           .eq('educator_id', user?.id)
           .order('created_at', { ascending: false });
