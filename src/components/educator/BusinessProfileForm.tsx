@@ -72,15 +72,18 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         tags: []
       };
 
-      let query = supabase.from('business_profiles');
-
-      if (initialData?.id) {
-        query = query.update(profileData).eq('id', initialData.id);
-      } else {
-        query = query.insert([profileData]);
-      }
-
-      const { data, error } = await query.select().maybeSingle();
+      const { data, error } = initialData?.id 
+        ? await supabase
+            .from('business_profiles')
+            .update(profileData)
+            .eq('id', initialData.id)
+            .select()
+            .maybeSingle()
+        : await supabase
+            .from('business_profiles')
+            .insert([profileData])
+            .select()
+            .maybeSingle();
 
       if (error) {
         throw error;
