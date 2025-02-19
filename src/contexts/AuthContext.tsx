@@ -90,13 +90,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
 
       if (data.user) {
+        // Create or update profile
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({ user_type: userType })
-          .eq('id', data.user.id);
+          .upsert({
+            id: data.user.id,
+            email: email,
+            user_type: userType,
+          });
           
         if (profileError) {
           console.error('Error updating profile:', profileError);
+          throw profileError;
         }
       }
 
