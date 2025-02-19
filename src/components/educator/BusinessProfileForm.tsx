@@ -108,9 +108,10 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
     <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 rounded-lg shadow">
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Business Name *</Label>
+          <Label htmlFor="businessName">Business Name *</Label>
           <Input
-            id="name"
+            id="businessName"
+            name="businessName"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
             required
@@ -121,6 +122,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
           <Label htmlFor="description">Short Description *</Label>
           <Textarea
             id="description"
+            name="description"
             value={formData.description}
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             required
@@ -128,7 +130,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         </div>
 
         <div className="space-y-2">
-          <Label>Business Image</Label>
+          <Label htmlFor="imageUpload">Business Image</Label>
           <div className="flex items-center gap-4">
             {formData.image && (
               <img 
@@ -149,6 +151,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
               </Button>
               <input
                 id="imageUpload"
+                name="imageUpload"
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
@@ -162,6 +165,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
           <Label htmlFor="website">Website</Label>
           <Input
             id="website"
+            name="website"
             type="url"
             value={formData.website}
             onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
@@ -172,6 +176,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
           <Label htmlFor="address">Address *</Label>
           <Input
             id="address"
+            name="address"
             value={formData.address}
             onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
             required
@@ -183,6 +188,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
             <Label htmlFor="phone">Phone *</Label>
             <Input
               id="phone"
+              name="phone"
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
@@ -194,6 +200,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
             <Label htmlFor="email">Email *</Label>
             <Input
               id="email"
+              name="email"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
@@ -203,9 +210,10 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="about">About Your Business</Label>
+          <Label htmlFor="aboutBusiness">About Your Business</Label>
           <Textarea
-            id="about"
+            id="aboutBusiness"
+            name="aboutBusiness"
             value={formData.about_business}
             onChange={(e) => setFormData(prev => ({ ...prev, about_business: e.target.value }))}
             className="h-32"
@@ -216,6 +224,8 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
           <Label>Social Media</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
+              id="facebook"
+              name="facebook"
               placeholder="Facebook URL"
               value={formData.social.facebook}
               onChange={(e) => setFormData(prev => ({
@@ -224,6 +234,8 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
               }))}
             />
             <Input
+              id="instagram"
+              name="instagram"
               placeholder="Instagram URL"
               value={formData.social.instagram}
               onChange={(e) => setFormData(prev => ({
