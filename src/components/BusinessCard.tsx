@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { RequestLessonForm } from "@/components/student/RequestLessonForm";
 
 interface BusinessCardProps {
   name: string;
@@ -9,9 +9,19 @@ interface BusinessCardProps {
   distance: string;
   image: string;
   id?: number;
+  educator_id?: string;
+  educator_profile_id?: string;
 }
 
-export function BusinessCard({ name, description, distance, image, id }: BusinessCardProps) {
+export function BusinessCard({ 
+  name, 
+  description, 
+  distance, 
+  image, 
+  id,
+  educator_id,
+  educator_profile_id 
+}: BusinessCardProps) {
   return (
     <Card className="flex overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="w-48 h-48 flex-shrink-0 bg-gray-100 p-4">
@@ -30,9 +40,20 @@ export function BusinessCard({ name, description, distance, image, id }: Busines
           <span className="inline-flex items-center rounded-full bg-gray-600 px-3 py-1 text-sm text-white">
             {distance} Miles Away
           </span>
-          <Button variant="default" className="bg-primary hover:bg-primary/90" asChild>
-            <Link to={`/business/${id}`}>DETAILS</Link>
-          </Button>
+          <div className="flex gap-2">
+            <Link 
+              to={`/business/${id}`} 
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              DETAILS
+            </Link>
+            {educator_id && educator_profile_id && (
+              <RequestLessonForm 
+                educatorId={educator_id} 
+                educatorProfileId={educator_profile_id}
+              />
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
