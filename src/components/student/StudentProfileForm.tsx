@@ -28,6 +28,17 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+interface StudentProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  avatar_url: string | null;
+  user_type: 'student' | 'educator';
+}
+
 export function StudentProfileForm() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -49,7 +60,7 @@ export function StudentProfileForm() {
     const fetchProfile = async () => {
       try {
         const { data, error } = await supabase
-          .from("profiles")
+          .from("student_profiles")
           .select("*")
           .eq("id", user.id)
           .single();
@@ -81,7 +92,7 @@ export function StudentProfileForm() {
 
     try {
       const { error } = await supabase
-        .from("profiles")
+        .from("student_profiles")
         .update({
           first_name: values.first_name,
           last_name: values.last_name,
