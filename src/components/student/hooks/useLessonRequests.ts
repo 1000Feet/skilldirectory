@@ -24,8 +24,7 @@ export function useLessonRequests(userId: string | undefined) {
             educator:educator_profiles!lesson_requests_educator_profile_id_fkey(
               id,
               email,
-              first_name,
-              last_name
+              name
             )
           `)
           .eq('student_id', userId)
