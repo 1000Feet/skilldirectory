@@ -46,10 +46,12 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
     e.preventDefault();
     
     if (loading) {
+      console.log('Already submitting, please wait...');
       return;
     }
 
     try {
+      console.log('Starting form submission with user:', user?.id);
       setLoading(true);
 
       if (!user) {
@@ -76,24 +78,50 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         tags: []
       };
 
-      const query = initialData?.id 
-        ? supabase
-            .from('business_profiles')
-            .update(profileData)
-            .eq('id', initialData.id)
-        : supabase
-            .from('business_profiles')
-            .insert([profileData]);
+      console.log('Attempting to save profile data:', profileData);
 
-      const { data, error } = await query.select().maybeSingle();
+      // First, check if a profile already exists for this user
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('business_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
+      if (checkError) {
+        console.error('Error checking existing profile:', checkError);
+        throw checkError;
+      }
+
+      let result;
+      if (existingProfile?.id || initialData?.id) {
+        const id = initialData?.id || existingProfile?.id;
+        console.log('Updating existing profile:', id);
+        result = await supabase
+          .from('business_profiles')
+          .update(profileData)
+          .eq('id', id)
+          .select()
+          .maybeSingle();
+      } else {
+        console.log('Creating new profile');
+        result = await supabase
+          .from('business_profiles')
+          .insert([profileData])
+          .select()
+          .maybeSingle();
+      }
+
+      const { data, error } = result;
+      
       if (error) {
+        console.error('Database operation failed:', error);
         if (error.code === '42501') {
           throw new Error('Permission denied. Please check if you are logged in.');
         }
         throw error;
       }
 
+      console.log('Operation successful, data:', data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
       
       if (onSuccess) {
