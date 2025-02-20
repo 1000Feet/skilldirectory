@@ -105,6 +105,10 @@ export function LessonRequests() {
     };
   }, [user]);
 
+  const handleReply = (requestId: string) => {
+    toast.info('Reply functionality coming soon!');
+  };
+
   if (!user) {
     return null;
   }
