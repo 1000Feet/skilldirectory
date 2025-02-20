@@ -10,6 +10,7 @@ export function useLessonRequests(userId: string | undefined) {
 
   useEffect(() => {
     if (!userId) {
+      console.log('No user ID provided');
       setLoading(false);
       return;
     }
@@ -23,8 +24,8 @@ export function useLessonRequests(userId: string | undefined) {
             *,
             educator:educator_profiles!lesson_requests_educator_profile_id_fkey(
               id,
-              email,
-              name
+              name,
+              email
             )
           `)
           .eq('student_id', userId)
@@ -35,7 +36,7 @@ export function useLessonRequests(userId: string | undefined) {
           throw error;
         }
 
-        console.log('Fetched lesson requests:', data);
+        console.log('Fetched lesson requests data:', data);
         setRequests(data as LessonRequest[]);
       } catch (error: any) {
         console.error('Failed to load lesson requests:', error);

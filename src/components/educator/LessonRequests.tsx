@@ -31,10 +31,7 @@ export function LessonRequests() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('LessonRequests mounted, user:', user);
-    
     if (!user) {
-      console.log('No user found, stopping fetch');
       setLoading(false);
       return;
     }
@@ -42,41 +39,12 @@ export function LessonRequests() {
     const fetchRequests = async () => {
       try {
         setLoading(true);
-        setError(null);
-        console.log('Starting fetch for educator:', user.id);
+        console.log('Fetching requests for educator:', user.id);
 
-        // Get current session to verify auth state
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('Current session:', session);
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          throw sessionError;
-        }
-
-        // Verify user's role
-        const { data: profileData, error: profileError } = await supabase
-          .from('student_profiles')
-          .select('user_type, email')
-          .eq('id', user.id)
-          .single();
-
-        if (profileError) {
-          console.error('Profile fetch error:', profileError);
-          throw profileError;
-        }
-
-        console.log('User profile:', profileData);
-
-        // Fetch lesson requests
         const { data, error } = await supabase
           .from('lesson_requests')
           .select(`
-            id,
-            student_id,
-            proposed_date,
-            status,
-            message,
+            *,
             student:student_profiles!lesson_requests_student_id_fkey(
               id,
               first_name,
@@ -88,15 +56,15 @@ export function LessonRequests() {
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Lesson requests fetch error:', error);
+          console.error('Error fetching lesson requests:', error);
           throw error;
         }
 
         console.log('Fetched lesson requests:', data);
-        setRequests(Array.isArray(data) ? data : []);
+        setRequests(data);
       } catch (error: any) {
-        console.error('Error in fetchRequests:', error);
-        setError(error.message || 'Failed to load lesson requests');
+        console.error('Failed to load lesson requests:', error);
+        setError(error.message);
         toast.error('Failed to load lesson requests');
       } finally {
         setLoading(false);
@@ -107,7 +75,7 @@ export function LessonRequests() {
 
     // Set up real-time subscription
     const channel = supabase
-      .channel('lesson_requests_changes')
+      .channel('educator_lesson_requests_changes')
       .on(
         'postgres_changes',
         {
@@ -128,32 +96,9 @@ export function LessonRequests() {
     };
   }, [user]);
 
-  const handleReply = (requestId: string) => {
-    toast.info('Reply functionality coming soon!');
-  };
-
   if (!user) {
-    console.log('Rendering null - no user');
     return null;
   }
-
-  if (error) {
-    console.log('Rendering error state:', error);
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Lesson Requests</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-4 text-red-600">
-            {error}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  console.log('Rendering main component. Loading:', loading, 'Requests:', requests);
 
   return (
     <Card>
@@ -164,6 +109,10 @@ export function LessonRequests() {
         {loading ? (
           <div className="flex items-center justify-center p-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-4 text-red-600">
+            {error}
           </div>
         ) : requests.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
@@ -189,11 +138,15 @@ export function LessonRequests() {
                   {request.message && (
                     <p className="text-sm mt-2">{request.message}</p>
                   )}
+                  <p className="text-sm font-medium mt-2 capitalize">
+                    Status: {request.status}
+                  </p>
                 </div>
                 <Button
-                  onClick={() => handleReply(request.id)}
-                  className="ml-4"
+                  variant="outline"
                   size="sm"
+                  className="ml-4"
+                  onClick={() => toast.info('Reply functionality coming soon!')}
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Reply
