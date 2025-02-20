@@ -56,46 +56,80 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     }
 
     setIsSubmitting(true);
+    console.log('Starting form submission...');
 
     try {
+      // First verify the user's auth status
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        throw new Error(`Session verification failed: ${sessionError.message}`);
+      }
+      if (!session) {
+        throw new Error('No active session found');
+      }
+
       const profileData = {
         user_id: user.id,
-        name: formData.name,
-        description: formData.description,
-        website: formData.website || null,
-        address: formData.address || null,
-        phone: formData.phone || null,
-        email: formData.email,
-        about_business: formData.about_business || null,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        website: formData.website.trim() || null,
+        address: formData.address.trim() || null,
+        phone: formData.phone.trim() || null,
+        email: formData.email.trim(),
+        about_business: formData.about_business.trim() || null,
         social: formData.social,
         ai_chatbot: formData.ai_chatbot,
         ai_voice_agent: formData.ai_voice_agent
       };
 
-      console.log('Submitting profile data:', profileData);
-      
-      const { data, error } = await supabase
-        .from('educator_profiles')
-        .upsert([profileData], {
-          onConflict: 'user_id'
-        })
-        .select()
-        .single();
+      console.log('Attempting to save profile with data:', profileData);
 
-      if (error) {
-        console.error('Error creating profile:', error);
-        throw error;
+      // First check if profile exists
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('educator_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Error checking existing profile:', checkError);
+        throw checkError;
       }
 
-      console.log('Profile created successfully:', data);
+      let result;
+      if (existingProfile) {
+        // Update existing profile
+        console.log('Updating existing profile...');
+        result = await supabase
+          .from('educator_profiles')
+          .update(profileData)
+          .eq('user_id', user.id)
+          .select()
+          .single();
+      } else {
+        // Insert new profile
+        console.log('Creating new profile...');
+        result = await supabase
+          .from('educator_profiles')
+          .insert([profileData])
+          .select()
+          .single();
+      }
+
+      if (result.error) {
+        console.error('Database operation failed:', result.error);
+        throw result.error;
+      }
+
+      console.log('Profile saved successfully:', result.data);
       toast.success('Profile saved successfully!');
       
       if (onSuccess) {
         onSuccess();
       }
     } catch (error: any) {
-      console.error('Error in profile creation:', error);
-      toast.error(error.message || 'Failed to save profile');
+      console.error('Error saving profile:', error);
+      toast.error(error.message || 'Failed to save profile. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
