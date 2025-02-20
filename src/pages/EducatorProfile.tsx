@@ -41,7 +41,10 @@ const EducatorProfile = () => {
           .eq('id', id)
           .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching profile:', error);
+          throw error;
+        }
 
         if (data) {
           const formattedProfile: EducatorProfile = {
