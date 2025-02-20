@@ -46,23 +46,22 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (loading) {
-      console.log('Already submitting, please wait...');
+    if (!user) {
+      toast.error('You must be logged in to update your profile');
       return;
     }
+
+    if (!formData.name || !formData.email) {
+      toast.error('Name and email are required');
+      return;
+    }
+
+    if (loading) return;
 
     setLoading(true);
     setIsCreated(false);
 
     try {
-      if (!user) {
-        throw new Error('You must be logged in to update your profile');
-      }
-
-      if (!formData.name || !formData.email) {
-        throw new Error('Name and email are required');
-      }
-
       const profileData = {
         name: formData.name,
         description: formData.description,
@@ -79,59 +78,42 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         tags: []
       };
 
-      // First, check if a profile already exists
-      const { data: existingProfile, error: checkError } = await supabase
-        .from('business_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (checkError) {
-        throw checkError;
-      }
-
-      const profileId = initialData?.id || existingProfile?.id;
-      let result;
-
-      if (profileId) {
+      let response;
+      
+      if (initialData?.id) {
         // Update existing profile
-        result = await supabase
+        response = await supabase
           .from('business_profiles')
           .update(profileData)
-          .eq('id', profileId)
+          .eq('id', initialData.id)
           .select()
           .single();
       } else {
         // Create new profile
-        result = await supabase
+        response = await supabase
           .from('business_profiles')
           .insert([profileData])
           .select()
           .single();
       }
 
-      if (result.error) {
-        throw result.error;
+      if (response.error) {
+        throw response.error;
       }
 
-      // Only set success state if we have data
-      if (result.data) {
-        setIsCreated(true);
-        toast.success(profileId ? 'Profile updated successfully' : 'Profile created successfully');
-        
-        // Reset success state after 3 seconds
-        setTimeout(() => {
-          setIsCreated(false);
-        }, 3000);
-
-        if (onSuccess) {
-          onSuccess();
-        }
-      } else {
-        throw new Error('No data returned from database');
+      setIsCreated(true);
+      toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
+      
+      if (onSuccess) {
+        onSuccess();
       }
+
+      // Reset success state after 3 seconds
+      setTimeout(() => {
+        setIsCreated(false);
+      }, 3000);
     } catch (error: any) {
-      console.error('Error in profile submission:', error);
+      console.error('Profile submission error:', error);
       toast.error(error.message || 'Failed to save profile');
       setIsCreated(false);
     } finally {
