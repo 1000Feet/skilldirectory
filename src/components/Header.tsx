@@ -19,10 +19,11 @@ interface HeaderProps {
 export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
   const { user, signOut } = useAuth();
 
-  console.log('Current user in header:', user?.user_metadata);
-
+  // Check if user exists and has user_metadata
   const isEducator = user?.user_metadata?.user_type === 'educator';
   const isStudent = user?.user_metadata?.user_type === 'student';
+
+  console.log('Current user in header:', user?.user_metadata);
 
   return (
     <header className="relative z-50">
