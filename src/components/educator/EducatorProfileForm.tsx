@@ -46,20 +46,21 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     e.preventDefault();
     
     if (!user) {
+      console.log('No user found, aborting submission');
       toast.error('You must be logged in to update your profile');
       return;
     }
 
     if (!formData.name || !formData.email) {
+      console.log('Missing required fields:', { name: formData.name, email: formData.email });
       toast.error('Name and email are required');
       return;
     }
 
     setIsSubmitting(true);
-    console.log('Current user:', user);
-    console.log('Initial data:', initialData);
+    console.log('Starting form submission with user:', user);
+    console.log('Initial data state:', initialData);
 
-    // Create the profile data object without id for new profiles
     const profileData = {
       user_id: user.id,
       name: formData.name,
@@ -76,37 +77,47 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       tags: []
     };
 
-    // Only include id if we're updating an existing profile
+    console.log('Built profile data:', JSON.stringify(profileData, null, 2));
+
     if (initialData?.id) {
-      console.log('Updating existing profile with ID:', initialData.id);
+      console.log('This is an update operation for profile ID:', initialData.id);
       Object.assign(profileData, { id: initialData.id });
     } else {
-      console.log('Creating new profile');
+      console.log('This is a new profile creation');
     }
 
-    console.log('Submitting profile data:', profileData);
-
     try {
-      // First try a direct insert if no initialData.id exists
       if (!initialData?.id) {
-        console.log('Attempting direct insert...');
+        console.log('Starting direct insert operation...');
+        console.time('insertOperation');
+        
         const { data: insertData, error: insertError } = await supabase
           .from('educator_profiles')
           .insert(profileData)
           .select()
           .single();
 
-        console.log('Insert response:', { data: insertData, error: insertError });
+        console.timeEnd('insertOperation');
+        console.log('Insert operation completed');
+        console.log('Insert response:', { 
+          data: insertData, 
+          error: insertError,
+          status: insertError ? 'failed' : 'success'
+        });
 
         if (insertError) {
-          console.error('Insert error:', insertError);
+          console.error('Insert operation failed:', {
+            message: insertError.message,
+            details: insertError.details,
+            hint: insertError.hint
+          });
           toast.error(insertError.message || 'Failed to create profile');
           setIsSubmitting(false);
           return;
         }
 
         if (insertData) {
-          console.log('Insert successful:', insertData);
+          console.log('Insert operation succeeded:', insertData);
           toast.success('Profile created successfully');
           if (onSuccess) onSuccess();
           setIsSubmitting(false);
@@ -114,24 +125,35 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         }
       }
 
-      // If we have an initialData.id or insert failed, try upsert
-      console.log('Attempting upsert...');
+      console.log('Starting upsert operation...');
+      console.time('upsertOperation');
+
       const { data, error } = await supabase
         .from('educator_profiles')
         .upsert(profileData)
         .select()
         .single();
 
-      console.log('Upsert response:', { data, error });
+      console.timeEnd('upsertOperation');
+      console.log('Upsert operation completed');
+      console.log('Upsert response:', { 
+        data, 
+        error,
+        status: error ? 'failed' : 'success'
+      });
 
       if (error) {
-        console.error('Upsert error:', error);
+        console.error('Upsert operation failed:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         toast.error(error.message || 'Failed to save profile');
         return;
       }
 
       if (!data) {
-        console.error('No data returned from upsert');
+        console.error('Upsert operation returned no data');
         toast.error('Failed to save profile - no data returned');
         return;
       }
@@ -143,9 +165,14 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         onSuccess();
       }
     } catch (error: any) {
-      console.error('Profile submission error:', error);
+      console.error('Unexpected error during profile submission:', {
+        error,
+        message: error.message,
+        stack: error.stack
+      });
       toast.error(error.message || 'Failed to save profile');
     } finally {
+      console.log('Form submission completed, resetting submit state');
       setIsSubmitting(false);
     }
   };
