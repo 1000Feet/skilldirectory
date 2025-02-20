@@ -10,7 +10,7 @@ export function useLessonRequests(userId: string | undefined) {
 
   useEffect(() => {
     if (!userId) {
-      console.log('No user ID provided');
+      setRequests([]);
       setLoading(false);
       return;
     }
@@ -37,7 +37,7 @@ export function useLessonRequests(userId: string | undefined) {
         }
 
         console.log('Fetched lesson requests data:', data);
-        setRequests(data as LessonRequest[]);
+        setRequests(data || []);
       } catch (error: any) {
         console.error('Failed to load lesson requests:', error);
         toast.error('Failed to load lesson requests');
