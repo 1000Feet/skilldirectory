@@ -40,6 +40,7 @@ export function LessonRequests() {
       try {
         setLoading(true);
         setError(null);
+        console.log('Fetching lesson requests for educator:', user.id);
 
         const { data, error } = await supabase
           .from('lesson_requests')
@@ -55,12 +56,16 @@ export function LessonRequests() {
           .eq('educator_id', user.id)
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching lesson requests:', error);
+          throw error;
+        }
 
+        console.log('Fetched lesson requests:', data);
         setRequests(data || []);
-      } catch (error) {
-        console.error('Error fetching lesson requests:', error);
-        setError('Failed to load lesson requests');
+      } catch (error: any) {
+        console.error('Error in fetchRequests:', error);
+        setError(error.message || 'Failed to load lesson requests');
         toast.error('Failed to load lesson requests');
       } finally {
         setLoading(false);
@@ -92,10 +97,6 @@ export function LessonRequests() {
       channel.unsubscribe();
     };
   }, [user]);
-
-  const handleReply = (requestId: string) => {
-    toast.info('Reply functionality coming soon!');
-  };
 
   if (!user) {
     return null;
