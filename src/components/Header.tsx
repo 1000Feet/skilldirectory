@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,9 +23,7 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
 
   const handleSignOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      await signOut();
       toast.success('Signed out successfully');
       navigate('/auth', { replace: true });
     } catch (error: any) {

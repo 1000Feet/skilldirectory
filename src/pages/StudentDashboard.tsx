@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { StudentProfileForm } from "@/components/student/StudentProfileForm";
 import { LessonRequests } from "@/components/student/LessonRequests";

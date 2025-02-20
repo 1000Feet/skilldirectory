@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { AuthUser, UserType } from '@/lib/auth-types';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +10,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, userType: UserType) => Promise<void>;
   signOut: () => Promise<void>;
+  updateUserProfile: (profileData: any) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const { signIn: authSignIn, signUp, signOut: authSignOut } = useAuthActions();
-  const { fetchProfile } = useProfileManagement();
+  const { fetchProfile, updateProfile } = useProfileManagement();
 
   const handleSession = async (session: any) => {
     if (session) {
@@ -31,16 +31,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           user_type: userType,
         },
       };
-      setUser(baseUser);
       
       const profile = await fetchProfile(session.user.id, userType);
-      if (profile) {
-        setUser(prev => prev ? { ...prev, profile } : null);
-      }
+      setUser({ ...baseUser, profile });
     } else {
       setUser(null);
     }
     setLoading(false);
+  };
+
+  const updateUserProfile = async (profileData: any) => {
+    if (!user) throw new Error('No user logged in');
+    
+    const updatedProfile = await updateProfile(
+      user.id,
+      user.user_metadata.user_type,
+      profileData
+    );
+    
+    if (updatedProfile) {
+      setUser(prev => prev ? { ...prev, profile: updatedProfile } : null);
+    }
   };
 
   const signIn = async (email: string, password: string) => {
@@ -79,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
