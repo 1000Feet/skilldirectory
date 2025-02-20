@@ -50,6 +50,18 @@ export default function EducatorDashboard() {
           // Parse the social data safely
           const socialData = typeof data.social === 'object' ? data.social : {};
           
+          // Parse AI chatbot data safely
+          const chatbotData = typeof data.ai_chatbot === 'object' ? data.ai_chatbot : {};
+          const chatbotKnowledgeBase = Array.isArray((chatbotData as any)?.knowledge_base) 
+            ? (chatbotData as any).knowledge_base 
+            : [];
+
+          // Parse AI voice agent data safely
+          const voiceAgentData = typeof data.ai_voice_agent === 'object' ? data.ai_voice_agent : {};
+          const voiceAgentKnowledgeBase = Array.isArray((voiceAgentData as any)?.knowledge_base)
+            ? (voiceAgentData as any).knowledge_base
+            : [];
+          
           const transformedProfile: BusinessProfile = {
             id: data.id,
             user_id: data.user_id,
@@ -66,15 +78,11 @@ export default function EducatorDashboard() {
               youtube: (socialData as any)?.youtube || ''
             },
             ai_chatbot: {
-              knowledge_base: Array.isArray(data.ai_chatbot?.knowledge_base) 
-                ? data.ai_chatbot.knowledge_base 
-                : []
+              knowledge_base: chatbotKnowledgeBase
             },
             ai_voice_agent: {
-              knowledge_base: Array.isArray(data.ai_voice_agent?.knowledge_base) 
-                ? data.ai_voice_agent.knowledge_base 
-                : [],
-              voice_id: data.ai_voice_agent?.voice_id || 'cjVigY5qzO86Huf0OWal'
+              knowledge_base: voiceAgentKnowledgeBase,
+              voice_id: (voiceAgentData as any)?.voice_id || 'cjVigY5qzO86Huf0OWal'
             }
           };
           setBusinessProfile(transformedProfile);
