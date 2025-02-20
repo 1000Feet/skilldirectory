@@ -56,6 +56,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     }
 
     setIsSubmitting(true);
+    console.log('Current user:', user);
     console.log('Submitting profile data:', { ...formData, user_id: user.id });
 
     const profileData = {
