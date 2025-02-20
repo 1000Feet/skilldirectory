@@ -42,11 +42,12 @@ export function LessonRequests() {
         setError(null);
         console.log('Fetching lesson requests for educator:', user.id);
 
+        // Updated the query to use a simple join without assuming foreign key name
         const { data, error } = await supabase
           .from('lesson_requests')
           .select(`
             *,
-            student:profiles!lesson_requests_student_id_fkey(
+            student:profiles(
               id,
               first_name,
               last_name,
