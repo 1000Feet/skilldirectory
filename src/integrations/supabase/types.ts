@@ -123,13 +123,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "lesson_requests_educator_id_fkey"
-            columns: ["educator_id"]
-            isOneToOne: false
-            referencedRelation: "student_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "lesson_requests_educator_profile_id_fkey"
             columns: ["educator_profile_id"]
             isOneToOne: false

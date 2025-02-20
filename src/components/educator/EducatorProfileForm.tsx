@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -58,50 +59,57 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     console.log('Starting form submission with user:', user);
 
     try {
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('educator_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing profile:', checkError);
+        throw checkError;
+      }
+
       const profileData = {
         user_id: user.id,
         name: formData.name.trim(),
         description: formData.description.trim(),
-        website: formData.website.trim() || null,
-        address: formData.address.trim() || null,
-        phone: formData.phone.trim() || null,
+        website: formData.website.trim(),
+        address: formData.address.trim(),
+        phone: formData.phone.trim(),
         email: formData.email.trim(),
-        about_business: formData.about_business.trim() || null,
+        about_business: formData.about_business.trim(),
         social: formData.social,
         ai_chatbot: formData.ai_chatbot,
         ai_voice_agent: formData.ai_voice_agent
       };
 
-      console.log('Attempting database operation with profile data:', profileData);
-
-      const { data: insertData, error: insertError } = await supabase
-        .from('educator_profiles')
-        .insert([profileData])
-        .select()
-        .single();
-
-      if (insertError && insertError.code === '23505') {
-        console.log('Profile exists, attempting update...');
-        const { data: updateData, error: updateError } = await supabase
+      let result;
+      if (existingProfile) {
+        // Update existing profile
+        console.log('Updating existing profile...');
+        result = await supabase
           .from('educator_profiles')
           .update(profileData)
           .eq('user_id', user.id)
           .select()
           .single();
-
-        if (updateError) {
-          console.error('Update failed:', updateError);
-          throw updateError;
-        }
-
-        console.log('Profile updated successfully:', updateData);
-      } else if (insertError) {
-        console.error('Insert failed:', insertError);
-        throw insertError;
       } else {
-        console.log('Profile created successfully:', insertData);
+        // Insert new profile
+        console.log('Creating new profile...');
+        result = await supabase
+          .from('educator_profiles')
+          .insert([profileData])
+          .select()
+          .single();
       }
 
+      if (result.error) {
+        console.error('Database operation failed:', result.error);
+        throw result.error;
+      }
+
+      console.log('Profile saved successfully:', result.data);
       toast.success('Profile saved successfully!');
       
       if (onSuccess) {
