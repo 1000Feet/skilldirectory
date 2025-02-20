@@ -42,21 +42,21 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     setFormData(prev => ({ ...prev, ai_voice_agent }));
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('Form submitted!');
     console.log('Form data:', formData);
+    console.log('About to make Supabase query...');
     
-    // Let's also test a simple Supabase query to verify connection
-    const testQuery = async () => {
+    try {
       const { data, error } = await supabase
         .from('educator_profiles')
         .select('*')
         .limit(1);
       console.log('Test query result:', { data, error });
-    };
-    
-    testQuery();
+    } catch (err) {
+      console.error('Query error:', err);
+    }
   };
 
   if (!user) {
