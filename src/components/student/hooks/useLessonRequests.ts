@@ -9,8 +9,6 @@ export function useLessonRequests(userId: string | undefined) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
-
     if (!userId) {
       setRequests([]);
       setLoading(false);
@@ -39,16 +37,12 @@ export function useLessonRequests(userId: string | undefined) {
         }
 
         console.log('Fetched lesson requests data:', data);
-        if (isMounted) {
-          setRequests(data || []);
-          setLoading(false);
-        }
+        setRequests(data || []);
+        setLoading(false);
       } catch (error: any) {
         console.error('Failed to load lesson requests:', error);
-        if (isMounted) {
-          toast.error('Failed to load lesson requests');
-          setLoading(false);
-        }
+        toast.error('Failed to load lesson requests');
+        setLoading(false);
       }
     };
 
@@ -64,17 +58,13 @@ export function useLessonRequests(userId: string | undefined) {
           table: 'lesson_requests',
           filter: `student_id=eq.${userId}`,
         },
-        (payload) => {
-          console.log('Received real-time update:', payload);
-          if (isMounted) {
-            fetchRequests();
-          }
+        () => {
+          fetchRequests();
         }
       )
       .subscribe();
 
     return () => {
-      isMounted = false;
       channel.unsubscribe();
     };
   }, [userId]);

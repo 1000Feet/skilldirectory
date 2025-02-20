@@ -8,10 +8,6 @@ export function LessonRequests() {
   const { user } = useAuth();
   const { requests, loading } = useLessonRequests(user?.id);
 
-  console.log('Current user:', user);
-  console.log('Lesson requests:', requests);
-  console.log('Loading state:', loading);
-
   return (
     <Card>
       <CardHeader>
