@@ -14,6 +14,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
   const { user } = useAuth();
   console.log('Current user:', user);
   console.log('Supabase client initialized:', !!supabase);
+  console.log('Full Supabase client:', supabase);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -71,20 +72,50 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     setIsSubmitting(true);
 
     try {
-      console.log('Preparing data for insert...');
+      // Test basic connectivity first
+      console.log('Testing Supabase connectivity...');
+      const pingTest = await supabase
+        .from('educator_profiles')
+        .select('*')
+        .limit(1);
+      console.log('Ping test result:', pingTest);
+
+      console.log('Preparing minimal test data...');
+      const testData = {
+        user_id: user.id,
+        name: formData.name,
+        email: formData.email
+      };
+
+      console.log('Attempting test insert with minimal data:', testData);
+      const testResult = await supabase
+        .from('educator_profiles')
+        .insert([testData])
+        .select();
+      
+      console.log('Test insert result:', testResult);
+
+      if (testResult.error) {
+        throw testResult.error;
+      }
+
+      console.log('Test insert successful, proceeding with full data insert');
+      
       const profileData = {
         ...formData,
         user_id: user.id
       };
       
-      console.log('About to call Supabase with data:', profileData);
+      console.log('About to call Supabase with full data:', profileData);
+      console.log('DEBUG: Insert line reached');
       
       const result = await supabase
         .from('educator_profiles')
         .insert([profileData])
-        .select('*');
+        .select();
       
-      console.log('Supabase call completed', result);
+      console.log('DEBUG: Insert call finished');
+      console.log('Full insert result:', result);
 
       if (result.error) {
         console.error('Supabase error:', result.error);
@@ -98,7 +129,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         onSuccess();
       }
     } catch (error: any) {
-      console.error('Error in profile creation:', error);
+      console.error('Caught exception in profile creation:', error);
       toast.error(error.message || 'Failed to create profile');
     } finally {
       setIsSubmitting(false);
