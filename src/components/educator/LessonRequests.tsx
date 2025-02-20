@@ -27,14 +27,11 @@ interface LessonRequest {
 export function LessonRequests() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<LessonRequest[]>([]);
-  const [loading, setLoading] = useState(true); // Start with loading true
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    if (!user) return;
 
     const fetchRequests = async () => {
       try {
@@ -66,10 +63,7 @@ export function LessonRequests() {
         }
 
         console.log('Fetched lesson requests:', data);
-        
-        // Ensure data is an array before setting state
-        const safeData = Array.isArray(data) ? data : [];
-        setRequests(safeData);
+        setRequests(Array.isArray(data) ? data : []);
       } catch (error: any) {
         console.error('Error in fetchRequests:', error);
         setError(error.message || 'Failed to load lesson requests');
@@ -99,7 +93,6 @@ export function LessonRequests() {
       )
       .subscribe();
 
-    // Cleanup subscription
     return () => {
       channel.unsubscribe();
     };
