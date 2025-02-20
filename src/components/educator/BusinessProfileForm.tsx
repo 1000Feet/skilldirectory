@@ -12,6 +12,8 @@ import { VoiceAgentSection } from './VoiceAgentSection';
 
 export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileFormProps) {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [isCreated, setIsCreated] = useState(false);
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
@@ -54,47 +56,76 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       return;
     }
 
-    const profileData = {
-      name: formData.name,
-      description: formData.description,
-      website: formData.website,
-      address: formData.address,
-      phone: formData.phone,
-      email: formData.email,
-      about_business: formData.about_business,
-      social: formData.social,
-      ai_chatbot: formData.ai_chatbot,
-      ai_voice_agent: formData.ai_voice_agent,
-      user_id: user.id,
-      categories: [],
-      tags: []
-    };
+    if (loading) return;
+
+    setLoading(true);
+    setIsCreated(false);
 
     try {
-      const response = await supabase
-        .from('business_profiles')
-        .upsert([{ ...profileData, id: initialData?.id }])
-        .select()
-        .single();
+      const profileData = {
+        name: formData.name,
+        description: formData.description,
+        website: formData.website,
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+        about_business: formData.about_business,
+        social: formData.social,
+        ai_chatbot: formData.ai_chatbot,
+        ai_voice_agent: formData.ai_voice_agent,
+        user_id: user.id,
+        categories: [],
+        tags: []
+      };
+
+      let response;
+      
+      if (initialData?.id) {
+        // Update existing profile
+        response = await supabase
+          .from('business_profiles')
+          .update(profileData)
+          .eq('id', initialData.id)
+          .select()
+          .single();
+      } else {
+        // Create new profile
+        response = await supabase
+          .from('business_profiles')
+          .insert([profileData])
+          .select()
+          .single();
+      }
 
       if (response.error) {
         throw response.error;
       }
 
+      setIsCreated(true);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
       
       if (onSuccess) {
         onSuccess();
       }
+
+      // Reset success state after 3 seconds
+      setTimeout(() => {
+        setIsCreated(false);
+      }, 3000);
     } catch (error: any) {
       console.error('Profile submission error:', error);
       toast.error(error.message || 'Failed to save profile');
+      setIsCreated(false);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!user) {
-    return null;
-  }
+  const getButtonText = () => {
+    if (loading) return 'Saving...';
+    if (isCreated) return 'Profile Created!';
+    return initialData ? 'Update Profile' : 'Create Profile';
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 p-6">
@@ -128,9 +159,11 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
       <Button 
         type="submit" 
-        className="w-full"
+        className="w-full" 
+        disabled={loading}
+        variant={isCreated ? "secondary" : "default"}
       >
-        {initialData ? 'Update Profile' : 'Create Profile'}
+        {getButtonText()}
       </Button>
     </form>
   );
