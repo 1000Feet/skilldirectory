@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Index from './pages/Index';
 import About from './pages/About';
 import Support from './pages/Support';
@@ -13,6 +13,12 @@ import EducatorProfile from './pages/EducatorProfile';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster as SonnerToaster } from 'sonner';
+
+function BusinessRedirect() {
+  const location = useLocation();
+  const newPath = location.pathname.replace('business', 'educator');
+  return <Navigate to={newPath} replace />;
+}
 
 function App() {
   return (
@@ -28,8 +34,7 @@ function App() {
           <Route path="/dashboard" element={<EducatorDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/educator/:id" element={<EducatorProfile />} />
-          {/* Redirect old business URLs to new educator URLs */}
-          <Route path="/business/:id" element={<Navigate to={(location) => location.pathname.replace('business', 'educator')} replace />} />
+          <Route path="/business/:id" element={<BusinessRedirect />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
