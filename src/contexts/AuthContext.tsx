@@ -20,21 +20,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const fetchProfile = async (userId: string, userType: string) => {
+    try {
+      const table = userType === 'educator' ? 'educator_profiles' : 'student_profiles';
+      console.log(`Fetching ${userType} profile from ${table}`);
+      
+      const { data: profile, error } = await supabase
+        .from(table)
+        .select('*')
+        .eq(userType === 'educator' ? 'user_id' : 'id', userId)
+        .single();
+
+      if (error) {
+        console.error(`Error fetching ${userType} profile:`, error);
+        return;
+      }
+
+      if (profile) {
+        console.log(`${userType} profile found:`, profile);
+        setUser(prev => prev ? {
+          ...prev,
+          profile: {
+            id: profile.id,
+            email: profile.email,
+            user_type: userType,
+            ...(userType === 'student' ? {
+              first_name: profile.first_name,
+              last_name: profile.last_name,
+              avatar_url: profile.avatar_url
+            } : {
+              name: profile.name,
+              description: profile.description,
+              image: profile.image
+            })
+          }
+        } : null);
+      } else {
+        console.log(`No ${userType} profile found`);
+      }
+    } catch (error) {
+      console.error('Error in fetchProfile:', error);
+    }
+  };
+
   useEffect(() => {
     // Check active sessions
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         console.log('Initial session check - found session:', session);
+        const userType = session.user.user_metadata.user_type;
         setUser({
           id: session.user.id,
           email: session.user.email!,
           user_metadata: {
-            user_type: session.user.user_metadata.user_type,
+            user_type: userType,
           },
         });
         
-        // Fetch profile data
-        fetchProfile(session.user.id);
+        // Fetch profile data with correct user type
+        fetchProfile(session.user.id, userType);
       } else {
         console.log('Initial session check - no session found');
         setUser(null);
@@ -48,17 +92,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       if (session) {
+        const userType = session.user.user_metadata.user_type;
         console.log('Setting user from auth state change:', session.user);
         setUser({
           id: session.user.id,
           email: session.user.email!,
           user_metadata: {
-            user_type: session.user.user_metadata.user_type,
+            user_type: userType,
           },
         });
         
-        // Fetch profile data
-        await fetchProfile(session.user.id);
+        // Fetch profile data with correct user type
+        await fetchProfile(session.user.id, userType);
       } else {
         console.log('Auth state change - clearing user');
         setUser(null);
@@ -70,37 +115,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
-
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data: profile, error } = await supabase
-        .from('student_profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
-      }
-      
-      if (profile) {
-        setUser(prev => prev ? { 
-          ...prev, 
-          profile: {
-            id: profile.id,
-            email: profile.email,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
-            user_type: profile.user_type,
-            avatar_url: profile.avatar_url
-          }
-        } : null);
-      }
-    } catch (error) {
-      console.error('Error in fetchProfile:', error);
-    }
-  };
 
   const signUp = async (email: string, password: string, userType: 'student' | 'educator') => {
     try {
@@ -139,14 +153,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Set user with metadata immediately after successful sign in
       if (data.user) {
+        const userType = data.user.user_metadata.user_type;
         console.log('Sign in successful, setting user:', data.user);
         setUser({
           id: data.user.id,
           email: data.user.email!,
           user_metadata: {
-            user_type: data.user.user_metadata.user_type,
+            user_type: userType,
           },
         });
+        
+        // Fetch profile with correct user type
+        await fetchProfile(data.user.id, userType);
       }
 
       navigate('/');
