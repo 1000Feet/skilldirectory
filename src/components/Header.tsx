@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dispatch, SetStateAction } from "react";
 import {
@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, GraduationCap, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface HeaderProps {
   searchQuery?: string;
@@ -18,6 +20,20 @@ interface HeaderProps {
 
 export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast.success('Signed out successfully');
+      navigate('/auth', { replace: true });
+    } catch (error: any) {
+      console.error('Sign out error:', error);
+      toast.error('Failed to sign out');
+    }
+  };
 
   // Check if user exists and has user_metadata
   const isEducator = user?.user_metadata?.user_type === 'educator';
@@ -83,7 +99,7 @@ export const Header = ({ searchQuery, onSearchChange }: HeaderProps = {}) => {
                           </Link>
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem onSelect={() => signOut()} className="cursor-pointer">
+                      <DropdownMenuItem onSelect={handleSignOut} className="cursor-pointer">
                         Sign Out
                       </DropdownMenuItem>
                     </DropdownMenuContent>
