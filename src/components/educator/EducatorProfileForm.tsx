@@ -12,7 +12,8 @@ import { VoiceAgentSection } from './VoiceAgentSection';
 
 export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileFormProps) {
   const { user } = useAuth();
-  console.log('Current user:', user); // Debug log for user
+  console.log('Current user:', user);
+  console.log('Supabase client initialized:', !!supabase);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,8 +48,13 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('Form submission started');
-    console.log('Current form data:', formData);
     
+    if (!supabase) {
+      console.error('Supabase client not initialized');
+      toast.error('Database connection error');
+      return;
+    }
+
     if (!user) {
       console.error('No user found - aborting submission');
       toast.error('Please log in to submit the form');
@@ -61,44 +67,48 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       return;
     }
 
+    console.log('Validation passed, proceeding with submission');
     setIsSubmitting(true);
-    console.log('About to try Supabase insert...');
-    
+
     try {
+      console.log('Preparing data for insert...');
       const profileData = {
         ...formData,
-        user_id: user.id
+        user_id: user.id,
+        updated_at: new Date().toISOString()
       };
       
-      console.log('Attempting Supabase insert with data:', profileData);
+      console.log('About to call Supabase with data:', profileData);
       
-      const { data, error } = await supabase
+      const result = await supabase
         .from('educator_profiles')
         .insert([profileData])
-        .select();
+        .select('*');
+      
+      console.log('Supabase call completed', result);
 
-      console.log('Supabase insert completed');
-      console.log('Response data:', data);
-      console.log('Response error:', error);
-
-      if (error) {
-        throw error;
+      if (result.error) {
+        console.error('Supabase error:', result.error);
+        throw result.error;
       }
 
+      console.log('Profile created successfully:', result.data);
       toast.success('Profile created successfully!');
+      
       if (onSuccess) {
         onSuccess();
       }
     } catch (error: any) {
-      console.error('Error during profile creation:', error);
+      console.error('Error in profile creation:', error);
       toast.error(error.message || 'Failed to create profile');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Early return if no user
   if (!user) {
-    console.log('No user found - rendering null');
+    console.log('No user - rendering null');
     return null;
   }
 
