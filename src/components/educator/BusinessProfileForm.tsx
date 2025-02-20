@@ -13,6 +13,7 @@ import { VoiceAgentSection } from './VoiceAgentSection';
 export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileFormProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [isCreated, setIsCreated] = useState(false);
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
@@ -122,7 +123,13 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       }
 
       console.log('Operation successful, data:', data);
+      setIsCreated(true);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
+      
+      // Reset button text after 3 seconds
+      setTimeout(() => {
+        setIsCreated(false);
+      }, 3000);
       
       if (onSuccess) {
         onSuccess();
@@ -133,6 +140,12 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
     } finally {
       setLoading(false);
     }
+  };
+
+  const getButtonText = () => {
+    if (loading) return 'Saving...';
+    if (isCreated) return 'Profile Created!';
+    return initialData ? 'Update Profile' : 'Create Profile';
   };
 
   return (
@@ -165,8 +178,13 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         onChange={handleVoiceAgentChange}
       />
 
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Saving...' : (initialData ? 'Update Profile' : 'Create Profile')}
+      <Button 
+        type="submit" 
+        className="w-full" 
+        disabled={loading}
+        variant={isCreated ? "secondary" : "default"}
+      >
+        {getButtonText()}
       </Button>
     </form>
   );
