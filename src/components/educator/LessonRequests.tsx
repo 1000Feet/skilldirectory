@@ -56,7 +56,7 @@ export function LessonRequests() {
 
         // Verify user's role
         const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
+          .from('student_profiles')
           .select('user_type, email')
           .eq('id', user.id)
           .single();
@@ -77,7 +77,7 @@ export function LessonRequests() {
             proposed_date,
             status,
             message,
-            student:profiles!student_id(
+            student:student_profiles!lesson_requests_student_id_fkey(
               id,
               first_name,
               last_name,

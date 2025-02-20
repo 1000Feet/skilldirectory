@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     const { data: profile, error } = await supabase
-      .from('profiles')
+      .from('student_profiles')
       .select('*')
       .eq('id', userId)
       .single();
@@ -78,7 +78,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     
     if (profile) {
-      setUser(prev => prev ? { ...prev, profile } : null);
+      setUser(prev => prev ? { 
+        ...prev, 
+        profile: {
+          id: profile.id,
+          email: profile.email,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          user_type: profile.user_type,
+          avatar_url: profile.avatar_url
+        }
+      } : null);
     }
   };
 
