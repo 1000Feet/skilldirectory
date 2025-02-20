@@ -10,6 +10,7 @@ export function LessonRequests() {
 
   console.log('Current user:', user);
   console.log('Lesson requests:', requests);
+  console.log('Loading state:', loading);
 
   return (
     <Card>
