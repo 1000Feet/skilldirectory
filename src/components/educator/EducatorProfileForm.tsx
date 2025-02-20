@@ -42,114 +42,21 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     setFormData(prev => ({ ...prev, ai_voice_agent }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('1. handleSubmit called');
+    console.log('Form submitted!');
+    console.log('Form data:', formData);
     
-    if (!user) {
-      console.log('2. No user found, aborting submission');
-      toast.error('You must be logged in to update your profile');
-      return;
-    }
-
-    console.log('3. User is present:', user);
-
-    if (!formData.name || !formData.email) {
-      console.log('4. Missing required fields:', { name: formData.name, email: formData.email });
-      toast.error('Name and email are required');
-      return;
-    }
-
-    console.log('5. Required fields are present');
-    setIsSubmitting(true);
-    console.log('6. Set isSubmitting to true');
-
-    const profileData = {
-      user_id: user.id,
-      name: formData.name,
-      description: formData.description,
-      website: formData.website,
-      address: formData.address,
-      phone: formData.phone,
-      email: formData.email,
-      about_business: formData.about_business,
-      social: formData.social,
-      ai_chatbot: formData.ai_chatbot,
-      ai_voice_agent: formData.ai_voice_agent,
-      categories: [],
-      tags: []
-    };
-
-    console.log('7. Profile data prepared:', profileData);
-
-    try {
-      console.log('8. Starting try block');
-      if (!initialData?.id) {
-        console.log('9. No initial data ID, attempting insert');
-        
-        try {
-          console.log('10. Before supabase.from call');
-          const { data: insertData, error: insertError } = await supabase
-            .from('educator_profiles')
-            .insert(profileData)
-            .select();
-          
-          console.log('11. After supabase.from call');
-          console.log('Insert response:', { data: insertData, error: insertError });
-
-          if (insertError) {
-            console.error('12. Insert error:', insertError);
-            toast.error(insertError.message || 'Failed to create profile');
-            setIsSubmitting(false);
-            return;
-          }
-
-          console.log('13. Insert successful:', insertData);
-          toast.success('Profile created successfully');
-          if (onSuccess) onSuccess();
-          setIsSubmitting(false);
-          return;
-        } catch (insertErr) {
-          console.error('14. Unexpected insert error:', insertErr);
-          toast.error('Failed to create profile');
-          setIsSubmitting(false);
-          return;
-        }
-      }
-
-      console.log('15. Has initial data ID, attempting upsert');
+    // Let's also test a simple Supabase query to verify connection
+    const testQuery = async () => {
       const { data, error } = await supabase
         .from('educator_profiles')
-        .upsert(profileData)
-        .select();
-
-      console.log('16. Upsert response:', { data, error });
-
-      if (error) {
-        console.error('17. Upsert error:', error);
-        toast.error(error.message || 'Failed to save profile');
-        return;
-      }
-
-      if (!data) {
-        console.error('18. No data returned from upsert');
-        toast.error('Failed to save profile - no data returned');
-        return;
-      }
-
-      console.log('19. Profile saved successfully:', data);
-      toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
-      
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (error: any) {
-      console.error('20. Unexpected error:', error);
-      toast.error(error.message || 'Failed to save profile');
-    } finally {
-      console.log('21. Finally block reached');
-      setIsSubmitting(false);
-    }
+        .select('*')
+        .limit(1);
+      console.log('Test query result:', { data, error });
+    };
+    
+    testQuery();
   };
 
   if (!user) {
@@ -157,7 +64,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 p-6">
+    <form onSubmit={onSubmit} className="space-y-8 p-6" method="POST">
       <BasicInfoSection
         info={{
           name: formData.name,
@@ -187,7 +94,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       />
 
       <Button 
-        type="submit" 
+        type="submit"
         className="w-full"
         disabled={isSubmitting}
       >
