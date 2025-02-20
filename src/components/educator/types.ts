@@ -1,5 +1,5 @@
 
-export interface BusinessProfile {
+export interface EducatorProfile {
   id?: string;
   user_id?: string;
   name: string;
@@ -23,7 +23,7 @@ export interface BusinessProfile {
   };
 }
 
-export interface BusinessProfileFormProps {
-  initialData?: BusinessProfile | null;
+export interface EducatorProfileFormProps {
+  initialData?: EducatorProfile | null;
   onSuccess?: () => void;
 }

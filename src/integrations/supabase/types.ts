@@ -9,7 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      business_profiles: {
+      educator_profiles: {
         Row: {
           about_business: string | null
           address: string | null
@@ -82,9 +82,9 @@ export type Database = {
       }
       lesson_requests: {
         Row: {
-          business_profile_id: string
           created_at: string
           educator_id: string
+          educator_profile_id: string
           id: string
           message: string | null
           proposed_date: string
@@ -93,9 +93,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          business_profile_id: string
           created_at?: string
           educator_id: string
+          educator_profile_id: string
           id?: string
           message?: string | null
           proposed_date: string
@@ -104,9 +104,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          business_profile_id?: string
           created_at?: string
           educator_id?: string
+          educator_profile_id?: string
           id?: string
           message?: string | null
           proposed_date?: string
@@ -117,9 +117,9 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "lesson_requests_business_profile_id_fkey"
-            columns: ["business_profile_id"]
+            columns: ["educator_profile_id"]
             isOneToOne: false
-            referencedRelation: "business_profiles"
+            referencedRelation: "educator_profiles"
             referencedColumns: ["id"]
           },
           {

@@ -3,17 +3,17 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { BusinessProfileForm } from '@/components/educator/BusinessProfileForm';
+import { EducatorProfileForm } from '@/components/educator/EducatorProfileForm';
 import { LessonRequests } from '@/components/educator/LessonRequests';
 import { toast } from 'sonner';
-import type { BusinessProfile } from '@/components/educator/types';
+import type { EducatorProfile } from '@/components/educator/types';
 import { Header } from '@/components/Header';
 import { Card } from '@/components/ui/card';
 
 export default function EducatorDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
+  const [educatorProfile, setEducatorProfile] = useState<EducatorProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function EducatorDashboard() {
     const fetchProfile = async () => {
       try {
         const { data, error: profileError } = await supabase
-          .from('business_profiles')
+          .from('educator_profiles')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
@@ -43,7 +43,7 @@ export default function EducatorDashboard() {
         }
 
         if (data) {
-          setBusinessProfile({
+          setEducatorProfile({
             id: data.id,
             user_id: data.user_id,
             name: data.name,
@@ -105,10 +105,10 @@ export default function EducatorDashboard() {
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-2xl font-semibold">Educator Profile</h2>
             </div>
-            <BusinessProfileForm 
-              initialData={businessProfile}
+            <EducatorProfileForm 
+              initialData={educatorProfile}
               onSuccess={() => {
-                toast.success('Business profile updated successfully');
+                toast.success('Educator profile updated successfully');
               }}
             />
           </div>

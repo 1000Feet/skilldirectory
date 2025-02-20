@@ -4,13 +4,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import type { BusinessProfileFormProps } from './types';
+import type { EducatorProfileFormProps } from './types';
 import { BasicInfoSection } from './BasicInfoSection';
 import { SocialMediaSection } from './SocialMediaSection';
 import { AIChatbotSection } from './AIChatbotSection';
 import { VoiceAgentSection } from './VoiceAgentSection';
 
-export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileFormProps) {
+export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileFormProps) {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
@@ -72,7 +72,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
     try {
       const response = await supabase
-        .from('business_profiles')
+        .from('educator_profiles')
         .upsert([{ ...profileData, id: initialData?.id }])
         .select()
         .single();
