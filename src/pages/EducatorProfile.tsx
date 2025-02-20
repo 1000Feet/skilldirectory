@@ -49,13 +49,13 @@ const EducatorProfile = () => {
         .from('educator_profiles')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       console.log('Query response:', { data, error: fetchError });
 
       if (fetchError) {
         console.error('Error fetching profile:', fetchError);
-        setError(fetchError.message);
+        setError("Failed to load educator profile");
         toast.error('Failed to load educator profile');
         setLoading(false);
         return;
