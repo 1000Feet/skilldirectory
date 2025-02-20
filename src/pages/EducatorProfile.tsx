@@ -36,7 +36,7 @@ const EducatorProfile = () => {
     const fetchProfile = async () => {
       try {
         const { data, error } = await supabase
-          .from('business_profiles')
+          .from('educator_profiles')
           .select('*')
           .eq('id', id)
           .maybeSingle();
@@ -44,7 +44,6 @@ const EducatorProfile = () => {
         if (error) throw error;
 
         if (data) {
-          // Safely convert the data to match our EducatorProfile interface
           const formattedProfile: EducatorProfile = {
             id: data.id,
             name: data.name,

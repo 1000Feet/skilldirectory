@@ -75,7 +75,7 @@ export type Database = {
             foreignKeyName: "business_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "student_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -126,19 +126,19 @@ export type Database = {
             foreignKeyName: "lesson_requests_educator_id_fkey"
             columns: ["educator_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "student_profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "lesson_requests_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "student_profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      profiles: {
+      student_profiles: {
         Row: {
           address: string | null
           avatar_url: string | null

@@ -39,7 +39,7 @@ export function LessonRequests() {
           .from('lesson_requests')
           .select(`
             *,
-            educator:profiles!lesson_requests_educator_id_fkey(
+            educator:student_profiles!lesson_requests_educator_id_fkey(
               id,
               first_name,
               last_name,
