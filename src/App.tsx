@@ -9,6 +9,7 @@ import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import EducatorDashboard from './pages/EducatorDashboard';
 import StudentDashboard from './pages/StudentDashboard';
+import EducatorProfile from './pages/EducatorProfile';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster as SonnerToaster } from 'sonner';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<EducatorDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/business/:id" element={<EducatorProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
