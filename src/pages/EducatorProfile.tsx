@@ -37,45 +37,44 @@ const EducatorProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      try {
-        if (!id) {
-          setError("No profile ID provided");
-          setLoading(false);
-          return;
-        }
-
-        const { data, error: fetchError } = await supabase
-          .from('educator_profiles')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle();
-
-        if (fetchError) {
-          console.error('Error fetching profile:', fetchError);
-          setError("Failed to load educator profile");
-          toast.error('Failed to load educator profile');
-          throw fetchError;
-        }
-
-        if (!data) {
-          setError("Profile not found");
-          setLoading(false);
-          return;
-        }
-
-        console.log('Fetched profile data:', data);
-        setProfile({
-          ...data,
-          social: data.social as EducatorProfile['social']
-        });
-        setError(null);
-      } catch (err) {
-        console.error('Error in profile fetch:', err);
-        setError("An unexpected error occurred");
-        toast.error('Failed to load educator profile');
-      } finally {
+      if (!id) {
+        setError("No profile ID provided");
         setLoading(false);
+        return;
       }
+
+      console.log('Attempting to fetch profile with ID:', id);
+
+      const { data, error: fetchError } = await supabase
+        .from('educator_profiles')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      console.log('Query response:', { data, error: fetchError });
+
+      if (fetchError) {
+        console.error('Error fetching profile:', fetchError);
+        setError(fetchError.message);
+        toast.error('Failed to load educator profile');
+        setLoading(false);
+        return;
+      }
+
+      if (!data) {
+        console.log('No profile data found');
+        setError("Profile not found");
+        setLoading(false);
+        return;
+      }
+
+      console.log('Successfully fetched profile:', data);
+      setProfile({
+        ...data,
+        social: data.social as EducatorProfile['social']
+      });
+      setError(null);
+      setLoading(false);
     };
 
     fetchProfile();
