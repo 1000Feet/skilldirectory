@@ -35,6 +35,7 @@ const EducatorProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        console.log('Fetching profile with ID:', id);
         const { data, error } = await supabase
           .from('educator_profiles')
           .select('*')
@@ -43,28 +44,17 @@ const EducatorProfile = () => {
 
         if (error) {
           console.error('Error fetching profile:', error);
+          toast.error('Failed to load educator profile');
           throw error;
         }
 
+        console.log('Fetched profile data:', data);
+
         if (data) {
-          const formattedProfile: EducatorProfile = {
-            id: data.id,
-            name: data.name,
-            description: data.description,
-            image: data.image,
-            address: data.address,
-            phone: data.phone,
-            email: data.email,
-            website: data.website,
-            categories: data.categories,
-            tags: data.tags,
-            about_business: data.about_business,
-            social: data.social as { facebook: string; instagram: string; youtube?: string }
-          };
-          setProfile(formattedProfile);
+          setProfile(data as EducatorProfile);
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error in profile fetch:', error);
         toast.error('Failed to load educator profile');
       } finally {
         setLoading(false);
