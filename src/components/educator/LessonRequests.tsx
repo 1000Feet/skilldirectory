@@ -50,14 +50,13 @@ export function LessonRequests() {
             proposed_date,
             status,
             message,
-            student:profiles(
+            student:profiles!student_id(
               id,
               first_name,
               last_name,
               email
             )
           `)
-          .eq('student_id', 'profiles.id')
           .eq('educator_id', user.id)
           .order('created_at', { ascending: false });
 
