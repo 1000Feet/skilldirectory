@@ -27,11 +27,14 @@ interface LessonRequest {
 export function LessonRequests() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<LessonRequest[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading true
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const fetchRequests = async () => {
       try {
@@ -88,7 +91,7 @@ export function LessonRequests() {
         },
         (payload) => {
           console.log('Received real-time update:', payload);
-          fetchRequests();
+          fetchRequests(); // Refresh the data when we receive an update
         }
       )
       .subscribe();
