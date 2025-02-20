@@ -27,7 +27,7 @@ interface LessonRequest {
 export function LessonRequests() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<LessonRequest[]>([]);
-  const [loading, setLoading] = useState(true); // Start with loading true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,6 +41,20 @@ export function LessonRequests() {
         setLoading(true);
         setError(null);
         console.log('Fetching lesson requests for educator:', user.id);
+
+        // First, let's verify the user's role
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('user_type, email')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          throw profileError;
+        }
+
+        console.log('Current user profile:', profileData);
 
         const { data, error } = await supabase
           .from('lesson_requests')
@@ -91,7 +105,7 @@ export function LessonRequests() {
         },
         (payload) => {
           console.log('Received real-time update:', payload);
-          fetchRequests(); // Refresh the data when we receive an update
+          fetchRequests();
         }
       )
       .subscribe();
