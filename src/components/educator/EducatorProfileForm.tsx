@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,18 +55,9 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     }
 
     setIsSubmitting(true);
-    console.log('Starting form submission...');
+    console.log('Starting form submission with user:', user);
 
     try {
-      // First verify the user's auth status
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        throw new Error(`Session verification failed: ${sessionError.message}`);
-      }
-      if (!session) {
-        throw new Error('No active session found');
-      }
-
       const profileData = {
         user_id: user.id,
         name: formData.name.trim(),
@@ -82,53 +72,43 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         ai_voice_agent: formData.ai_voice_agent
       };
 
-      console.log('Attempting to save profile with data:', profileData);
+      console.log('Attempting database operation with profile data:', profileData);
 
-      // First check if profile exists
-      const { data: existingProfile, error: checkError } = await supabase
+      const { data: insertData, error: insertError } = await supabase
         .from('educator_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .insert([profileData])
+        .select()
+        .single();
 
-      if (checkError) {
-        console.error('Error checking existing profile:', checkError);
-        throw checkError;
-      }
-
-      let result;
-      if (existingProfile) {
-        // Update existing profile
-        console.log('Updating existing profile...');
-        result = await supabase
+      if (insertError && insertError.code === '23505') {
+        console.log('Profile exists, attempting update...');
+        const { data: updateData, error: updateError } = await supabase
           .from('educator_profiles')
           .update(profileData)
           .eq('user_id', user.id)
           .select()
           .single();
+
+        if (updateError) {
+          console.error('Update failed:', updateError);
+          throw updateError;
+        }
+
+        console.log('Profile updated successfully:', updateData);
+      } else if (insertError) {
+        console.error('Insert failed:', insertError);
+        throw insertError;
       } else {
-        // Insert new profile
-        console.log('Creating new profile...');
-        result = await supabase
-          .from('educator_profiles')
-          .insert([profileData])
-          .select()
-          .single();
+        console.log('Profile created successfully:', insertData);
       }
 
-      if (result.error) {
-        console.error('Database operation failed:', result.error);
-        throw result.error;
-      }
-
-      console.log('Profile saved successfully:', result.data);
       toast.success('Profile saved successfully!');
       
       if (onSuccess) {
         onSuccess();
       }
     } catch (error: any) {
-      console.error('Error saving profile:', error);
+      console.error('Profile submission error:', error);
       toast.error(error.message || 'Failed to save profile. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -136,6 +116,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
   };
 
   if (!user) {
+    console.log('No user found in EducatorProfileForm');
     return null;
   }
 
