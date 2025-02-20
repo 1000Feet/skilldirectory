@@ -51,10 +51,10 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       return;
     }
 
-    try {
-      console.log('Starting form submission with user:', user?.id);
-      setLoading(true);
+    setLoading(true);
+    setIsCreated(false);
 
+    try {
       if (!user) {
         throw new Error('You must be logged in to update your profile');
       }
@@ -79,9 +79,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         tags: []
       };
 
-      console.log('Attempting to save profile data:', profileData);
-
-      // First, check if a profile already exists for this user
+      // First, check if a profile already exists
       const { data: existingProfile, error: checkError } = await supabase
         .from('business_profiles')
         .select('id')
@@ -89,54 +87,53 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         .maybeSingle();
 
       if (checkError) {
-        console.error('Error checking existing profile:', checkError);
         throw checkError;
       }
 
+      const profileId = initialData?.id || existingProfile?.id;
       let result;
-      if (existingProfile?.id || initialData?.id) {
-        const id = initialData?.id || existingProfile?.id;
-        console.log('Updating existing profile:', id);
+
+      if (profileId) {
+        // Update existing profile
         result = await supabase
           .from('business_profiles')
           .update(profileData)
-          .eq('id', id)
+          .eq('id', profileId)
           .select()
-          .maybeSingle();
+          .single();
       } else {
-        console.log('Creating new profile');
+        // Create new profile
         result = await supabase
           .from('business_profiles')
           .insert([profileData])
           .select()
-          .maybeSingle();
+          .single();
       }
 
-      const { data, error } = result;
-      
-      if (error) {
-        console.error('Database operation failed:', error);
-        if (error.code === '42501') {
-          throw new Error('Permission denied. Please check if you are logged in.');
+      if (result.error) {
+        throw result.error;
+      }
+
+      // Only set success state if we have data
+      if (result.data) {
+        setIsCreated(true);
+        toast.success(profileId ? 'Profile updated successfully' : 'Profile created successfully');
+        
+        // Reset success state after 3 seconds
+        setTimeout(() => {
+          setIsCreated(false);
+        }, 3000);
+
+        if (onSuccess) {
+          onSuccess();
         }
-        throw error;
-      }
-
-      console.log('Operation successful, data:', data);
-      setIsCreated(true);
-      toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
-      
-      // Reset button text after 3 seconds
-      setTimeout(() => {
-        setIsCreated(false);
-      }, 3000);
-      
-      if (onSuccess) {
-        onSuccess();
+      } else {
+        throw new Error('No data returned from database');
       }
     } catch (error: any) {
       console.error('Error in profile submission:', error);
       toast.error(error.message || 'Failed to save profile');
+      setIsCreated(false);
     } finally {
       setLoading(false);
     }
