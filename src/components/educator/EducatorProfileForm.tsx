@@ -44,22 +44,25 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('1. handleSubmit called');
     
     if (!user) {
-      console.log('No user found, aborting submission');
+      console.log('2. No user found, aborting submission');
       toast.error('You must be logged in to update your profile');
       return;
     }
 
+    console.log('3. User is present:', user);
+
     if (!formData.name || !formData.email) {
-      console.log('Missing required fields:', { name: formData.name, email: formData.email });
+      console.log('4. Missing required fields:', { name: formData.name, email: formData.email });
       toast.error('Name and email are required');
       return;
     }
 
+    console.log('5. Required fields are present');
     setIsSubmitting(true);
-    console.log('Starting form submission with user:', user);
-    console.log('Initial data state:', initialData);
+    console.log('6. Set isSubmitting to true');
 
     const profileData = {
       user_id: user.id,
@@ -77,102 +80,74 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       tags: []
     };
 
-    console.log('Built profile data:', JSON.stringify(profileData, null, 2));
-
-    if (initialData?.id) {
-      console.log('This is an update operation for profile ID:', initialData.id);
-      Object.assign(profileData, { id: initialData.id });
-    } else {
-      console.log('This is a new profile creation');
-    }
+    console.log('7. Profile data prepared:', profileData);
 
     try {
+      console.log('8. Starting try block');
       if (!initialData?.id) {
-        console.log('Starting direct insert operation...');
-        console.time('insertOperation');
+        console.log('9. No initial data ID, attempting insert');
         
-        const { data: insertData, error: insertError } = await supabase
-          .from('educator_profiles')
-          .insert(profileData)
-          .select()
-          .single();
+        try {
+          console.log('10. Before supabase.from call');
+          const { data: insertData, error: insertError } = await supabase
+            .from('educator_profiles')
+            .insert(profileData)
+            .select();
+          
+          console.log('11. After supabase.from call');
+          console.log('Insert response:', { data: insertData, error: insertError });
 
-        console.timeEnd('insertOperation');
-        console.log('Insert operation completed');
-        console.log('Insert response:', { 
-          data: insertData, 
-          error: insertError,
-          status: insertError ? 'failed' : 'success'
-        });
+          if (insertError) {
+            console.error('12. Insert error:', insertError);
+            toast.error(insertError.message || 'Failed to create profile');
+            setIsSubmitting(false);
+            return;
+          }
 
-        if (insertError) {
-          console.error('Insert operation failed:', {
-            message: insertError.message,
-            details: insertError.details,
-            hint: insertError.hint
-          });
-          toast.error(insertError.message || 'Failed to create profile');
-          setIsSubmitting(false);
-          return;
-        }
-
-        if (insertData) {
-          console.log('Insert operation succeeded:', insertData);
+          console.log('13. Insert successful:', insertData);
           toast.success('Profile created successfully');
           if (onSuccess) onSuccess();
+          setIsSubmitting(false);
+          return;
+        } catch (insertErr) {
+          console.error('14. Unexpected insert error:', insertErr);
+          toast.error('Failed to create profile');
           setIsSubmitting(false);
           return;
         }
       }
 
-      console.log('Starting upsert operation...');
-      console.time('upsertOperation');
-
+      console.log('15. Has initial data ID, attempting upsert');
       const { data, error } = await supabase
         .from('educator_profiles')
         .upsert(profileData)
-        .select()
-        .single();
+        .select();
 
-      console.timeEnd('upsertOperation');
-      console.log('Upsert operation completed');
-      console.log('Upsert response:', { 
-        data, 
-        error,
-        status: error ? 'failed' : 'success'
-      });
+      console.log('16. Upsert response:', { data, error });
 
       if (error) {
-        console.error('Upsert operation failed:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
+        console.error('17. Upsert error:', error);
         toast.error(error.message || 'Failed to save profile');
         return;
       }
 
       if (!data) {
-        console.error('Upsert operation returned no data');
+        console.error('18. No data returned from upsert');
         toast.error('Failed to save profile - no data returned');
         return;
       }
 
-      console.log('Profile saved successfully:', data);
+      console.log('19. Profile saved successfully:', data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
       
       if (onSuccess) {
         onSuccess();
       }
     } catch (error: any) {
-      console.error('Unexpected error during profile submission:', {
-        error,
-        message: error.message,
-        stack: error.stack
-      });
+      console.error('20. Unexpected error:', error);
       toast.error(error.message || 'Failed to save profile');
     } finally {
-      console.log('Form submission completed, resetting submit state');
+      console.log('21. Finally block reached');
       setIsSubmitting(false);
     }
   };
