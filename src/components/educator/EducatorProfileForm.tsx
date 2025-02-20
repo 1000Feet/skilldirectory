@@ -56,10 +56,11 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     }
 
     setIsSubmitting(true);
-    console.log('Starting profile update with user:', user);
+    console.log('Starting profile operation with user:', user);
 
     try {
       const profileData = {
+        user_id: user.id,
         name: formData.name.trim(),
         description: formData.description.trim(),
         website: formData.website.trim(),
@@ -72,25 +73,51 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         ai_voice_agent: formData.ai_voice_agent
       };
 
-      const { error: updateError } = await supabase
+      const { data: existingProfile, error: checkError } = await supabase
         .from('educator_profiles')
-        .update(profileData)
-        .eq('user_id', user.id);
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
 
-      if (updateError) {
-        console.error('Profile update failed:', updateError);
-        throw updateError;
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing profile:', checkError);
+        throw checkError;
       }
 
-      console.log('Profile updated successfully');
-      toast.success('Profile updated successfully!');
+      let result;
+      if (existingProfile) {
+        // Update existing profile
+        console.log('Updating existing profile...');
+        result = await supabase
+          .from('educator_profiles')
+          .update(profileData)
+          .eq('user_id', user.id)
+          .select()
+          .single();
+      } else {
+        // Insert new profile
+        console.log('Creating new profile...');
+        result = await supabase
+          .from('educator_profiles')
+          .insert([profileData])
+          .select()
+          .single();
+      }
+
+      if (result.error) {
+        console.error('Profile operation failed:', result.error);
+        throw result.error;
+      }
+
+      console.log('Profile saved successfully:', result.data);
+      toast.success(existingProfile ? 'Profile updated successfully!' : 'Profile created successfully!');
       
       if (onSuccess) {
         onSuccess();
       }
     } catch (error: any) {
-      console.error('Profile update error:', error);
-      toast.error(error.message || 'Failed to update profile. Please try again.');
+      console.error('Profile operation error:', error);
+      toast.error(error.message || 'Failed to save profile. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -136,7 +163,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         className="w-full"
         disabled={isSubmitting}
       >
-        {isSubmitting ? 'Saving...' : 'Update Profile'}
+        {isSubmitting ? 'Saving...' : (initialData ? 'Update Profile' : 'Create Profile')}
       </Button>
     </form>
   );
