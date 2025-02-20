@@ -49,8 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await authSignOut();
-    setUser(null);
+    try {
+      await authSignOut();
+      setUser(null);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      throw error;
+    }
   };
 
   useEffect(() => {
