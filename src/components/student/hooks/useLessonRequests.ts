@@ -21,11 +21,11 @@ export function useLessonRequests(userId: string | undefined) {
           .from('lesson_requests')
           .select(`
             *,
-            educator:student_profiles!lesson_requests_educator_id_fkey(
+            educator:educator_profiles!lesson_requests_educator_profile_id_fkey(
               id,
+              email,
               first_name,
-              last_name,
-              email
+              last_name
             )
           `)
           .eq('student_id', userId)

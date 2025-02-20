@@ -11,10 +11,10 @@ export function LessonRequestCard({ request }: LessonRequestCardProps) {
     <div className="flex items-center justify-between p-4 border rounded-lg bg-card">
       <div className="space-y-1">
         <h4 className="font-medium">
-          {request.educator.first_name} {request.educator.last_name}
+          {request.educator?.first_name} {request.educator?.last_name}
         </h4>
         <p className="text-sm text-muted-foreground">
-          {request.educator.email}
+          {request.educator?.email}
         </p>
         <p className="text-sm">
           Proposed: {format(new Date(request.proposed_date), 'PPp')}
