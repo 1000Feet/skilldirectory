@@ -2,8 +2,39 @@
 import { Header } from "@/components/Header";
 import { StudentProfileForm } from "@/components/student/StudentProfileForm";
 import { LessonRequests } from "@/components/student/LessonRequests";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function StudentDashboard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    if (user.user_metadata?.user_type !== 'student') {
+      toast.error('Access denied. This page is only for students.');
+      navigate('/');
+      return;
+    }
+  }, [user, navigate]);
+
+  if (!user) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Header />
