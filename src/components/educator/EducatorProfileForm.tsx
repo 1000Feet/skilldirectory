@@ -57,6 +57,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
 
     setIsSubmitting(true);
     console.log('Current user:', user);
+    console.log('Initial data:', initialData);
 
     // Create the profile data object without id for new profiles
     const profileData = {
@@ -77,26 +78,65 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
 
     // Only include id if we're updating an existing profile
     if (initialData?.id) {
+      console.log('Updating existing profile with ID:', initialData.id);
       Object.assign(profileData, { id: initialData.id });
+    } else {
+      console.log('Creating new profile');
     }
 
     console.log('Submitting profile data:', profileData);
 
     try {
+      // First try a direct insert if no initialData.id exists
+      if (!initialData?.id) {
+        console.log('Attempting direct insert...');
+        const { data: insertData, error: insertError } = await supabase
+          .from('educator_profiles')
+          .insert(profileData)
+          .select()
+          .single();
+
+        console.log('Insert response:', { data: insertData, error: insertError });
+
+        if (insertError) {
+          console.error('Insert error:', insertError);
+          toast.error(insertError.message || 'Failed to create profile');
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (insertData) {
+          console.log('Insert successful:', insertData);
+          toast.success('Profile created successfully');
+          if (onSuccess) onSuccess();
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // If we have an initialData.id or insert failed, try upsert
+      console.log('Attempting upsert...');
       const { data, error } = await supabase
         .from('educator_profiles')
         .upsert(profileData)
         .select()
         .single();
 
-      console.log('Profile submission response:', { data, error });
+      console.log('Upsert response:', { data, error });
 
       if (error) {
-        console.error('Profile submission error:', error);
+        console.error('Upsert error:', error);
         toast.error(error.message || 'Failed to save profile');
         return;
       }
 
+      if (!data) {
+        console.error('No data returned from upsert');
+        toast.error('Failed to save profile - no data returned');
+        return;
+      }
+
+      console.log('Profile saved successfully:', data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
       
       if (onSuccess) {
