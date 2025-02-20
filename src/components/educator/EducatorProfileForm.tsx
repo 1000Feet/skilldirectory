@@ -13,8 +13,6 @@ import { VoiceAgentSection } from './VoiceAgentSection';
 export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileFormProps) {
   const { user } = useAuth();
   console.log('Current user:', user);
-  console.log('Supabase client initialized:', !!supabase);
-  console.log('Full Supabase client:', supabase);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -48,88 +46,62 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submission started');
     
-    if (!supabase) {
-      console.error('Supabase client not initialized');
-      toast.error('Database connection error');
-      return;
-    }
-
     if (!user) {
-      console.error('No user found - aborting submission');
       toast.error('Please log in to submit the form');
       return;
     }
 
     if (!formData.name) {
-      console.error('Name is required - aborting submission');
       toast.error('Business name is required');
       return;
     }
 
-    console.log('Validation passed, proceeding with submission');
     setIsSubmitting(true);
 
     try {
-      // Test basic connectivity first
-      console.log('Testing Supabase connectivity...');
-      const pingTest = await supabase
-        .from('educator_profiles')
-        .select('*')
-        .limit(1);
-      console.log('Ping test result:', pingTest);
-
-      console.log('Preparing minimal test data...');
-      const testData = {
+      // Simplified data structure
+      const minimalData = {
         user_id: user.id,
         name: formData.name,
-        email: formData.email
+        email: formData.email,
+        phone: formData.phone || null,
+        description: formData.description || null
       };
 
-      console.log('Attempting test insert with minimal data:', testData);
-      const testResult = await supabase
-        .from('educator_profiles')
-        .insert([testData])
-        .select();
+      console.log('Attempting insert with:', minimalData);
       
-      console.log('Test insert result:', testResult);
+      // First try a select to verify connection
+      const { data: testData, error: testError } = await supabase
+        .from('educator_profiles')
+        .select('id')
+        .limit(1);
+      
+      console.log('Test select result:', { testData, testError });
 
-      if (testResult.error) {
-        throw testResult.error;
+      if (testError) {
+        throw new Error(`Database connection test failed: ${testError.message}`);
       }
 
-      console.log('Test insert successful, proceeding with full data insert');
-      
-      const profileData = {
-        ...formData,
-        user_id: user.id
-      };
-      
-      console.log('About to call Supabase with full data:', profileData);
-      console.log('DEBUG: Insert line reached');
-      
-      const result = await supabase
+      // Now try the actual insert
+      const { data, error } = await supabase
         .from('educator_profiles')
-        .insert([profileData])
+        .insert([minimalData])
         .select();
-      
-      console.log('DEBUG: Insert call finished');
-      console.log('Full insert result:', result);
 
-      if (result.error) {
-        console.error('Supabase error:', result.error);
-        throw result.error;
+      console.log('Insert response:', { data, error });
+
+      if (error) {
+        throw error;
       }
 
-      console.log('Profile created successfully:', result.data);
       toast.success('Profile created successfully!');
       
       if (onSuccess) {
         onSuccess();
       }
     } catch (error: any) {
-      console.error('Caught exception in profile creation:', error);
+      console.error('Error in profile creation:', error);
       toast.error(error.message || 'Failed to create profile');
     } finally {
       setIsSubmitting(false);
@@ -137,7 +109,6 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
   };
 
   if (!user) {
-    console.log('No user - rendering null');
     return null;
   }
 
