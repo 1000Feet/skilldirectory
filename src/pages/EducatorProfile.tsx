@@ -33,44 +33,52 @@ const EducatorProfile = () => {
   const [showClaimBanner, setShowClaimBanner] = useState(true);
   const [profile, setProfile] = useState<EducatorProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        console.log('Fetching profile with ID:', id);
-        const { data, error } = await supabase
+        if (!id) {
+          setError("No profile ID provided");
+          setLoading(false);
+          return;
+        }
+
+        const { data, error: fetchError } = await supabase
           .from('educator_profiles')
           .select('*')
           .eq('id', id)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching profile:', error);
+        if (fetchError) {
+          console.error('Error fetching profile:', fetchError);
+          setError("Failed to load educator profile");
           toast.error('Failed to load educator profile');
-          throw error;
+          throw fetchError;
+        }
+
+        if (!data) {
+          setError("Profile not found");
+          setLoading(false);
+          return;
         }
 
         console.log('Fetched profile data:', data);
-
-        if (data) {
-          // Convert the social JSON data to the correct type
-          const formattedProfile: EducatorProfile = {
-            ...data,
-            social: data.social as EducatorProfile['social']
-          };
-          setProfile(formattedProfile);
-        }
-      } catch (error) {
-        console.error('Error in profile fetch:', error);
+        setProfile({
+          ...data,
+          social: data.social as EducatorProfile['social']
+        });
+        setError(null);
+      } catch (err) {
+        console.error('Error in profile fetch:', err);
+        setError("An unexpected error occurred");
         toast.error('Failed to load educator profile');
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchProfile();
-    }
+    fetchProfile();
   }, [id]);
 
   if (loading) {
@@ -84,14 +92,14 @@ const EducatorProfile = () => {
     );
   }
 
-  if (!profile) {
+  if (error || !profile) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-semibold mb-2">Profile Not Found</h2>
-            <p className="text-gray-600">The educator profile you're looking for doesn't exist.</p>
+            <p className="text-gray-600">{error || "The educator profile you're looking for doesn't exist."}</p>
           </div>
         </main>
       </div>
