@@ -35,11 +35,12 @@ export function LessonRequests() {
 
     const fetchRequests = async () => {
       try {
+        console.log('Fetching requests for student:', user.id);
         const { data, error } = await supabase
           .from('lesson_requests')
           .select(`
             *,
-            educator:student_profiles!lesson_requests_educator_id_fkey(
+            educator:educator_id(
               id,
               first_name,
               last_name,
@@ -49,22 +50,25 @@ export function LessonRequests() {
           .eq('student_id', user.id)
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching lesson requests:', error);
+          throw error;
+        }
 
+        console.log('Fetched lesson requests:', data);
         setRequests(data || []);
-      } catch (error) {
-        console.error('Error fetching lesson requests:', error);
+      } catch (error: any) {
+        console.error('Failed to load lesson requests:', error);
         toast.error('Failed to load lesson requests');
       } finally {
         setLoading(false);
       }
     };
 
-    // Initial fetch
     fetchRequests();
 
     // Set up real-time subscription
-    const subscription = supabase
+    const channel = supabase
       .channel('student_lesson_requests_changes')
       .on(
         'postgres_changes',
@@ -74,35 +78,20 @@ export function LessonRequests() {
           table: 'lesson_requests',
           filter: `student_id=eq.${user.id}`,
         },
-        () => {
+        (payload) => {
+          console.log('Received real-time update:', payload);
           fetchRequests();
         }
       )
       .subscribe();
 
-    // Cleanup subscription
     return () => {
-      subscription.unsubscribe();
+      channel.unsubscribe();
     };
   }, [user]);
 
   if (!user) {
     return null;
-  }
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Lessons Requested</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center p-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
   }
 
   return (
@@ -111,7 +100,11 @@ export function LessonRequests() {
         <CardTitle>Lessons Requested</CardTitle>
       </CardHeader>
       <CardContent>
-        {requests.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center p-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : requests.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No lesson requests yet
           </div>
