@@ -12,6 +12,7 @@ import { VoiceAgentSection } from './VoiceAgentSection';
 
 export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileFormProps) {
   const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
@@ -54,6 +55,9 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       return;
     }
 
+    setIsSubmitting(true);
+    console.log('Submitting profile data:', { ...formData, user_id: user.id });
+
     const profileData = {
       name: formData.name,
       description: formData.description,
@@ -77,8 +81,12 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         .select()
         .single();
 
+      console.log('Profile submission response:', response);
+
       if (response.error) {
-        throw response.error;
+        console.error('Profile submission error:', response.error);
+        toast.error(response.error.message || 'Failed to save profile');
+        return;
       }
 
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
@@ -89,6 +97,8 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     } catch (error: any) {
       console.error('Profile submission error:', error);
       toast.error(error.message || 'Failed to save profile');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -129,8 +139,9 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       <Button 
         type="submit" 
         className="w-full"
+        disabled={isSubmitting}
       >
-        {initialData ? 'Update Profile' : 'Create Profile'}
+        {isSubmitting ? 'Saving...' : (initialData ? 'Update Profile' : 'Create Profile')}
       </Button>
     </form>
   );
