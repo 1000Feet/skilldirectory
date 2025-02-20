@@ -27,7 +27,8 @@ interface LessonRequest {
 export function LessonRequests() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<LessonRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -37,7 +38,9 @@ export function LessonRequests() {
 
     const fetchRequests = async () => {
       try {
-        console.log('Fetching requests for educator:', user.id);
+        setLoading(true);
+        setError(null);
+
         const { data, error } = await supabase
           .from('lesson_requests')
           .select(`
@@ -52,26 +55,22 @@ export function LessonRequests() {
           .eq('educator_id', user.id)
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Error details:', error);
-          throw error;
-        }
+        if (error) throw error;
 
-        console.log('Fetched requests:', data);
         setRequests(data || []);
       } catch (error) {
         console.error('Error fetching lesson requests:', error);
+        setError('Failed to load lesson requests');
         toast.error('Failed to load lesson requests');
       } finally {
         setLoading(false);
       }
     };
 
-    // Initial fetch
     fetchRequests();
 
     // Set up real-time subscription
-    const subscription = supabase
+    const channel = supabase
       .channel('lesson_requests_changes')
       .on(
         'postgres_changes',
@@ -81,7 +80,8 @@ export function LessonRequests() {
           table: 'lesson_requests',
           filter: `educator_id=eq.${user.id}`,
         },
-        () => {
+        (payload) => {
+          console.log('Received real-time update:', payload);
           fetchRequests();
         }
       )
@@ -89,12 +89,11 @@ export function LessonRequests() {
 
     // Cleanup subscription
     return () => {
-      subscription.unsubscribe();
+      channel.unsubscribe();
     };
   }, [user]);
 
   const handleReply = (requestId: string) => {
-    // This will be implemented later when we add the reply functionality
     toast.info('Reply functionality coming soon!');
   };
 
@@ -102,15 +101,15 @@ export function LessonRequests() {
     return null;
   }
 
-  if (loading) {
+  if (error) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Lesson Requests</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center p-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="text-center py-4 text-red-600">
+            {error}
           </div>
         </CardContent>
       </Card>
@@ -123,7 +122,11 @@ export function LessonRequests() {
         <CardTitle>Lesson Requests</CardTitle>
       </CardHeader>
       <CardContent>
-        {requests.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center p-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : requests.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No lesson requests yet
           </div>
