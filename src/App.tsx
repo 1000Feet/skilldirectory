@@ -1,46 +1,38 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import EducatorProfile from "./pages/EducatorProfile";
-import PricingPage from "./pages/Pricing";
-import AboutPage from "./pages/About";
-import ListingsPage from "./pages/Listings";
-import SupportPage from "./pages/Support";
-import NotFound from "./pages/NotFound";
-import EducatorDashboard from "./pages/EducatorDashboard";
-import StudentDashboard from "./pages/StudentDashboard";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Index from './pages/Index';
+import About from './pages/About';
+import Support from './pages/Support';
+import Pricing from './pages/Pricing';
+import Listings from './pages/Listings';
+import Auth from './pages/Auth';
+import NotFound from './pages/NotFound';
+import EducatorDashboard from './pages/EducatorDashboard';
+import StudentDashboard from './pages/StudentDashboard';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from './contexts/AuthContext';
+import { Toaster as SonnerToaster } from 'sonner';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/listings" element={<ListingsPage />} />
-            <Route path="/educator/:id" element={<EducatorProfile />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/support" element={<SupportPage />} />
-            <Route path="/dashboard" element={<EducatorDashboard />} />
-            <Route path="/student-dashboard" element={<StudentDashboard />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/listings" element={<Listings />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<EducatorDashboard />} />
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
+        <SonnerToaster />
+      </AuthProvider>
+    </Router>
+  );
+}
 
 export default App;
