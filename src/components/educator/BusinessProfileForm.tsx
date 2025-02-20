@@ -44,8 +44,14 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (loading) {
+      console.log('Form submission already in progress');
+      return;
+    }
 
     try {
+      console.log('Starting form submission...', { user, formData });
       setLoading(true);
 
       if (!user) {
@@ -72,20 +78,31 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         tags: []
       };
 
-      const { data, error } = initialData?.id 
-        ? await supabase
-            .from('business_profiles')
-            .update(profileData)
-            .eq('id', initialData.id)
-            .select()
-            .maybeSingle()
-        : await supabase
-            .from('business_profiles')
-            .insert([profileData])
-            .select()
-            .maybeSingle();
+      console.log('Submitting profile data:', profileData);
+
+      let response;
+      if (initialData?.id) {
+        console.log('Updating existing profile...');
+        response = await supabase
+          .from('business_profiles')
+          .update(profileData)
+          .eq('id', initialData.id)
+          .select()
+          .single();
+      } else {
+        console.log('Creating new profile...');
+        response = await supabase
+          .from('business_profiles')
+          .insert([profileData])
+          .select()
+          .single();
+      }
+
+      const { data, error } = response;
+      console.log('Supabase response:', { data, error });
 
       if (error) {
+        console.error('Supabase error:', error);
         throw error;
       }
 
@@ -93,6 +110,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         throw new Error('No data returned from server');
       }
 
+      console.log('Profile saved successfully:', data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
       
       if (onSuccess) {
@@ -102,6 +120,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       console.error('Error in profile submission:', error);
       toast.error(error.message || 'Failed to save profile');
     } finally {
+      console.log('Form submission completed');
       setLoading(false);
     }
   };
@@ -137,7 +156,7 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       />
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Saving...' : 'Update Profile'}
+        {loading ? 'Saving...' : (initialData ? 'Update Profile' : 'Create Profile')}
       </Button>
     </form>
   );
