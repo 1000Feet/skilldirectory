@@ -31,7 +31,10 @@ export function LessonRequests() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('LessonRequests mounted, user:', user);
+    
     if (!user) {
+      console.log('No user found, stopping fetch');
       setLoading(false);
       return;
     }
@@ -40,9 +43,18 @@ export function LessonRequests() {
       try {
         setLoading(true);
         setError(null);
-        console.log('Fetching lesson requests for educator:', user.id);
+        console.log('Starting fetch for educator:', user.id);
 
-        // First, let's verify the user's role
+        // Get current session to verify auth state
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log('Current session:', session);
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
+
+        // Verify user's role
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('user_type, email')
@@ -50,12 +62,13 @@ export function LessonRequests() {
           .single();
 
         if (profileError) {
-          console.error('Error fetching profile:', profileError);
+          console.error('Profile fetch error:', profileError);
           throw profileError;
         }
 
-        console.log('Current user profile:', profileData);
+        console.log('User profile:', profileData);
 
+        // Fetch lesson requests
         const { data, error } = await supabase
           .from('lesson_requests')
           .select(`
@@ -75,7 +88,7 @@ export function LessonRequests() {
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Error fetching lesson requests:', error);
+          console.error('Lesson requests fetch error:', error);
           throw error;
         }
 
@@ -120,10 +133,12 @@ export function LessonRequests() {
   };
 
   if (!user) {
+    console.log('Rendering null - no user');
     return null;
   }
 
   if (error) {
+    console.log('Rendering error state:', error);
     return (
       <Card>
         <CardHeader>
@@ -137,6 +152,8 @@ export function LessonRequests() {
       </Card>
     );
   }
+
+  console.log('Rendering main component. Loading:', loading, 'Requests:', requests);
 
   return (
     <Card>
