@@ -47,30 +47,61 @@ export default function EducatorDashboard() {
         console.log('Fetched profile data:', data);
         
         if (data) {
-          // Transform the data to match BusinessProfile type
-          const socialData = data.social as { facebook?: string; instagram?: string; youtube?: string } || {};
+          // Parse the social data safely
+          const socialData = typeof data.social === 'object' ? data.social : {};
           
           const transformedProfile: BusinessProfile = {
             id: data.id,
             user_id: data.user_id,
-            name: data.name,
+            name: data.name || '',
             description: data.description || '',
             website: data.website || '',
             address: data.address || '',
             phone: data.phone || '',
-            email: data.email,
+            email: data.email || '',
             about_business: data.about_business || '',
             social: {
-              facebook: socialData.facebook || '',
-              instagram: socialData.instagram || '',
-              youtube: socialData.youtube || ''
+              facebook: (socialData as any)?.facebook || '',
+              instagram: (socialData as any)?.instagram || '',
+              youtube: (socialData as any)?.youtube || ''
             },
-            ai_chatbot: data.ai_chatbot as BusinessProfile['ai_chatbot'],
-            ai_voice_agent: data.ai_voice_agent as BusinessProfile['ai_voice_agent']
+            ai_chatbot: {
+              knowledge_base: Array.isArray(data.ai_chatbot?.knowledge_base) 
+                ? data.ai_chatbot.knowledge_base 
+                : []
+            },
+            ai_voice_agent: {
+              knowledge_base: Array.isArray(data.ai_voice_agent?.knowledge_base) 
+                ? data.ai_voice_agent.knowledge_base 
+                : [],
+              voice_id: data.ai_voice_agent?.voice_id || 'cjVigY5qzO86Huf0OWal'
+            }
           };
           setBusinessProfile(transformedProfile);
         } else {
-          setBusinessProfile(null);
+          // If no profile exists, set initial empty profile
+          const emptyProfile: BusinessProfile = {
+            name: '',
+            description: '',
+            website: '',
+            address: '',
+            phone: '',
+            email: user.email || '',
+            about_business: '',
+            social: {
+              facebook: '',
+              instagram: '',
+              youtube: ''
+            },
+            ai_chatbot: {
+              knowledge_base: []
+            },
+            ai_voice_agent: {
+              knowledge_base: [],
+              voice_id: 'cjVigY5qzO86Huf0OWal'
+            }
+          };
+          setBusinessProfile(emptyProfile);
         }
       } catch (err) {
         console.error('Dashboard error:', err);
