@@ -5,13 +5,13 @@ import { Camera } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface BusinessImageUploadProps {
+interface EducatorImageUploadProps {
   currentImage?: string;
   onImageUpload: (url: string) => void;
   loading: boolean;
 }
 
-export function BusinessImageUpload({ currentImage, onImageUpload, loading }: BusinessImageUploadProps) {
+export function EducatorImageUpload({ currentImage, onImageUpload, loading }: EducatorImageUploadProps) {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -21,13 +21,13 @@ export function BusinessImageUpload({ currentImage, onImageUpload, loading }: Bu
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('business-images')
+        .from('educator-images')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('business-images')
+        .from('educator-images')
         .getPublicUrl(filePath);
 
       onImageUpload(publicUrl);
@@ -39,12 +39,12 @@ export function BusinessImageUpload({ currentImage, onImageUpload, loading }: Bu
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="imageUpload">Business Image</Label>
+      <Label htmlFor="imageUpload">Profile Image</Label>
       <div className="flex items-center gap-4">
         {currentImage && (
           <img 
             src={currentImage} 
-            alt="Business" 
+            alt="Educator" 
             className="w-32 h-32 object-cover rounded-lg"
           />
         )}
