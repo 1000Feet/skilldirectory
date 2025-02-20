@@ -23,7 +23,7 @@ export function LessonRequests() {
           </div>
         ) : requests.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            No lesson requests yet
+            No lessons requested yet
           </div>
         ) : (
           <div className="space-y-4">
