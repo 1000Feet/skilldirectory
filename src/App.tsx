@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Index from './pages/Index';
 import About from './pages/About';
 import Support from './pages/Support';
@@ -27,7 +27,9 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<EducatorDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
-          <Route path="/business/:id" element={<EducatorProfile />} />
+          <Route path="/educator/:id" element={<EducatorProfile />} />
+          {/* Redirect old business URLs to new educator URLs */}
+          <Route path="/business/:id" element={<Navigate to={(location) => location.pathname.replace('business', 'educator')} replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
