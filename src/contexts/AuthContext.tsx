@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check active sessions
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        console.log('Initial session check - found session:', session);
         setUser({
           id: session.user.id,
           email: session.user.email!,
@@ -34,6 +35,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // Fetch profile data
         fetchProfile(session.user.id);
+      } else {
+        console.log('Initial session check - no session found');
+        setUser(null);
       }
       setLoading(false);
     });
@@ -44,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       if (session) {
+        console.log('Setting user from auth state change:', session.user);
         setUser({
           id: session.user.id,
           email: session.user.email!,
@@ -55,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Fetch profile data
         await fetchProfile(session.user.id);
       } else {
+        console.log('Auth state change - clearing user');
         setUser(null);
       }
       setLoading(false);
@@ -66,29 +72,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const fetchProfile = async (userId: string) => {
-    const { data: profile, error } = await supabase
-      .from('student_profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data: profile, error } = await supabase
+        .from('student_profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
       
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return;
-    }
-    
-    if (profile) {
-      setUser(prev => prev ? { 
-        ...prev, 
-        profile: {
-          id: profile.id,
-          email: profile.email,
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          user_type: profile.user_type,
-          avatar_url: profile.avatar_url
-        }
-      } : null);
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+      
+      if (profile) {
+        setUser(prev => prev ? { 
+          ...prev, 
+          profile: {
+            id: profile.id,
+            email: profile.email,
+            first_name: profile.first_name,
+            last_name: profile.last_name,
+            user_type: profile.user_type,
+            avatar_url: profile.avatar_url
+          }
+        } : null);
+      }
+    } catch (error) {
+      console.error('Error in fetchProfile:', error);
     }
   };
 
@@ -119,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Attempting sign in for:', email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -128,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Set user with metadata immediately after successful sign in
       if (data.user) {
+        console.log('Sign in successful, setting user:', data.user);
         setUser({
           id: data.user.id,
           email: data.user.email!,
@@ -139,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       navigate('/');
     } catch (error: any) {
+      console.error('Sign in error:', error);
       toast.error(error.message);
       throw error;
     }
