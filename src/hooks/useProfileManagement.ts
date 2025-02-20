@@ -66,5 +66,52 @@ export const useProfileManagement = () => {
     }
   };
 
-  return { fetchProfile };
+  const updateProfile = async (userId: string, userType: UserType, profileData: any) => {
+    try {
+      console.log(`Updating ${userType} profile for user ${userId}`);
+      
+      if (userType === 'student') {
+        const { data, error } = await supabase
+          .from('student_profiles')
+          .update(profileData)
+          .eq('id', userId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        
+        return {
+          id: data.id,
+          email: data.email,
+          user_type: 'student' as const,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          avatar_url: data.avatar_url
+        } satisfies StudentProfile;
+      } else {
+        const { data, error } = await supabase
+          .from('educator_profiles')
+          .update(profileData)
+          .eq('user_id', userId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        
+        return {
+          id: data.id,
+          email: data.email,
+          user_type: 'educator' as const,
+          name: data.name,
+          description: data.description,
+          image: data.image
+        } satisfies EducatorProfile;
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
+  return { fetchProfile, updateProfile };
 };
