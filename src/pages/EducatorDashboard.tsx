@@ -48,6 +48,8 @@ export default function EducatorDashboard() {
         
         if (data) {
           // Transform the data to match BusinessProfile type
+          const socialData = data.social as { facebook?: string; instagram?: string; youtube?: string } || {};
+          
           const transformedProfile: BusinessProfile = {
             id: data.id,
             user_id: data.user_id,
@@ -58,13 +60,11 @@ export default function EducatorDashboard() {
             phone: data.phone || '',
             email: data.email,
             about_business: data.about_business || '',
-            // Ensure social object has the correct structure
             social: {
-              facebook: data.social?.facebook || '',
-              instagram: data.social?.instagram || '',
-              youtube: data.social?.youtube || ''
+              facebook: socialData.facebook || '',
+              instagram: socialData.instagram || '',
+              youtube: socialData.youtube || ''
             },
-            // Handle optional AI-related fields with proper typing
             ai_chatbot: data.ai_chatbot as BusinessProfile['ai_chatbot'],
             ai_voice_agent: data.ai_voice_agent as BusinessProfile['ai_voice_agent']
           };
