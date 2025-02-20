@@ -74,8 +74,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       console.log('Preparing data for insert...');
       const profileData = {
         ...formData,
-        user_id: user.id,
-        updated_at: new Date().toISOString()
+        user_id: user.id
       };
       
       console.log('About to call Supabase with data:', profileData);
@@ -106,7 +105,6 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     }
   };
 
-  // Early return if no user
   if (!user) {
     console.log('No user - rendering null');
     return null;
