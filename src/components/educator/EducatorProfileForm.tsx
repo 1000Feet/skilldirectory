@@ -12,6 +12,8 @@ import { VoiceAgentSection } from './VoiceAgentSection';
 
 export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileFormProps) {
   const { user } = useAuth();
+  console.log('Current user:', user); // Debug log for user
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
@@ -44,33 +46,40 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submitted!');
+    console.log('Form submission started');
+    console.log('Current form data:', formData);
     
     if (!user) {
-      console.error('No user found');
+      console.error('No user found - aborting submission');
+      toast.error('Please log in to submit the form');
+      return;
+    }
+
+    if (!formData.name) {
+      console.error('Name is required - aborting submission');
+      toast.error('Business name is required');
       return;
     }
 
     setIsSubmitting(true);
+    console.log('About to try Supabase insert...');
     
     try {
-      console.log('Attempting to create profile with data:', {
+      const profileData = {
         ...formData,
         user_id: user.id
-      });
+      };
+      
+      console.log('Attempting Supabase insert with data:', profileData);
       
       const { data, error } = await supabase
         .from('educator_profiles')
-        .insert([
-          {
-            ...formData,
-            user_id: user.id
-          }
-        ])
-        .select()
-        .single();
+        .insert([profileData])
+        .select();
 
-      console.log('Supabase response:', { data, error });
+      console.log('Supabase insert completed');
+      console.log('Response data:', data);
+      console.log('Response error:', error);
 
       if (error) {
         throw error;
@@ -80,15 +89,16 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error) {
-      console.error('Error creating profile:', error);
-      toast.error('Failed to create profile');
+    } catch (error: any) {
+      console.error('Error during profile creation:', error);
+      toast.error(error.message || 'Failed to create profile');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (!user) {
+    console.log('No user found - rendering null');
     return null;
   }
 
