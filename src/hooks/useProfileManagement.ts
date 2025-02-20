@@ -1,61 +1,23 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { UserType, StudentProfile, EducatorProfile } from '@/lib/auth-types';
+import { Database } from '@/integrations/supabase/types';
 
-type DatabaseStudentProfile = {
-  id: string;
-  email: string;
-  first_name: string | null;
-  last_name: string | null;
-  avatar_url: string | null;
-  phone: string | null;
-  address: string | null;
-  created_at: string;
-  updated_at: string;
-  user_type: UserType;
-}
-
-type DatabaseEducatorProfile = {
-  id: string;
-  user_id: string;
-  email: string;
-  name: string;
-  description: string | null;
-  image: string | null;
-  website: string | null;
-  address: string | null;
-  phone: string | null;
-  about_business: string | null;
-  social: {
-    facebook: string;
-    instagram: string;
-    youtube?: string;
-  } | null;
-  ai_chatbot: {
-    knowledge_base: string[];
-  } | null;
-  ai_voice_agent: {
-    knowledge_base: string[];
-    voice_id: string;
-  } | null;
-  created_at: string;
-  updated_at: string;
-  categories: string[] | null;
-  tags: string[] | null;
-}
+type Tables = Database['public']['Tables'];
+type StudentProfileRow = Tables['student_profiles']['Row'];
+type EducatorProfileRow = Tables['educator_profiles']['Row'];
 
 export const useProfileManagement = () => {
   const fetchProfile = async (userId: string, userType: UserType) => {
     try {
-      const table = userType === 'educator' ? 'educator_profiles' : 'student_profiles';
-      console.log(`Fetching ${userType} profile from ${table}`);
+      console.log(`Fetching ${userType} profile`);
       
       if (userType === 'student') {
         const { data: studentProfile, error: studentError } = await supabase
           .from('student_profiles')
-          .select('*')
+          .select('id, email, first_name, last_name, avatar_url')
           .eq('id', userId)
-          .single();
+          .single<StudentProfileRow>();
 
         if (studentError) {
           console.error('Error fetching student profile:', studentError);
@@ -75,9 +37,9 @@ export const useProfileManagement = () => {
       } else {
         const { data: educatorProfile, error: educatorError } = await supabase
           .from('educator_profiles')
-          .select('*')
+          .select('id, email, name, description, image')
           .eq('user_id', userId)
-          .single();
+          .single<EducatorProfileRow>();
 
         if (educatorError) {
           console.error('Error fetching educator profile:', educatorError);
