@@ -2,6 +2,22 @@
 import { supabase } from '@/integrations/supabase/client';
 import { UserType, StudentProfile, EducatorProfile } from '@/lib/auth-types';
 
+interface SupabaseStudentProfile {
+  id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+}
+
+interface SupabaseEducatorProfile {
+  id: string;
+  email: string;
+  name: string;
+  description: string | null;
+  image: string | null;
+}
+
 export const useProfileManagement = () => {
   const fetchProfile = async (userId: string, userType: UserType) => {
     try {
@@ -22,22 +38,24 @@ export const useProfileManagement = () => {
       if (profile) {
         console.log(`${userType} profile found:`, profile);
         if (userType === 'student') {
+          const studentProfile = profile as SupabaseStudentProfile;
           return {
-            id: profile.id,
-            email: profile.email,
+            id: studentProfile.id,
+            email: studentProfile.email,
             user_type: userType,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
-            avatar_url: profile.avatar_url
+            first_name: studentProfile.first_name,
+            last_name: studentProfile.last_name,
+            avatar_url: studentProfile.avatar_url
           } as StudentProfile;
         } else {
+          const educatorProfile = profile as SupabaseEducatorProfile;
           return {
-            id: profile.id,
-            email: profile.email,
+            id: educatorProfile.id,
+            email: educatorProfile.email,
             user_type: userType,
-            name: profile.name,
-            description: profile.description,
-            image: profile.image
+            name: educatorProfile.name,
+            description: educatorProfile.description,
+            image: educatorProfile.image
           } as EducatorProfile;
         }
       }
