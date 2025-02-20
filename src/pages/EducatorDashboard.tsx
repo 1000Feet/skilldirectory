@@ -45,7 +45,33 @@ export default function EducatorDashboard() {
         }
 
         console.log('Fetched profile data:', data);
-        setBusinessProfile(data);
+        
+        if (data) {
+          // Transform the data to match BusinessProfile type
+          const transformedProfile: BusinessProfile = {
+            id: data.id,
+            user_id: data.user_id,
+            name: data.name,
+            description: data.description || '',
+            website: data.website || '',
+            address: data.address || '',
+            phone: data.phone || '',
+            email: data.email,
+            about_business: data.about_business || '',
+            // Ensure social object has the correct structure
+            social: {
+              facebook: data.social?.facebook || '',
+              instagram: data.social?.instagram || '',
+              youtube: data.social?.youtube || ''
+            },
+            // Handle optional AI-related fields with proper typing
+            ai_chatbot: data.ai_chatbot as BusinessProfile['ai_chatbot'],
+            ai_voice_agent: data.ai_voice_agent as BusinessProfile['ai_voice_agent']
+          };
+          setBusinessProfile(transformedProfile);
+        } else {
+          setBusinessProfile(null);
+        }
       } catch (err) {
         console.error('Dashboard error:', err);
         setError('Failed to load profile data');
