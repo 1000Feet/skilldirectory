@@ -1,7 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { RequestLessonForm } from "@/components/student/RequestLessonForm";
 
 interface BusinessCardProps {
   name: string;
@@ -18,9 +17,7 @@ export function BusinessCard({
   description, 
   distance, 
   image, 
-  id,
-  educator_id,
-  educator_profile_id 
+  id
 }: BusinessCardProps) {
   return (
     <Card className="flex overflow-hidden hover:shadow-lg transition-shadow duration-300">
@@ -40,20 +37,12 @@ export function BusinessCard({
           <span className="inline-flex items-center rounded-full bg-gray-600 px-3 py-1 text-sm text-white">
             {distance} Miles Away
           </span>
-          <div className="flex gap-2">
-            <Link 
-              to={`/business/${id}`} 
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-            >
-              DETAILS
-            </Link>
-            {educator_id && educator_profile_id && (
-              <RequestLessonForm 
-                educatorId={educator_id} 
-                educatorProfileId={educator_profile_id}
-              />
-            )}
-          </div>
+          <Link 
+            to={`/business/${id}`} 
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          >
+            DETAILS
+          </Link>
         </div>
       </CardContent>
     </Card>
