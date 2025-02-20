@@ -12,8 +12,6 @@ import { VoiceAgentSection } from './VoiceAgentSection';
 
 export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileFormProps) {
   const { user } = useAuth();
-  console.log('Current user:', user);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
@@ -60,49 +58,44 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     setIsSubmitting(true);
 
     try {
-      // Simplified data structure
-      const minimalData = {
+      const profileData = {
         user_id: user.id,
         name: formData.name,
-        email: formData.email,
+        description: formData.description,
+        website: formData.website || null,
+        address: formData.address || null,
         phone: formData.phone || null,
-        description: formData.description || null
+        email: formData.email,
+        about_business: formData.about_business || null,
+        social: formData.social,
+        ai_chatbot: formData.ai_chatbot,
+        ai_voice_agent: formData.ai_voice_agent
       };
 
-      console.log('Attempting insert with:', minimalData);
+      console.log('Submitting profile data:', profileData);
       
-      // First try a select to verify connection
-      const { data: testData, error: testError } = await supabase
-        .from('educator_profiles')
-        .select('id')
-        .limit(1);
-      
-      console.log('Test select result:', { testData, testError });
-
-      if (testError) {
-        throw new Error(`Database connection test failed: ${testError.message}`);
-      }
-
-      // Now try the actual insert
       const { data, error } = await supabase
         .from('educator_profiles')
-        .insert([minimalData])
-        .select();
-
-      console.log('Insert response:', { data, error });
+        .upsert([profileData], {
+          onConflict: 'user_id'
+        })
+        .select()
+        .single();
 
       if (error) {
+        console.error('Error creating profile:', error);
         throw error;
       }
 
-      toast.success('Profile created successfully!');
+      console.log('Profile created successfully:', data);
+      toast.success('Profile saved successfully!');
       
       if (onSuccess) {
         onSuccess();
       }
     } catch (error: any) {
       console.error('Error in profile creation:', error);
-      toast.error(error.message || 'Failed to create profile');
+      toast.error(error.message || 'Failed to save profile');
     } finally {
       setIsSubmitting(false);
     }
