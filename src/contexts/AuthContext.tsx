@@ -18,7 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const { signIn: authSignIn, signUp, signOut } = useAuthActions();
+  const { signIn: authSignIn, signUp, signOut: authSignOut } = useAuthActions();
   const { fetchProfile } = useProfileManagement();
 
   const handleSession = async (session: any) => {
@@ -48,6 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await handleSession(session);
   };
 
+  const signOut = async () => {
+    await authSignOut();
+    setUser(null);
+  };
+
   useEffect(() => {
     // Check active sessions
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -57,8 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session);
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log('Auth state changed:', _event, session);
       await handleSession(session);
     });
 
