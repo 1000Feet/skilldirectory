@@ -46,12 +46,10 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
     e.preventDefault();
     
     if (loading) {
-      console.log('Form submission already in progress');
       return;
     }
 
     try {
-      console.log('Starting form submission...', { user, formData });
       setLoading(true);
 
       if (!user) {
@@ -78,39 +76,24 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
         tags: []
       };
 
-      console.log('Submitting profile data:', profileData);
+      const query = initialData?.id 
+        ? supabase
+            .from('business_profiles')
+            .update(profileData)
+            .eq('id', initialData.id)
+        : supabase
+            .from('business_profiles')
+            .insert([profileData]);
 
-      let response;
-      if (initialData?.id) {
-        console.log('Updating existing profile...');
-        response = await supabase
-          .from('business_profiles')
-          .update(profileData)
-          .eq('id', initialData.id)
-          .select()
-          .single();
-      } else {
-        console.log('Creating new profile...');
-        response = await supabase
-          .from('business_profiles')
-          .insert([profileData])
-          .select()
-          .single();
-      }
-
-      const { data, error } = response;
-      console.log('Supabase response:', { data, error });
+      const { data, error } = await query.select().maybeSingle();
 
       if (error) {
-        console.error('Supabase error:', error);
+        if (error.code === '42501') {
+          throw new Error('Permission denied. Please check if you are logged in.');
+        }
         throw error;
       }
 
-      if (!data) {
-        throw new Error('No data returned from server');
-      }
-
-      console.log('Profile saved successfully:', data);
       toast.success(initialData ? 'Profile updated successfully' : 'Profile created successfully');
       
       if (onSuccess) {
@@ -120,7 +103,6 @@ export function BusinessProfileForm({ initialData, onSuccess }: BusinessProfileF
       console.error('Error in profile submission:', error);
       toast.error(error.message || 'Failed to save profile');
     } finally {
-      console.log('Form submission completed');
       setLoading(false);
     }
   };
