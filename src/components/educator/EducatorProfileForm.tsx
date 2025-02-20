@@ -58,10 +58,9 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     setIsSubmitting(true);
     console.log('Current user:', user);
 
-    // Create the profile data object with user_id
+    // Create the profile data object without id for new profiles
     const profileData = {
-      id: initialData?.id, // Include this in the main object
-      user_id: user.id,    // Make sure user_id is at the top level
+      user_id: user.id,
       name: formData.name,
       description: formData.description,
       website: formData.website,
@@ -75,6 +74,11 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       categories: [],
       tags: []
     };
+
+    // Only include id if we're updating an existing profile
+    if (initialData?.id) {
+      Object.assign(profileData, { id: initialData.id });
+    }
 
     console.log('Submitting profile data:', profileData);
 
