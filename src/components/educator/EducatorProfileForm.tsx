@@ -57,9 +57,11 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
 
     setIsSubmitting(true);
     console.log('Current user:', user);
-    console.log('Submitting profile data:', { ...formData, user_id: user.id });
 
+    // Create the profile data object with user_id
     const profileData = {
+      id: initialData?.id, // Include this in the main object
+      user_id: user.id,    // Make sure user_id is at the top level
       name: formData.name,
       description: formData.description,
       website: formData.website,
@@ -70,23 +72,24 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       social: formData.social,
       ai_chatbot: formData.ai_chatbot,
       ai_voice_agent: formData.ai_voice_agent,
-      user_id: user.id,
       categories: [],
       tags: []
     };
 
+    console.log('Submitting profile data:', profileData);
+
     try {
-      const response = await supabase
+      const { data, error } = await supabase
         .from('educator_profiles')
-        .upsert([{ ...profileData, id: initialData?.id }])
+        .upsert(profileData)
         .select()
         .single();
 
-      console.log('Profile submission response:', response);
+      console.log('Profile submission response:', { data, error });
 
-      if (response.error) {
-        console.error('Profile submission error:', response.error);
-        toast.error(response.error.message || 'Failed to save profile');
+      if (error) {
+        console.error('Profile submission error:', error);
+        toast.error(error.message || 'Failed to save profile');
         return;
       }
 
