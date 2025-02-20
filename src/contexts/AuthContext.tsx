@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { AuthUser } from '@/lib/auth-types';
+import { AuthUser, UserType, StudentProfile, EducatorProfile } from '@/lib/auth-types';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -9,7 +9,7 @@ interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userType: 'student' | 'educator') => Promise<void>;
+  signUp: (email: string, password: string, userType: UserType) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchProfile = async (userId: string, userType: string) => {
+  const fetchProfile = async (userId: string, userType: UserType) => {
     try {
       const table = userType === 'educator' ? 'educator_profiles' : 'student_profiles';
       console.log(`Fetching ${userType} profile from ${table}`);
@@ -38,23 +38,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (profile) {
         console.log(`${userType} profile found:`, profile);
-        setUser(prev => prev ? {
-          ...prev,
-          profile: {
-            id: profile.id,
-            email: profile.email,
-            user_type: userType,
-            ...(userType === 'student' ? {
+        setUser(prev => {
+          if (!prev) return null;
+          
+          if (userType === 'student') {
+            const studentProfile: StudentProfile = {
+              id: profile.id,
+              email: profile.email,
+              user_type: userType,
               first_name: profile.first_name,
               last_name: profile.last_name,
               avatar_url: profile.avatar_url
-            } : {
+            };
+            return { ...prev, profile: studentProfile };
+          } else {
+            const educatorProfile: EducatorProfile = {
+              id: profile.id,
+              email: profile.email,
+              user_type: userType,
               name: profile.name,
               description: profile.description,
               image: profile.image
-            })
+            };
+            return { ...prev, profile: educatorProfile };
           }
-        } : null);
+        });
       } else {
         console.log(`No ${userType} profile found`);
       }
@@ -68,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         console.log('Initial session check - found session:', session);
-        const userType = session.user.user_metadata.user_type;
+        const userType = session.user.user_metadata.user_type as UserType;
         setUser({
           id: session.user.id,
           email: session.user.email!,
@@ -92,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       if (session) {
-        const userType = session.user.user_metadata.user_type;
+        const userType = session.user.user_metadata.user_type as UserType;
         console.log('Setting user from auth state change:', session.user);
         setUser({
           id: session.user.id,
@@ -116,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, userType: 'student' | 'educator') => {
+  const signUp = async (email: string, password: string, userType: UserType) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -153,7 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Set user with metadata immediately after successful sign in
       if (data.user) {
-        const userType = data.user.user_metadata.user_type;
+        const userType = data.user.user_metadata.user_type as UserType;
         console.log('Sign in successful, setting user:', data.user);
         setUser({
           id: data.user.id,
