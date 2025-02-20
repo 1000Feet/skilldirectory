@@ -39,4 +39,96 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
   };
 
   const handleVoiceAgentChange = (ai_voice_agent: { knowledge_base: string[], voice_id: string }) => {
-    setFormData(prev
+    setFormData(prev => ({ ...prev, ai_voice_agent }));
+  };
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('Form submitted!');
+    
+    if (!user) {
+      console.error('No user found');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Attempting to create profile with data:', {
+        ...formData,
+        user_id: user.id
+      });
+      
+      const { data, error } = await supabase
+        .from('educator_profiles')
+        .insert([
+          {
+            ...formData,
+            user_id: user.id
+          }
+        ])
+        .select()
+        .single();
+
+      console.log('Supabase response:', { data, error });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Profile created successfully!');
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      toast.error('Failed to create profile');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-8 p-6">
+      <BasicInfoSection
+        info={{
+          name: formData.name,
+          description: formData.description,
+          website: formData.website,
+          address: formData.address,
+          phone: formData.phone,
+          email: formData.email,
+          about_business: formData.about_business,
+        }}
+        onChange={handleBasicInfoChange}
+      />
+
+      <SocialMediaSection
+        social={formData.social}
+        onChange={handleSocialChange}
+      />
+
+      <AIChatbotSection
+        chatbot={formData.ai_chatbot}
+        onChange={handleChatbotChange}
+      />
+
+      <VoiceAgentSection
+        voiceAgent={formData.ai_voice_agent}
+        onChange={handleVoiceAgentChange}
+      />
+
+      <Button 
+        type="submit"
+        className="w-full"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? 'Saving...' : (initialData ? 'Update Profile' : 'Create Profile')}
+      </Button>
+    </form>
+  );
+}
