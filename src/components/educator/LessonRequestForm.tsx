@@ -39,10 +39,23 @@ export function LessonRequestForm({ educatorProfileId, educatorName }: LessonReq
     try {
       setLoading(true);
 
-      // First get the educator's user_id
+      // Get the student profile ID
+      const { data: studentData, error: studentError } = await supabase
+        .from('student_profiles')
+        .select('id, user_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (studentError || !studentData) {
+        throw new Error('Could not find your student profile');
+      }
+
+      console.log('Found student profile:', studentData);
+
+      // Get the educator profile
       const { data: educatorData, error: educatorError } = await supabase
         .from('educator_profiles')
-        .select('user_id')
+        .select('id, user_id')
         .eq('id', educatorProfileId)
         .single();
 
@@ -50,38 +63,31 @@ export function LessonRequestForm({ educatorProfileId, educatorName }: LessonReq
         throw new Error('Could not find educator information');
       }
 
-      // Get student profile ID
-      const { data: studentProfile, error: profileError } = await supabase
-        .from('student_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError || !studentProfile) {
-        throw new Error('Could not find student profile');
-      }
-
-      // Insert the lesson request
-      const { error: insertError } = await supabase
+      // Create the lesson request
+      const { error: requestError } = await supabase
         .from('lesson_requests')
-        .insert({
-          student_id: studentProfile.id,
-          educator_id: educatorData.user_id,
-          educator_profile_id: educatorProfileId,
-          proposed_date: date.toISOString(),
-          message: message || null,
-          status: 'pending',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
+        .insert([
+          {
+            student_id: studentData.id,
+            educator_id: educatorData.user_id,
+            educator_profile_id: educatorProfileId,
+            proposed_date: date.toISOString(),
+            message: message.trim(),
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]);
 
-      if (insertError) throw insertError;
+      if (requestError) {
+        throw requestError;
+      }
 
       toast.success('Lesson request sent successfully!');
       setDate(undefined);
       setMessage('');
     } catch (error: any) {
-      console.error('Error submitting lesson request:', error);
+      console.error('Error sending lesson request:', error);
       toast.error(error.message || 'Failed to send lesson request');
     } finally {
       setLoading(false);
