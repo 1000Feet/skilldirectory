@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { AuthUser, UserType } from '@/lib/auth-types';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +22,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { fetchProfile, updateProfile: updateUserProfile, createProfile } = useProfileManagement();
 
   useEffect(() => {
+    // Initialize auth state from localStorage if available
+    const savedSession = localStorage.getItem('supabase.auth.token');
+    if (savedSession) {
+      try {
+        const session = JSON.parse(savedSession);
+        if (session?.currentSession?.user) {
+          handleUserChange(session.currentSession.user);
+        }
+      } catch (error) {
+        console.error('Error parsing saved session:', error);
+      }
+    }
+
+    // Get current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         handleUserChange(session.user);
@@ -31,13 +44,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session);
       if (session?.user) {
         await handleUserChange(session.user, event);
-      } else {
+      } else if (event === 'SIGNED_OUT') {
+        // Only clear user if explicitly signed out
         setUser(null);
       }
+      setLoading(false);
     });
 
     return () => {
@@ -66,14 +82,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile = await createProfile(authUser.id, userType, newProfileData);
       }
 
-      setUser({
+      const userData = {
         id: authUser.id,
         email: authUser.email,
         user_metadata: {
           user_type: userType
         },
         profile: profile || undefined
-      });
+      };
+
+      setUser(userData);
+      
+      // Save user data to localStorage for persistence
+      localStorage.setItem('auth.user', JSON.stringify(userData));
     } catch (error) {
       console.error('Error handling user change:', error);
     } finally {
@@ -90,32 +111,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data
     );
 
-    setUser(prev => prev ? {
-      ...prev,
+    const updatedUser = {
+      ...user,
       profile: updatedProfile
-    } : null);
-  };
+    };
 
-  const value = {
-    user,
-    loading,
-    signIn,
-    signUp,
-    signOut,
-    updateProfile,
+    setUser(updatedUser);
+    localStorage.setItem('auth.user', JSON.stringify(updatedUser));
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      signIn,
+      signUp,
+      signOut,
+      updateProfile
+    }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}

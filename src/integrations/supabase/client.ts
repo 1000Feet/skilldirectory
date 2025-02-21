@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -12,10 +11,53 @@ export const supabase = createClient<Database>(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: false,
+      flowType: 'pkce',
+      storage: {
+        getItem: (key) => {
+          try {
+            const item = localStorage.getItem(key);
+            const session = item ? JSON.parse(item) : null;
+            if (session?.expires_at) {
+              // Convert expiry to never expire
+              session.expires_at = 2147483647; // Max safe timestamp
+              localStorage.setItem(key, JSON.stringify(session));
+            }
+            return item;
+          } catch (error) {
+            console.error('Error accessing localStorage:', error);
+            return null;
+          }
+        },
+        setItem: (key, value) => {
+          try {
+            // If it's a session, modify expiry before storing
+            if (key.includes('auth.token')) {
+              const session = JSON.parse(value);
+              if (session?.expires_at) {
+                session.expires_at = 2147483647; // Max safe timestamp
+                value = JSON.stringify(session);
+              }
+            }
+            localStorage.setItem(key, value);
+          } catch (error) {
+            console.error('Error setting localStorage:', error);
+          }
+        },
+        removeItem: (key) => {
+          try {
+            localStorage.removeItem(key);
+          } catch (error) {
+            console.error('Error removing from localStorage:', error);
+          }
+        }
+      }
     },
     global: {
-      fetch: fetch
+      fetch: fetch,
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
     }
   }
 );
