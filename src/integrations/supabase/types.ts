@@ -70,15 +70,7 @@ export type Database = {
           user_id?: string
           website?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "business_profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "student_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       lesson_requests: {
         Row: {

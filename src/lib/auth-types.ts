@@ -31,3 +31,4 @@ export interface AuthUser {
     user_type: UserType;
   };
 }
+
