@@ -6,59 +6,54 @@ import { toast } from 'sonner';
 export const useAuthActions = () => {
   const navigate = useNavigate();
 
-  const clearAuthCache = async () => {
-    try {
-      // Clear any cached auth data
-      localStorage.removeItem('supabase.auth.token');
-      // Clear any other auth-related items
-      const authKeys = Object.keys(localStorage).filter(key => key.startsWith('supabase.auth.'));
-      authKeys.forEach(key => localStorage.removeItem(key));
-    } catch (error) {
-      console.error('Error clearing auth cache:', error);
-    }
-  };
-
   const signUp = async (email: string, password: string, userType: UserType) => {
     try {
-      await clearAuthCache();
+      // Basic validation
+      if (!email || !email.includes('@')) {
+        throw new Error('Please enter a valid email address');
+      }
+      if (!password || password.length < 6) {
+        throw new Error('Password must be at least 6 characters long');
+      }
+
+      // Sign up the user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            user_type: userType,
+            user_type: userType
           },
-        },
+          emailRedirectTo: `${window.location.origin}/auth`
+        }
       });
 
       if (error) throw error;
+      if (!data.user) throw new Error('Signup failed - no user data returned');
+
       toast.success('Registration successful! Please check your email to verify your account.');
       navigate('/auth');
     } catch (error: any) {
-      toast.error(error.message);
+      console.error('Signup error:', error);
+      toast.error(error.message || 'Failed to create account');
       throw error;
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Attempting sign in for:', email);
-      await clearAuthCache();
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
 
       if (error) throw error;
-      
-      // Force a session refresh
-      await supabase.auth.getSession();
       
       navigate('/', { replace: true });
       return data;
     } catch (error: any) {
       console.error('Sign in error:', error);
-      toast.error(error.message);
+      toast.error(error.message || 'Failed to sign in');
       throw error;
     }
   };
@@ -68,14 +63,11 @@ export const useAuthActions = () => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      await clearAuthCache();
-      
-      console.log('Successfully signed out');
-      toast.success('Signed out successfully');
       navigate('/auth', { replace: true });
+      toast.success('Signed out successfully');
     } catch (error: any) {
       console.error('Sign out error:', error);
-      toast.error(error.message);
+      toast.error(error.message || 'Failed to sign out');
       throw error;
     }
   };

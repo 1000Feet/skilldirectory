@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Index from './pages/Index';
 import About from './pages/About';
@@ -33,8 +32,8 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<EducatorDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
-          <Route path="/educator/:id" element={<EducatorProfile />} />
-          <Route path="/business/:id" element={<BusinessRedirect />} />
+          <Route path="/educator/:slug" element={<EducatorProfile />} />
+          <Route path="/business/:slug" element={<BusinessRedirect />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

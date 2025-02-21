@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { ClaimBanner } from "@/components/business/ClaimBanner";
 import { ProfileHeader } from "@/components/educator/ProfileHeader";
 import { AboutSection } from "@/components/educator/AboutSection";
 import { ContactInfo } from "@/components/educator/ContactInfo";
+import { LessonRequestForm } from "@/components/educator/LessonRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -28,8 +28,19 @@ interface EducatorProfile {
   } | null;
 }
 
+const createSlug = (name: string) => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+};
+
 const EducatorProfile = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const profileId = location.state?.id;
+  
   const [showClaimBanner, setShowClaimBanner] = useState(true);
   const [profile, setProfile] = useState<EducatorProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,21 +48,33 @@ const EducatorProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!id) {
-        setError("No profile ID provided");
+      if (!profileId) {
+        // If no ID in state, try to find by slug
+        const { data: slugData, error: slugError } = await supabase
+          .from('educator_profiles')
+          .select('*')
+          .ilike('name', slug?.replace(/-/g, '%') || '')
+          .maybeSingle();
+
+        if (slugError || !slugData) {
+          setError("Profile not found");
+          setLoading(false);
+          return;
+        }
+
+        setProfile({
+          ...slugData,
+          social: slugData.social as EducatorProfile['social']
+        });
         setLoading(false);
         return;
       }
 
-      console.log('Attempting to fetch profile with ID:', id);
-
       const { data, error: fetchError } = await supabase
         .from('educator_profiles')
         .select('*')
-        .eq('id', id)
+        .eq('id', profileId)
         .maybeSingle();
-
-      console.log('Query response:', { data, error: fetchError });
 
       if (fetchError) {
         console.error('Error fetching profile:', fetchError);
@@ -62,13 +85,23 @@ const EducatorProfile = () => {
       }
 
       if (!data) {
-        console.log('No profile data found');
         setError("Profile not found");
         setLoading(false);
         return;
       }
 
-      console.log('Successfully fetched profile:', data);
+      // Check if we need to redirect to the correct URL with slug
+      if (data.name) {
+        const correctSlug = createSlug(data.name);
+        if (!slug || slug !== correctSlug) {
+          navigate(`/educator/${correctSlug}`, { 
+            state: { id: profileId },
+            replace: true 
+          });
+          return;
+        }
+      }
+
       setProfile({
         ...data,
         social: data.social as EducatorProfile['social']
@@ -78,7 +111,7 @@ const EducatorProfile = () => {
     };
 
     fetchProfile();
-  }, [id]);
+  }, [profileId, slug, navigate]);
 
   if (loading) {
     return (
@@ -127,12 +160,10 @@ const EducatorProfile = () => {
               />
             </div>
             <div className="space-y-6">
-              <ContactInfo
-                address={profile.address}
-                phone={profile.phone}
-                email={profile.email}
-                website={profile.website}
-                social={profile.social}
+              <ContactInfo profile={profile} />
+              <LessonRequestForm 
+                educatorProfileId={profile.id} 
+                educatorName={profile.name} 
               />
             </div>
           </div>

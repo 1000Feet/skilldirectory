@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +8,7 @@ import { BasicInfoSection } from './BasicInfoSection';
 import { SocialMediaSection } from './SocialMediaSection';
 import { AIChatbotSection } from './AIChatbotSection';
 import { VoiceAgentSection } from './VoiceAgentSection';
+import { EducatorImageUpload } from './EducatorImageUpload';
 
 export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileFormProps) {
   const { user } = useAuth();
@@ -21,6 +21,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     phone: initialData?.phone || '',
     email: initialData?.email || user?.email || '',
     about_business: initialData?.about_business || '',
+    image: initialData?.image || '',
     social: initialData?.social || { facebook: '', instagram: '', youtube: '' },
     ai_chatbot: initialData?.ai_chatbot || { knowledge_base: [] },
     ai_voice_agent: initialData?.ai_voice_agent || { 
@@ -34,6 +35,10 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
 
   const handleBasicInfoChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageChange = (url: string) => {
+    setFormData(prev => ({ ...prev, image: url }));
   };
 
   const handleSocialChange = (social: { facebook: string; instagram: string; youtube?: string }) => {
@@ -74,6 +79,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         about_business: formData.about_business.trim(),
+        image: formData.image,
         social: formData.social,
         ai_chatbot: formData.ai_chatbot,
         ai_voice_agent: formData.ai_voice_agent,
@@ -126,16 +132,13 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
 
   return (
     <form onSubmit={onSubmit} className="space-y-8 p-6">
-      <BasicInfoSection
-        info={{
-          name: formData.name,
-          description: formData.description,
-          website: formData.website,
-          address: formData.address,
-          phone: formData.phone,
-          email: formData.email,
-          about_business: formData.about_business,
-        }}
+      <EducatorImageUpload
+        currentImage={formData.image}
+        onImageUpload={handleImageChange}
+        loading={isSubmitting}
+      />
+      <BasicInfoSection 
+        info={formData} 
         onChange={handleBasicInfoChange}
       />
 
