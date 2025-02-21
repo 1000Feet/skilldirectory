@@ -8,12 +8,14 @@ export interface BaseProfile {
 }
 
 export interface StudentProfile extends BaseProfile {
+  user_type: 'student';
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
 }
 
 export interface EducatorProfile extends BaseProfile {
+  user_type: 'educator';
   name: string;
   description: string | null;
   image: string | null;
