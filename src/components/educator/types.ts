@@ -21,6 +21,10 @@ export interface EducatorProfile {
     knowledge_base: string[];
     voice_id: string;
   };
+  image?: string | null;
+  categories?: string[];
+  tags?: string[];
+  subscription_tier?: string;
 }
 
 export interface EducatorProfileFormProps {

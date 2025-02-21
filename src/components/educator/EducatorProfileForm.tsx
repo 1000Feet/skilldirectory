@@ -23,7 +23,13 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     about_business: initialData?.about_business || '',
     social: initialData?.social || { facebook: '', instagram: '', youtube: '' },
     ai_chatbot: initialData?.ai_chatbot || { knowledge_base: [] },
-    ai_voice_agent: initialData?.ai_voice_agent || { knowledge_base: [], voice_id: 'cjVigY5qzO86Huf0OWal' }
+    ai_voice_agent: initialData?.ai_voice_agent || { 
+      knowledge_base: [], 
+      voice_id: 'cjVigY5qzO86Huf0OWal' 
+    },
+    categories: initialData?.categories || [],
+    tags: initialData?.tags || [],
+    subscription_tier: initialData?.subscription_tier || 'basic'
   });
 
   const handleBasicInfoChange = (field: string, value: string) => {
@@ -70,14 +76,17 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         about_business: formData.about_business.trim(),
         social: formData.social,
         ai_chatbot: formData.ai_chatbot,
-        ai_voice_agent: formData.ai_voice_agent
+        ai_voice_agent: formData.ai_voice_agent,
+        categories: formData.categories,
+        tags: formData.tags,
+        subscription_tier: formData.subscription_tier
       };
 
       const { data: existingProfile, error: checkError } = await supabase
         .from('educator_profiles')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (checkError && checkError.code !== 'PGRST116') {
         console.error('Error checking existing profile:', checkError);
