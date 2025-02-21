@@ -1,12 +1,9 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/home/Hero";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { 
   Pagination, 
   PaginationContent, 
@@ -27,18 +24,31 @@ import {
   Waves
 } from "lucide-react";
 
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  educator_profile_id: string;
-  educator_profile: {
-    id: string;
-    name: string;
-    description: string;
-    image: string;
-  };
-}
+const businesses = [{
+  id: 1,
+  name: "The Princess Co.",
+  description: "The Princess Co. is a professional children's entertainment company...",
+  distance: "4,714.2",
+  image: "/lovable-uploads/9845c1eb-dafb-4d19-8c8b-2014f389a748.png",
+  educator_id: "0e4c4a2e-6431-4751-ac9b-b743c126766b",
+  educator_profile_id: "0e4c4a2e-6431-4751-ac9b-b743c126766b"
+}, {
+  id: 2,
+  name: "Hinnendael Studios",
+  description: "Hinnendael Studios offers full music production, including audio re...",
+  distance: "4,714.2",
+  image: "/lovable-uploads/77ef91f8-c568-43b4-8b0b-472abea9b6f0.png",
+  educator_id: "1e4c4a2e-6431-4751-ac9b-b743c126766b",
+  educator_profile_id: "1e4c4a2e-6431-4751-ac9b-b743c126766b"
+}, {
+  id: 3,
+  name: "Kayla Peeters Music Lessons",
+  description: "As passionate educators and instructors, Kayla Peeters and her teac...",
+  distance: "4,714.2",
+  image: "/lovable-uploads/bb36ffc0-6b79-40df-af4c-b088ee7d30bb.png",
+  educator_id: "2e4c4a2e-6431-4751-ac9b-b743c126766b",
+  educator_profile_id: "2e4c4a2e-6431-4751-ac9b-b743c126766b"
+}];
 
 const categories = [
   { name: "Animals", icon: Dog },
@@ -57,88 +67,7 @@ const categories = [
 const Listings = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        let query = supabase
-          .from('educator_services')
-          .select(`
-            id,
-            name,
-            description,
-            educator_profile_id,
-            educator_profile:educator_profiles (
-              id,
-              name,
-              description,
-              image
-            )
-          `)
-          .eq('status', 'published');
-
-        if (selectedCategory) {
-          query = query.eq('category', selectedCategory);
-        }
-
-        const { data, error: servicesError } = await query;
-
-        if (servicesError) {
-          throw servicesError;
-        }
-
-        const transformedServices = data.map(service => ({
-          ...service,
-          educator_profile: service.educator_profile || {
-            id: service.educator_profile_id,
-            name: 'Unknown Educator',
-            description: '',
-            image: null
-          }
-        }));
-
-        setServices(transformedServices);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching services:', error);
-        setError('Failed to load services');
-        toast.error('Error loading services');
-        setLoading(false);
-      }
-    };
-
-    fetchServices();
-  }, [selectedCategory]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <Hero />
-        <div className="flex justify-center items-center flex-1">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <Hero />
-        <div className="flex justify-center items-center flex-1">
-          <div className="text-center text-red-600">{error}</div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -150,46 +79,38 @@ const Listings = () => {
           onSelectCategory={setSelectedCategory}
         />
         <div className="flex-1">
-          {services.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No services found in this category.
-            </div>
-          ) : (
-            services.map((service) => (
-              <BusinessCard
-                key={service.id}
-                id={service.id}
-                name={service.name}
-                description={service.description}
-                distance="4,714.2" // This could be calculated based on user location in the future
-                image={service.educator_profile.image || '/placeholder.svg'}
-                educator_id={service.educator_profile.id}
-                educator_profile_id={service.educator_profile_id}
-              />
-            ))
-          )}
+          {businesses.map((business) => (
+            <BusinessCard
+              key={business.id}
+              id={business.id}
+              name={business.name}
+              description={business.description}
+              distance={business.distance}
+              image={business.image}
+              educator_id={business.educator_id}
+              educator_profile_id={business.educator_profile_id}
+            />
+          ))}
 
-          {services.length > 0 && (
-            <Pagination className="mt-8">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationLink isActive>1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink>2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink>3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink>4</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
+          <Pagination className="mt-8">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationLink isActive>1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink>2</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink>3</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink>4</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </main>
       <Footer />
