@@ -62,7 +62,31 @@ export default function EducatorDashboard() {
         }
 
         console.log('Fetched profile data:', data);
-        setEducatorProfile(data);
+
+        if (data) {
+          // Transform the data to match EducatorProfile type
+          const transformedProfile: EducatorProfile = {
+            id: data.id,
+            user_id: data.user_id,
+            name: data.name || '',
+            description: data.description || '',
+            website: data.website || '',
+            address: data.address || '',
+            phone: data.phone || '',
+            email: data.email || '',
+            about_business: data.about_business || '',
+            social: data.social as { facebook: string; instagram: string; youtube?: string },
+            ai_chatbot: data.ai_chatbot as { knowledge_base: string[] },
+            ai_voice_agent: data.ai_voice_agent as { knowledge_base: string[]; voice_id: string },
+            image: data.image,
+            categories: data.categories as string[] || [],
+            tags: data.tags as string[] || [],
+            subscription_tier: data.subscription_tier || 'basic'
+          };
+
+          setEducatorProfile(transformedProfile);
+        }
+        
         setLoading(false);
       } catch (err) {
         console.error('Dashboard error:', err);
