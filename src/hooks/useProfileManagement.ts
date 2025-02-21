@@ -16,7 +16,7 @@ export const useProfileManagement = () => {
       if (userType === 'student') {
         const { data: studentProfile, error: studentError } = await supabase
           .from('student_profiles')
-          .select('id, email, first_name, last_name, avatar_url')
+          .select('*')
           .eq('id', userId)
           .maybeSingle<StudentProfileRow>();
 
@@ -38,7 +38,7 @@ export const useProfileManagement = () => {
       } else {
         const { data: educatorProfile, error: educatorError } = await supabase
           .from('educator_profiles')
-          .select('id, email, name, description, image, user_id')
+          .select('*')
           .eq('user_id', userId)
           .maybeSingle<EducatorProfileRow>();
 
@@ -76,7 +76,7 @@ export const useProfileManagement = () => {
           .from('student_profiles')
           .update(profileData)
           .eq('id', userId)
-          .select('id, email, first_name, last_name, avatar_url')
+          .select('*')
           .single();
 
         if (error) throw error;
@@ -94,7 +94,7 @@ export const useProfileManagement = () => {
           .from('educator_profiles')
           .update(profileData)
           .eq('user_id', userId)
-          .select('id, email, name, description, image')
+          .select('*')
           .single();
 
         if (error) throw error;
@@ -130,7 +130,7 @@ export const useProfileManagement = () => {
             last_name: profileData.last_name || null,
             avatar_url: profileData.avatar_url || null
           })
-          .select('id, email, first_name, last_name, avatar_url')
+          .select('*')
           .single();
 
         if (error) throw error;
@@ -144,25 +144,36 @@ export const useProfileManagement = () => {
           avatar_url: data.avatar_url
         } satisfies StudentProfile;
       } else {
+        // For educator profiles, we need to include all required fields
         const { data, error } = await supabase
           .from('educator_profiles')
           .insert({
             user_id: userId,
             email: profileData.email,
-            name: profileData.name || '',
-            description: profileData.description || null,
-            image: profileData.image || null,
+            name: '', // Required field, start with empty string
+            description: null,
+            image: null,
+            website: null,
+            address: null,
+            phone: null,
+            about_business: null,
+            categories: [],
+            tags: [],
             social: { facebook: '', instagram: '', youtube: '' },
             ai_chatbot: { knowledge_base: [] },
             ai_voice_agent: { 
               knowledge_base: [],
               voice_id: 'cjVigY5qzO86Huf0OWal'
-            }
+            },
+            subscription_tier: 'basic'
           })
-          .select('id, email, name, description, image')
+          .select('*')
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error creating educator profile:', error);
+          throw error;
+        }
 
         return {
           id: data.id,
