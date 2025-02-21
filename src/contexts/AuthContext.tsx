@@ -64,25 +64,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
         
         profile = await createProfile(authUser.id, userType, newProfileData);
-
-        // Transform the profile to match our expected types
-        profile = userType === 'student' 
-          ? {
-              id: profile.id,
-              email: profile.email,
-              user_type: 'student' as const,
-              first_name: profile.first_name,
-              last_name: profile.last_name,
-              avatar_url: profile.avatar_url
-            }
-          : {
-              id: profile.id,
-              email: profile.email,
-              user_type: 'educator' as const,
-              name: profile.name,
-              description: profile.description,
-              image: profile.image
-            };
       }
 
       setUser({
