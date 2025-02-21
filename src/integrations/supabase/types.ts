@@ -72,6 +72,59 @@ export type Database = {
         }
         Relationships: []
       }
+      educator_services: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          educator_profile_id: string
+          id: string
+          location_type: string | null
+          max_students: number | null
+          name: string
+          price: number
+          status: Database["public"]["Enums"]["service_status"] | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes: number
+          educator_profile_id: string
+          id?: string
+          location_type?: string | null
+          max_students?: number | null
+          name: string
+          price: number
+          status?: Database["public"]["Enums"]["service_status"] | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          educator_profile_id?: string
+          id?: string
+          location_type?: string | null
+          max_students?: number | null
+          name?: string
+          price?: number
+          status?: Database["public"]["Enums"]["service_status"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educator_services_educator_profile_id_fkey"
+            columns: ["educator_profile_id"]
+            isOneToOne: false
+            referencedRelation: "educator_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_requests: {
         Row: {
           created_at: string
@@ -177,6 +230,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      service_status: "draft" | "published" | "archived"
       user_type: "student" | "educator"
     }
     CompositeTypes: {
