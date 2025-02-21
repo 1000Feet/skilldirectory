@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session);
       if (session?.user) {
-        await handleUserChange(session.user);
+        await handleUserChange(session.user, event);
       } else {
         setUser(null);
       }
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const handleUserChange = async (authUser: any) => {
+  const handleUserChange = async (authUser: any, event?: string) => {
     try {
       const userType = authUser.user_metadata?.user_type as UserType;
       console.log('Handling user change:', authUser.id, userType);
@@ -54,10 +54,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (!profile && event === 'SIGNED_UP') {
         console.log('Creating new profile for user:', authUser.id);
-        profile = await createProfile(authUser.id, userType, {
+        const newProfileData = {
           email: authUser.email,
-          user_type: userType
-        });
+          user_type: userType,
+          ...(userType === 'student' 
+            ? { first_name: null, last_name: null, avatar_url: null }
+            : { name: '', description: null, image: null }
+          )
+        };
+        
+        profile = await createProfile(authUser.id, userType, newProfileData);
+
+        // Transform the profile to match our expected types
+        profile = userType === 'student' 
+          ? {
+              id: profile.id,
+              email: profile.email,
+              user_type: 'student' as const,
+              first_name: profile.first_name,
+              last_name: profile.last_name,
+              avatar_url: profile.avatar_url
+            }
+          : {
+              id: profile.id,
+              email: profile.email,
+              user_type: 'educator' as const,
+              name: profile.name,
+              description: profile.description,
+              image: profile.image
+            };
       }
 
       setUser({
