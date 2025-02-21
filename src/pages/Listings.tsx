@@ -30,13 +30,14 @@ import {
 interface Service {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   educator_profile_id: string;
+  price: number;
   educator_profile: {
     id: string;
     name: string;
-    description: string;
-    image: string;
+    description: string | null;
+    image: string | null;
   };
 }
 
@@ -56,7 +57,6 @@ const categories = [
 
 const Listings = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +64,7 @@ const Listings = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
+        setLoading(true);
         let query = supabase
           .from('educator_services')
           .select(`
@@ -71,6 +72,7 @@ const Listings = () => {
             name,
             description,
             educator_profile_id,
+            price,
             educator_profile:educator_profiles (
               id,
               name,
@@ -90,22 +92,14 @@ const Listings = () => {
           throw servicesError;
         }
 
-        const transformedServices = data.map(service => ({
-          ...service,
-          educator_profile: service.educator_profile || {
-            id: service.educator_profile_id,
-            name: 'Unknown Educator',
-            description: '',
-            image: null
-          }
-        }));
-
-        setServices(transformedServices);
-        setLoading(false);
+        if (data) {
+          setServices(data);
+        }
       } catch (error) {
         console.error('Error fetching services:', error);
         setError('Failed to load services');
         toast.error('Error loading services');
+      } finally {
         setLoading(false);
       }
     };
@@ -149,24 +143,26 @@ const Listings = () => {
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
         />
-        <div className="flex-1">
+        <div className="flex-1 space-y-4">
           {services.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               No services found in this category.
             </div>
           ) : (
-            services.map((service) => (
-              <BusinessCard
-                key={service.id}
-                id={service.id}
-                name={service.name}
-                description={service.description}
-                distance="4,714.2" // This could be calculated based on user location in the future
-                image={service.educator_profile.image || '/placeholder.svg'}
-                educator_id={service.educator_profile.id}
-                educator_profile_id={service.educator_profile_id}
-              />
-            ))
+            <div className="space-y-4">
+              {services.map((service) => (
+                <BusinessCard
+                  key={service.id}
+                  id={service.id}
+                  name={service.name}
+                  description={service.description || ''}
+                  distance={4714.2}
+                  image={service.educator_profile?.image || '/placeholder.svg'}
+                  educator_id={service.educator_profile?.id}
+                  educator_profile_id={service.educator_profile_id}
+                />
+              ))}
+            </div>
           )}
 
           {services.length > 0 && (
