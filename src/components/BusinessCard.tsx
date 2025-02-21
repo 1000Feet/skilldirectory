@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 interface BusinessCardProps {
   name: string;
   description: string;
-  distance: string;
+  distance: number; // Changed from string to number
   image: string;
   id?: number;
   educator_id?: string;
@@ -20,6 +20,12 @@ export function BusinessCard({
   id,
   educator_profile_id 
 }: BusinessCardProps) {
+  // Format the distance with commas and decimal places
+  const formattedDistance = distance.toLocaleString(undefined, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  });
+
   return (
     <Card className="flex overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="w-48 h-48 flex-shrink-0 bg-gray-100 p-4">
@@ -36,7 +42,7 @@ export function BusinessCard({
         </div>
         <div className="flex items-center justify-between mt-4">
           <span className="inline-flex items-center rounded-full bg-gray-600 px-3 py-1 text-sm text-white">
-            {distance} Miles Away
+            {formattedDistance} Miles Away
           </span>
           <Link 
             to={`/business/${educator_profile_id || id}`} 
