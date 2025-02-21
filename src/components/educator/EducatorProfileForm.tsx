@@ -62,7 +62,7 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
     }
 
     setIsSubmitting(true);
-    console.log('Starting profile operation with user:', user);
+    console.log('Starting profile update with data:', formData);
 
     try {
       const profileData = {
@@ -82,19 +82,8 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
         subscription_tier: formData.subscription_tier
       };
 
-      const { data: existingProfile, error: checkError } = await supabase
-        .from('educator_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (checkError && checkError.code !== 'PGRST116') {
-        console.error('Error checking existing profile:', checkError);
-        throw checkError;
-      }
-
       let result;
-      if (existingProfile) {
+      if (initialData?.id) {
         // Update existing profile
         console.log('Updating existing profile...');
         result = await supabase
@@ -114,12 +103,11 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
       }
 
       if (result.error) {
-        console.error('Profile operation failed:', result.error);
         throw result.error;
       }
 
       console.log('Profile saved successfully:', result.data);
-      toast.success(existingProfile ? 'Profile updated successfully!' : 'Profile created successfully!');
+      toast.success(initialData ? 'Profile updated successfully!' : 'Profile created successfully!');
       
       if (onSuccess) {
         onSuccess();
@@ -133,7 +121,6 @@ export function EducatorProfileForm({ initialData, onSuccess }: EducatorProfileF
   };
 
   if (!user) {
-    console.log('No user found in EducatorProfileForm');
     return null;
   }
 

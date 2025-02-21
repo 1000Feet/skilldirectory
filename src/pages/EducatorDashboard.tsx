@@ -14,6 +14,7 @@ export default function EducatorDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [educatorProfile, setEducatorProfile] = useState<EducatorProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,33 +33,37 @@ export default function EducatorDashboard() {
       try {
         const { data, error: profileError } = await supabase
           .from('educator_profiles')
-          .select('*')
+          .select(`
+            id,
+            user_id,
+            name,
+            description,
+            website,
+            address,
+            phone,
+            email,
+            about_business,
+            social,
+            ai_chatbot,
+            ai_voice_agent,
+            image,
+            categories,
+            tags,
+            subscription_tier
+          `)
           .eq('user_id', user.id)
           .maybeSingle();
 
         if (profileError) {
+          console.error('Error fetching profile:', profileError);
           setError('Failed to load profile data');
           toast.error('Error loading profile data');
           return;
         }
 
-        if (data) {
-          setEducatorProfile({
-            id: data.id,
-            user_id: data.user_id,
-            name: data.name,
-            description: data.description || '',
-            website: data.website || '',
-            address: data.address || '',
-            phone: data.phone || '',
-            email: data.email || user.email || '',
-            about_business: data.about_business || '',
-            social: {
-              facebook: '',
-              instagram: ''
-            }
-          });
-        }
+        console.log('Fetched profile data:', data);
+        setEducatorProfile(data);
+        setLoading(false);
       } catch (err) {
         console.error('Dashboard error:', err);
         setError('Failed to load profile data');
@@ -105,12 +110,18 @@ export default function EducatorDashboard() {
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-2xl font-semibold">Educator Profile</h2>
             </div>
-            <EducatorProfileForm 
-              initialData={educatorProfile}
-              onSuccess={() => {
-                toast.success('Educator profile updated successfully');
-              }}
-            />
+            {loading ? (
+              <div className="p-6 flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <EducatorProfileForm 
+                initialData={educatorProfile}
+                onSuccess={() => {
+                  toast.success('Profile updated successfully');
+                }}
+              />
+            )}
           </div>
         </div>
       </main>
