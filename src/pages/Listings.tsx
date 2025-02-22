@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { BusinessCard } from "@/components/BusinessCard";
 import { Header } from "@/components/Header";
@@ -42,29 +43,33 @@ const categories = [
 interface EducatorProfile {
   id: string;
   name: string;
-  description: string;
-  image: string;
-  categories: string[];
-  address: string;
+  description: string | null;
+  image: string | null;
+  categories: string[] | null;
+  address: string | null;
 }
 
 const Listings = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [educatorProfiles, setEducatorProfiles] = useState<EducatorProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchEducatorProfiles();
-  }, [selectedCategory]);
+  }, [selectedCategory, currentPage]);
 
   const fetchEducatorProfiles = async () => {
     try {
       setLoading(true);
+      const startRange = (currentPage - 1) * itemsPerPage;
+      const endRange = startRange + itemsPerPage - 1;
+
       let query = supabase
         .from('educator_profiles')
         .select('id, name, description, image, categories, address')
-        .range(0, 9);
+        .range(startRange, endRange);
 
       if (selectedCategory) {
         query = query.contains('categories', [selectedCategory]);
@@ -100,36 +105,38 @@ const Listings = () => {
           ) : educatorProfiles.length === 0 ? (
             <div className="text-center py-8">No educator profiles found</div>
           ) : (
-            educatorProfiles.map((profile) => (
-              <BusinessCard
-                key={profile.id}
-                id={profile.id}
-                name={profile.name}
-                description={profile.description}
-                distance="Calculating..."
-                image={profile.image}
-                educator_id={profile.id}
-                educator_profile_id={profile.id}
-              />
-            ))
+            <div>
+              {educatorProfiles.map((profile) => (
+                <BusinessCard
+                  key={profile.id}
+                  id={profile.id}
+                  name={profile.name}
+                  description={profile.description || ''}
+                  distance="Calculating..."
+                  image={profile.image}
+                  educator_id={profile.id}
+                  educator_profile_id={profile.id}
+                />
+              ))}
+            </div>
           )}
 
           <Pagination className="mt-8">
             <PaginationContent>
               <PaginationItem>
-                <PaginationLink isActive>1</PaginationLink>
+                <PaginationLink isActive onClick={() => setCurrentPage(1)}>1</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink>2</PaginationLink>
+                <PaginationLink onClick={() => setCurrentPage(2)}>2</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink>3</PaginationLink>
+                <PaginationLink onClick={() => setCurrentPage(3)}>3</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink>4</PaginationLink>
+                <PaginationLink onClick={() => setCurrentPage(4)}>4</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationNext href="#" />
+                <PaginationNext onClick={() => setCurrentPage(curr => curr + 1)} />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

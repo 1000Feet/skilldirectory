@@ -1,5 +1,5 @@
-
 import { Card } from "@/components/ui/card";
+import { EducatorProfile } from "@/lib/auth-types";
 
 interface Social {
   facebook: string;
@@ -12,10 +12,14 @@ interface ContactInfoProps {
   phone: string | null;
   email: string;
   website: string | null;
-  social: Social | null;
+  social: {
+    facebook: string;
+    instagram: string;
+    youtube?: string;
+  } | null;
 }
 
-export const ContactInfo = ({ address, phone, email, website, social }: ContactInfoProps) => {
+export function ContactInfo({ address, phone, email, website, social }: ContactInfoProps) {
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
@@ -90,4 +94,4 @@ export const ContactInfo = ({ address, phone, email, website, social }: ContactI
       )}
     </Card>
   );
-};
+}
