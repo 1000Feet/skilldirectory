@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -9,16 +10,18 @@ import { LessonRequestForm } from "@/components/educator/LessonRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { EducatorProfile } from "@/components/educator/types";
+import { Json } from "@/integrations/supabase/types";
 
-interface EducatorProfileData extends Omit<EducatorProfile, 'ai_chatbot' | 'ai_voice_agent'> {
-  ai_chatbot: {
-    knowledge_base: string[];
-  } | null;
-  ai_voice_agent: {
-    knowledge_base: string[];
-    voice_id: string;
-  } | null;
-}
+// Helper function to safely parse JSON data
+const parseJsonData = (data: Json | null, defaultValue: any = null) => {
+  if (!data) return defaultValue;
+  if (typeof data === 'object') return data;
+  try {
+    return JSON.parse(String(data));
+  } catch {
+    return defaultValue;
+  }
+};
 
 const createSlug = (name: string) => {
   return name
@@ -54,10 +57,15 @@ const EducatorProfile = () => {
           return;
         }
 
-        setProfile({
+        // Transform the data to match EducatorProfile type
+        const transformedProfile: EducatorProfile = {
           ...slugData,
-          social: slugData.social as EducatorProfile['social']
-        });
+          social: parseJsonData(slugData.social, { facebook: '', instagram: '', youtube: '' }),
+          ai_chatbot: parseJsonData(slugData.ai_chatbot, { knowledge_base: [] }),
+          ai_voice_agent: parseJsonData(slugData.ai_voice_agent, { knowledge_base: [], voice_id: '' })
+        };
+
+        setProfile(transformedProfile);
         setLoading(false);
         return;
       }
@@ -94,10 +102,15 @@ const EducatorProfile = () => {
         }
       }
 
-      setProfile({
+      // Transform the data to match EducatorProfile type
+      const transformedProfile: EducatorProfile = {
         ...data,
-        social: data.social as EducatorProfile['social']
-      });
+        social: parseJsonData(data.social, { facebook: '', instagram: '', youtube: '' }),
+        ai_chatbot: parseJsonData(data.ai_chatbot, { knowledge_base: [] }),
+        ai_voice_agent: parseJsonData(data.ai_voice_agent, { knowledge_base: [], voice_id: '' })
+      };
+
+      setProfile(transformedProfile);
       setError(null);
       setLoading(false);
     };

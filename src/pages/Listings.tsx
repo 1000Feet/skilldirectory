@@ -88,6 +88,11 @@ const Listings = () => {
       setLoading(false);
     }
   };
+
+  // Helper function to ensure we're working with numbers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -124,19 +129,19 @@ const Listings = () => {
           <Pagination className="mt-8">
             <PaginationContent>
               <PaginationItem>
-                <PaginationLink isActive onClick={() => setCurrentPage(1)}>1</PaginationLink>
+                <PaginationLink isActive onClick={() => handlePageChange(1)}>1</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink onClick={() => setCurrentPage(2)}>2</PaginationLink>
+                <PaginationLink onClick={() => handlePageChange(2)}>2</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink onClick={() => setCurrentPage(3)}>3</PaginationLink>
+                <PaginationLink onClick={() => handlePageChange(3)}>3</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink onClick={() => setCurrentPage(4)}>4</PaginationLink>
+                <PaginationLink onClick={() => handlePageChange(4)}>4</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationNext onClick={() => setCurrentPage(curr => curr + 1)} />
+                <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
