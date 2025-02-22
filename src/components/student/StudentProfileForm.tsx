@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -99,54 +100,26 @@ export function StudentProfileForm() {
 
       setLoading(true);
 
-      // Check if profile exists
-      const { data: existingProfile, error: checkError } = await supabase
+      // Use upsert with user_id as the key to prevent duplicate profiles
+      const { error } = await supabase
         .from('student_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .upsert({
+          user_id: user.id,
+          name: data.name,
+          phone: data.phone,
+          email: user.email,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id',
+          ignoreDuplicates: false
+        });
 
-      if (checkError) {
-        console.error('Error checking profile:', checkError);
-        toast.error('Failed to update profile');
-        return;
-      }
-
-      let result;
-
-      if (existingProfile) {
-        // Update existing profile
-        result = await supabase
-          .from('student_profiles')
-          .update({
-            name: data.name,
-            phone: data.phone,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', existingProfile.id)
-          .select()
-          .single();
-      } else {
-        // Create new profile
-        result = await supabase
-          .from('student_profiles')
-          .insert([{
-            user_id: user.id,
-            name: data.name,
-            email: user.email,
-            phone: data.phone,
-          }])
-          .select()
-          .single();
-      }
-
-      if (result.error) {
-        console.error('Error saving profile:', result.error);
+      if (error) {
+        console.error('Error saving profile:', error);
         toast.error('Failed to save profile');
         return;
       }
 
-      setProfileId(result.data.id);
       toast.success('Profile updated successfully');
       await loadProfile(); // Reload the profile data
     } catch (error) {
