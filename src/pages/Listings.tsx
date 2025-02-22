@@ -63,13 +63,13 @@ const Listings = () => {
   const fetchEducatorProfiles = async () => {
     try {
       setLoading(true);
-      const startRange = (currentPage - 1) * itemsPerPage;
-      const endRange = startRange + itemsPerPage - 1;
+      const startRangeNum = (currentPage - 1) * itemsPerPage;
+      const endRangeNum = startRangeNum + itemsPerPage - 1;
 
       let query = supabase
         .from('educator_profiles')
         .select('id, name, description, image, categories, address')
-        .range(startRange, endRange);
+        .range(startRangeNum, endRangeNum);
 
       if (selectedCategory) {
         query = query.contains('categories', [selectedCategory]);

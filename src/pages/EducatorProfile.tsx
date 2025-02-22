@@ -8,23 +8,15 @@ import { ContactInfo } from "@/components/educator/ContactInfo";
 import { LessonRequestForm } from "@/components/educator/LessonRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import type { EducatorProfile } from "@/components/educator/types";
 
-interface EducatorProfile {
-  id: string;
-  name: string;
-  description: string | null;
-  image: string | null;
-  address: string | null;
-  phone: string | null;
-  email: string;
-  website: string | null;
-  categories: string[] | null;
-  tags: string[] | null;
-  about_business: string | null;
-  social: {
-    facebook: string;
-    instagram: string;
-    youtube?: string;
+interface EducatorProfileData extends Omit<EducatorProfile, 'ai_chatbot' | 'ai_voice_agent'> {
+  ai_chatbot: {
+    knowledge_base: string[];
+  } | null;
+  ai_voice_agent: {
+    knowledge_base: string[];
+    voice_id: string;
   } | null;
 }
 
@@ -160,9 +152,15 @@ const EducatorProfile = () => {
               />
             </div>
             <div className="space-y-6">
-              <ContactInfo profile={profile} />
+              <ContactInfo
+                address={profile.address}
+                phone={profile.phone}
+                email={profile.email}
+                website={profile.website}
+                social={profile.social}
+              />
               <LessonRequestForm 
-                educatorProfileId={profile.id} 
+                educatorProfileId={profile.id || ''} 
                 educatorName={profile.name} 
               />
             </div>
