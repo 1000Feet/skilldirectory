@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
@@ -14,14 +15,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const requestLessonSchema = z.object({
   proposedDate: z.date({
-    required_error: "Please select a date",
-  }),
-  proposedTime: z.string({
-    required_error: "Please select a time",
+    required_error: "Please select a date and time",
   }),
   message: z.string().optional(),
 });
@@ -33,29 +30,11 @@ interface RequestLessonFormProps {
   educatorProfileId: string;
 }
 
-// Generate time slots from 9 AM to 5 PM in 12-hour format
-const generateTimeSlots = () => {
-  const slots = [];
-  for (let hour = 9; hour <= 17; hour++) {
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour > 12 ? hour - 12 : hour;
-    const hourStr = displayHour.toString();
-    slots.push(`${hourStr}:00 ${period}`);
-    slots.push(`${hourStr}:30 ${period}`);
-  }
-  return slots;
-};
-
 export function RequestLessonForm({ educatorId, educatorProfileId }: RequestLessonFormProps) {
+  const [open, setOpen] = useState(false);
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  
   const form = useForm<RequestLessonForm>({
     resolver: zodResolver(requestLessonSchema),
-    defaultValues: {
-      proposedTime: '',
-      message: ''
-    }
   });
 
   const onSubmit = async (data: RequestLessonForm) => {
@@ -65,77 +44,53 @@ export function RequestLessonForm({ educatorId, educatorProfileId }: RequestLess
         return;
       }
 
-      setLoading(true);
-
-      // Get the educator profile
-      const { data: educatorData, error: educatorError } = await supabase
-        .from('educator_profiles')
-        .select('user_id')
-        .eq('id', educatorProfileId)
-        .single();
-
-      if (educatorError || !educatorData) {
-        throw new Error('Could not find educator information');
-      }
-
-      // Format the date and time together
-      const dateTime = new Date(data.proposedDate);
-      // Convert 12-hour format to 24-hour format for storage
-      const [time, period] = data.proposedTime.split(' ');
-      const [hours, minutes] = time.split(':');
-      let hour = parseInt(hours);
-      if (period === 'PM' && hour !== 12) hour += 12;
-      if (period === 'AM' && hour === 12) hour = 0;
-      dateTime.setHours(hour, parseInt(minutes));
-
       const { error } = await supabase
         .from('lesson_requests')
         .insert({
           student_id: user.id,
-          educator_id: educatorData.user_id,
+          educator_id: educatorId,
           educator_profile_id: educatorProfileId,
-          proposed_date: dateTime.toISOString(),
-          proposed_time: `${hour.toString().padStart(2, '0')}:${minutes}`,
+          proposed_date: data.proposedDate.toISOString(),
           message: data.message || null,
-          status: 'pending'
         });
 
       if (error) throw error;
 
       toast.success("Lesson request sent successfully!");
+      setOpen(false);
       form.reset();
     } catch (error: any) {
       console.error('Error submitting lesson request:', error);
-      toast.error(error.message || "Failed to send lesson request");
-    } finally {
-      setLoading(false);
+      toast.error("Failed to send lesson request");
     }
   };
 
-  const timeSlots = generateTimeSlots();
-
   return (
-    <div className="bg-white rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">Request a Lesson</h2>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>Schedule Now</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Request a Lesson</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="proposedDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="font-medium">Proposed Date</FormLabel>
+                  <FormLabel>Date and Time</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full pl-3 text-left font-normal bg-[#F9F9F9]",
+                            "w-full pl-3 text-left font-normal",
                             !field.value && "text-muted-foreground"
                           )}
-                          disabled={loading}
                         >
                           {field.value ? (
                             format(field.value, "PPP")
@@ -162,51 +117,16 @@ export function RequestLessonForm({ educatorId, educatorProfileId }: RequestLess
                 </FormItem>
               )}
             />
-          </div>
-
-          <div>
-            <FormField
-              control={form.control}
-              name="proposedTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-medium">Proposed Time</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                    disabled={loading}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="bg-[#F9F9F9]">
-                        <SelectValue placeholder="Select a time" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeSlots.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div>
             <FormField
               control={form.control}
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-medium">Message (Optional)</FormLabel>
+                  <FormLabel>Message to Educator</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Tell the educator about your learning goals..."
-                      className="resize-none bg-[#F9F9F9]"
-                      disabled={loading}
+                      placeholder="Write a message to the educator..."
+                      className="resize-none"
                       {...field}
                     />
                   </FormControl>
@@ -214,17 +134,12 @@ export function RequestLessonForm({ educatorId, educatorProfileId }: RequestLess
                 </FormItem>
               )}
             />
-          </div>
-
-          <Button 
-            type="submit" 
-            className="w-full bg-[#8BC34A] hover:bg-[#7CB342] text-white font-medium py-3"
-            disabled={loading}
-          >
-            {loading ? "Sending Request..." : "Request Lesson"}
-          </Button>
-        </form>
-      </Form>
-    </div>
+            <Button type="submit" className="w-full">
+              Send Request
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
