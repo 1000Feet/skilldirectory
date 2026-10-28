@@ -40,7 +40,11 @@ export async function writeMembership(
     const { error } = await admin.from("memberships").update(row).eq("educator_id", educatorId);
     if (error) throw new HttpError(500, error.message);
   } else {
-    const { error } = await admin.from("memberships").insert([{ educator_id: educatorId, start_date: new Date().toISOString(), ...row }]);
+    const now = new Date().toISOString();
+    const { error } = await admin.from("memberships").insert([{
+      educator_id: educatorId, start_date: now, type: "basic", status: "active",
+      current_period_start: now, current_period_end: now, ...row,
+    }]);
     if (error) throw new HttpError(500, error.message);
   }
 }
