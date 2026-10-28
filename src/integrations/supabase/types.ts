@@ -9,66 +9,186 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          id: string
+          name: string
+          icon_name: string
+          is_active: boolean | null
+          display_order: number | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          icon_name: string
+          is_active?: boolean | null
+          display_order?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          icon_name?: string
+          is_active?: boolean | null
+          display_order?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      courses: {
+        Row: {
+          id: string
+          educator_id: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          educator_id: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          educator_id?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      enrollments: {
+        Row: {
+          id: string
+          student_id: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          student_id: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          student_id?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      featured_educators: {
+        Row: {
+          id: string
+          educator_id: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          educator_id: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          educator_id?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       educator_profiles: {
         Row: {
           about_business: string | null
           address: string | null
-          ai_chatbot: Json | null
+          ai_chatbot: string | null
           ai_voice_agent: Json | null
           categories: string[] | null
           created_at: string
           description: string | null
           email: string
+          facebook_url: string | null
           id: string
           image: string | null
+          instagram_url: string | null
+          is_active: boolean | null
           name: string
           phone: string | null
-          social: Json | null
           subscription_tier: string | null
           tags: string[] | null
           updated_at: string
           user_id: string
           website: string | null
+          youtube_url: string | null
         }
         Insert: {
           about_business?: string | null
           address?: string | null
-          ai_chatbot?: Json | null
+          ai_chatbot?: string | null
           ai_voice_agent?: Json | null
           categories?: string[] | null
           created_at?: string
           description?: string | null
           email: string
+          facebook_url?: string | null
           id?: string
           image?: string | null
+          instagram_url?: string | null
+          is_active?: boolean | null
           name: string
           phone?: string | null
-          social?: Json | null
           subscription_tier?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id: string
           website?: string | null
+          youtube_url?: string | null
         }
         Update: {
           about_business?: string | null
           address?: string | null
-          ai_chatbot?: Json | null
+          ai_chatbot?: string | null
           ai_voice_agent?: Json | null
           categories?: string[] | null
           created_at?: string
           description?: string | null
           email?: string
+          facebook_url?: string | null
           id?: string
           image?: string | null
+          instagram_url?: string | null
+          is_active?: boolean | null
           name?: string
           phone?: string | null
-          social?: Json | null
           subscription_tier?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id?: string
           website?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
       }
@@ -80,6 +200,7 @@ export type Database = {
           id: string
           message: string | null
           proposed_date: string
+          proposed_time: string | null
           status: string
           student_id: string
           updated_at: string
@@ -91,6 +212,7 @@ export type Database = {
           id?: string
           message?: string | null
           proposed_date: string
+          proposed_time?: string | null
           status?: string
           student_id: string
           updated_at?: string
@@ -102,6 +224,7 @@ export type Database = {
           id?: string
           message?: string | null
           proposed_date?: string
+          proposed_time?: string | null
           status?: string
           student_id?: string
           updated_at?: string
@@ -115,6 +238,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lesson_requests_educator_id_fkey"
+            columns: ["educator_id"]
+            isOneToOne: false
+            referencedRelation: "educator_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "lesson_requests_educator_profile_id_fkey"
             columns: ["educator_profile_id"]
             isOneToOne: false
@@ -126,79 +256,43 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "student_profiles"
-            referencedColumns: ["id"]
+            referencedColumns: ["user_id"]
           },
         ]
       }
       student_profiles: {
         Row: {
-          created_at: string | null
-          email: string | null
-          id: string
-          name: string | null
-          phone: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          name?: string | null
-          phone?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          name?: string | null
-          phone?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      student_profiles_duplicate: {
-        Row: {
           address: string | null
-          avatar_url: string | null
           created_at: string
           email: string
-          first_name: string | null
           id: string
-          last_name: string | null
+          is_active: boolean | null
+          name: string | null
           phone: string | null
           updated_at: string
           user_id: string
-          user_type: Database["public"]["Enums"]["user_type"]
         }
         Insert: {
           address?: string | null
-          avatar_url?: string | null
           created_at?: string
           email: string
-          first_name?: string | null
           id?: string
-          last_name?: string | null
+          is_active?: boolean | null
+          name?: string | null
           phone?: string | null
           updated_at?: string
           user_id: string
-          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Update: {
           address?: string | null
-          avatar_url?: string | null
           created_at?: string
           email?: string
-          first_name?: string | null
           id?: string
-          last_name?: string | null
+          is_active?: boolean | null
+          name?: string | null
           phone?: string | null
           updated_at?: string
           user_id?: string
-          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Relationships: []
       }
@@ -207,7 +301,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       service_status: "draft" | "published" | "archived"

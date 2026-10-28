@@ -1,45 +1,53 @@
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
-interface SocialLinks {
+interface SocialMediaSectionProps {
   facebook: string;
   instagram: string;
   youtube?: string;
+  onChange: (social: { facebook: string; instagram: string; youtube?: string }) => void;
+  hiddenFields?: {
+    facebook?: boolean;
+    instagram?: boolean;
+    youtube?: boolean;
+  };
 }
 
-interface SocialMediaSectionProps {
-  social: SocialLinks;
-  onChange: (social: SocialLinks) => void;
-}
+export function SocialMediaSection({ facebook, instagram, youtube, onChange, hiddenFields = {} }: SocialMediaSectionProps) {
+  const handleChange = (field: 'facebook' | 'instagram' | 'youtube', value: string) => {
+    onChange({
+      facebook: field === 'facebook' ? value : facebook,
+      instagram: field === 'instagram' ? value : instagram,
+      youtube: field === 'youtube' ? value : youtube,
+    });
+  };
 
-export function SocialMediaSection({ social, onChange }: SocialMediaSectionProps) {
+  const socialFields = [
+    { id: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/your-page' },
+    { id: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/your-profile' },
+    { id: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/your-channel' }
+  ] as const;
+
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>Social Media</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            placeholder="Facebook URL"
-            value={social.facebook}
-            onChange={(e) => onChange({ ...social, facebook: e.target.value })}
-          />
-          <Input
-            placeholder="Instagram URL"
-            value={social.instagram}
-            onChange={(e) => onChange({ ...social, instagram: e.target.value })}
-          />
-        </div>
-      </div>
+    <div className="space-y-6">
+      <h3 className="text-lg font-semibold">Social Media Links</h3>
+      
+      <div className="grid gap-4">
+        {socialFields.map(field => {
+          if (hiddenFields[field.id]) return null;
 
-      <div className="space-y-2">
-        <Label>Introduction Video</Label>
-        <Input
-          placeholder="YouTube Video URL"
-          value={social.youtube}
-          onChange={(e) => onChange({ ...social, youtube: e.target.value })}
-        />
-        <p className="text-sm text-gray-600">Add the URL of your introductory video from YouTube</p>
+          return (
+            <div key={field.id} className="grid gap-2">
+              <Label htmlFor={field.id}>{field.label}</Label>
+              <Input
+                id={field.id}
+                value={field.id === 'youtube' ? youtube : field.id === 'instagram' ? instagram : facebook}
+                onChange={(e) => handleChange(field.id, e.target.value)}
+                placeholder={field.placeholder}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,34 +1,19 @@
-
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Music, Palette, Utensils, Dumbbell, TreePine, Car, Waves, Hammer } from "lucide-react";
-
-const categories = [{
-  name: "Music and Performing Arts",
-  icon: Music
-}, {
-  name: "Arts & Crafts",
-  icon: Palette
-}, {
-  name: "Food and Beverage",
-  icon: Utensils
-}, {
-  name: "Personal Fitness/ Sports",
-  icon: Dumbbell
-}, {
-  name: "Outdoor Recreation",
-  icon: TreePine
-}, {
-  name: "Vehicle Operation",
-  icon: Car
-}, {
-  name: "Water Recreation",
-  icon: Waves
-}, {
-  name: "Trades",
-  icon: Hammer
-}];
+import { useNavigate } from "react-router-dom";
+import { useCategories } from "@/hooks/useCategories";
 
 export const FeaturedCategories = () => {
+  const navigate = useNavigate();
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const { categories, loading } = useCategories();
+
+  const handleCategoryClick = (categoryName: string) => {
+    navigate(`/listings?category=${encodeURIComponent(categoryName)}`);
+  };
+
+  const displayedCategories = showAllCategories ? categories : categories.slice(0, 8);
+
   return (
     <section className="py-12 bg-[#F1F1F1]">
       <div className="container mx-auto px-4">
@@ -36,21 +21,38 @@ export const FeaturedCategories = () => {
         <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
           Explore our most popular learning categories and find the perfect educator for your interests
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {categories.map(category => (
-            <div key={category.name} className="group p-6 bg-gray-50 rounded-xl hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <category.icon className="w-8 h-8 group-hover:text-white transition-colors" />
-                <h3 className="font-semibold">{category.name}</h3>
-              </div>
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {displayedCategories.map(category => (
+                <div 
+                  key={category.id} 
+                  className="group p-6 bg-gray-50 rounded-xl hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer"
+                  onClick={() => handleCategoryClick(category.name)}
+                >
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    {category.icon && <category.icon className="w-8 h-8 group-hover:text-white transition-colors" />}
+                    <h3 className="font-semibold">{category.name}</h3>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="flex justify-center mt-8">
-          <Button className="bg-primary hover:bg-primary/90 text-white gap-2">
-            More Categories
-          </Button>
-        </div>
+            {categories.length > 8 && (
+              <div className="flex justify-center mt-8">
+                <Button 
+                  className="bg-primary hover:bg-primary/90 text-white gap-2"
+                  onClick={() => setShowAllCategories(!showAllCategories)}
+                >
+                  {showAllCategories ? 'Show Less' : 'More Categories'}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </section>
   );
