@@ -5,7 +5,7 @@ import { CheckoutForm } from '@/components/payment/CheckoutForm';
 import { toast } from 'sonner';
 import { MembershipType } from '@/lib/auth-types';
 import { Loader2 } from 'lucide-react';
-import { MEMBERSHIP_PRICES } from '@/services/payment-config';
+import { MEMBERSHIP_PRICES, MEMBERSHIP_PRODUCTS } from '@/services/payment-config';
 
 // Membership plan details for display
 const MEMBERSHIP_NAMES = {
@@ -20,7 +20,6 @@ export default function PaymentPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get data from location state
-  const clientSecret = location.state?.clientSecret;
   const profileId = location.state?.profileId;
   const membershipType = location.state?.membershipType as MembershipType;
   const isUpgrade = location.state?.isUpgrade;
@@ -28,7 +27,7 @@ export default function PaymentPage() {
   const actionText = isUpgrade ? 'Upgrade to' : 'Change to';
 
   useEffect(() => {
-    if (!clientSecret || !profileId || !membershipType) {
+    if (!profileId || !membershipType || membershipType === 'basic') {
       toast.error('Invalid payment session');
       navigate('/dashboard');
       return;
@@ -40,11 +39,18 @@ export default function PaymentPage() {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [clientSecret, profileId, membershipType, navigate]);
+  }, [profileId, membershipType, navigate]);
 
-  if (!clientSecret || !profileId || !membershipType) {
+  if (!profileId || !membershipType || membershipType === 'basic') {
     return null;
   }
+
+  // The subscription is created only when the user clicks "Subscribe" (deferred intent)
+  const elementsOptions = {
+    mode: 'subscription' as const,
+    amount: MEMBERSHIP_PRODUCTS[membershipType].amount,
+    currency: 'usd',
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -60,7 +66,7 @@ export default function PaymentPage() {
             <p className="text-sm text-muted-foreground">Preparing payment form...</p>
           </div>
         ) : (
-          <StripeProvider clientSecret={clientSecret}>
+          <StripeProvider options={elementsOptions}>
             <CheckoutForm
               profileId={profileId}
               membershipType={membershipType}

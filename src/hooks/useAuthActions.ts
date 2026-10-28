@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { callEdge } from '@/integrations/supabase/edge';
 import { UserType, MembershipType } from '@/lib/auth-types';
 import { toast } from 'sonner';
-import { createPaymentIntent } from '@/services/payment';
 import { useProfileManagement } from './useProfileManagement';
 
 export const useAuthActions = () => {
@@ -85,17 +84,8 @@ export const useAuthActions = () => {
               return { profileId: profile.id, skipPayment: true };
             }
             
-            // For paid tiers, create a payment intent
-            const secret = await createPaymentIntent(membershipType, profile.id);
-            if (!secret) {
-              console.log('No payment intent created - treating as free membership');
-              
-              // Free plan (e.g. 100% coupon): activated on the server
-              return { profileId: profile.id, skipPayment: true };
-            }
-            
-            setClientSecret(secret);
-            return { clientSecret: secret, profileId: profile.id };
+            // Paid tiers: the subscription is created on the checkout page
+            return { profileId: profile.id, needsPayment: true as const };
           } catch (error) {
             console.error('Error creating payment intent:', error);
             throw error;

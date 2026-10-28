@@ -61,11 +61,13 @@ export function stripeClient(): Stripe {
   return new Stripe(key, { httpClient: Stripe.createFetchHttpClient() });
 }
 
-// Single source of truth for prices: amounts are decided on the server, never by the browser.
+// Single source of truth for plans: amounts are decided by Stripe prices, never by the browser.
+// Prices are found by `lookup_key`, so the same code works with test and live keys
+// (create one recurring monthly price per paid plan with these lookup keys in each mode).
 export const MEMBERSHIP_PRODUCTS = {
-  basic: { amount: 0, priceId: "price_1Qxp1X2ef3wsxdNewIs5Ewzl" },
-  standard: { amount: 1900, priceId: "price_1RHKoY2ef3wsxdNeoNN5iTmM" },
-  premium: { amount: 4900, priceId: "price_1RHKp42ef3wsxdNeAWZG9i4N" },
+  basic: { amount: 0, lookupKey: null },
+  standard: { amount: 1900, lookupKey: "skilldirectory_standard_monthly" },
+  premium: { amount: 4900, lookupKey: "skilldirectory_premium_monthly" },
 } as const;
 export type MembershipType = keyof typeof MEMBERSHIP_PRODUCTS;
 

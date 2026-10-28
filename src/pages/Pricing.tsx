@@ -6,7 +6,7 @@ import { Check } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MembershipType } from "@/lib/auth-types";
 import { useEffect, useState } from "react";
-import { createPaymentIntent } from "@/services/payment";
+import { changePlan } from "@/api/create-payment-intent";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateMembership } from "@/api/update-membership";
@@ -107,9 +107,13 @@ const PricingPage = () => {
       // If downgrading to basic (free), no payment is needed
       if (newMembershipType === 'basic') {
         try {
-          // Update the membership directly for free plans
-          await updateMembership(educatorId, newMembershipType);
-          toast.success("Successfully downgraded to Basic plan");
+          // Free plan: an active subscription is cancelled at the end of the period already paid
+          const result = await updateMembership(educatorId, newMembershipType);
+          if (result.scheduled && result.until) {
+            toast.success(`Your plan stays active until ${new Date(result.until).toLocaleDateString()}, then switches to Basic`);
+          } else {
+            toast.success("Successfully downgraded to Basic plan");
+          }
           navigate('/dashboard');
         } catch (error) {
           console.error('Error downgrading to basic plan:', error);
@@ -118,20 +122,19 @@ const PricingPage = () => {
         return;
       }
 
-      // Create a payment intent for the new membership
-      const clientSecret = await createPaymentIntent(newMembershipType, educatorId);
-      
-      if (!clientSecret) {
-        // Handle free memberships
-        toast.success("Plan updated successfully");
-        navigate('/dashboard');
-        return;
+      // Already subscribed (Standard <-> Premium): Stripe charges the difference on the saved card
+      if (currentPlan === 'standard' || currentPlan === 'premium') {
+        const result = await changePlan(educatorId, newMembershipType);
+        if (!result.needsCheckout) {
+          toast.success("Plan updated successfully");
+          navigate('/dashboard');
+          return;
+        }
       }
 
       // Navigate to payment page with required data
       navigate('/payment', {
         state: {
-          clientSecret,
           profileId: educatorId,
           membershipType: newMembershipType,
           isUpgrade: newMembershipType === 'premium' || (currentPlan === 'basic' && newMembershipType === 'standard')

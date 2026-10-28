@@ -158,7 +158,9 @@ export const MembershipDetails = ({ educatorId }: { educatorId: string }) => {
             </p>
           </div>
           <div>
-            <p className="text-muted-foreground">Current Period</p>
+            <p className="text-muted-foreground">
+              {membership.type === 'basic' ? 'Current Period' : membership.auto_renew ? 'Renews on' : 'Ends on'}
+            </p>
             <p className="font-medium flex items-center gap-1">
               <Calendar className="h-3 w-3" />
               {format(new Date(membership.current_period_end), 'MMM dd, yyyy')}

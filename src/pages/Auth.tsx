@@ -57,10 +57,9 @@ export default function Auth() {
         const result = await signUp(email, password, userType, userType === 'educator' ? membershipType : undefined);
         
         // If this is an educator signup with a paid membership type, redirect to payment page
-        if (userType === 'educator' && membershipType !== 'basic' && result?.clientSecret && result?.profileId) {
+        if (userType === 'educator' && membershipType !== 'basic' && result && 'needsPayment' in result && result.profileId) {
           navigate('/payment', { 
             state: { 
-              clientSecret: result.clientSecret,
               profileId: result.profileId,
               membershipType,
               amount: getMembershipAmount(membershipType)

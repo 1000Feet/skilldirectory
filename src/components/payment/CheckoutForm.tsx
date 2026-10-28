@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { MembershipType } from '@/lib/auth-types';
 import { updateMembership } from '@/api/update-membership';
 import { CouponInput } from './CouponInput';
-import { createPaymentIntent } from '@/api/create-payment-intent';
+import { createSubscription } from '@/api/create-payment-intent';
 import { MEMBERSHIP_PRODUCTS } from '@/services/payment-config';
 
 interface CheckoutFormProps {
@@ -46,27 +46,32 @@ export function CheckoutForm({
     setIsProcessing(true);
 
     try {
-      // Create a new payment intent with the coupon if one is applied
-      const paymentIntentResponse = await createPaymentIntent({
+      // 1. Validate the card form (required before creating the subscription)
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        toast.error(submitError.message);
+        return;
+      }
+
+      // 2. Create the monthly subscription on the server (with the coupon, if any)
+      const subscription = await createSubscription({
         membershipType,
         educatorId: profileId,
         couponCode: appliedCoupon || undefined
       });
 
-      if (!paymentIntentResponse) {
-        throw new Error('Failed to create payment intent');
-      }
-
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        toast.error(submitError.message);
-        onError(new Error(submitError.message || 'Error submitting payment form'));
+      if (subscription.free) {
+        // Nothing to pay now (e.g. 100% coupon): the plan is already active
+        toast.success('Membership updated successfully!');
+        onSuccess();
         return;
       }
 
+      // 3. Confirm the first payment; the card is saved for the automatic monthly renewals
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
-        clientSecret: paymentIntentResponse.clientSecret,
+        clientSecret: subscription.clientSecret,
+        confirmParams: { return_url: `${window.location.origin}/payment-complete` },
         redirect: 'if_required',
       });
 
@@ -102,18 +107,19 @@ export function CheckoutForm({
     setAppliedCoupon(code);
     
     // Calculate discounted price
-    if (discount.type === 'percentage') {
-      const newPrice = originalPrice * (1 - discount.value / 100);
-      setDiscountedPrice(parseFloat(newPrice.toFixed(2)));
-    } else {
-      const newPrice = Math.max(0, originalPrice - discount.value);
-      setDiscountedPrice(parseFloat(newPrice.toFixed(2)));
-    }
+    const newPrice = discount.type === 'percentage'
+      ? originalPrice * (1 - discount.value / 100)
+      : Math.max(0, originalPrice - discount.value);
+    const rounded = parseFloat(newPrice.toFixed(2));
+    setDiscountedPrice(rounded);
+    // Keep the payment form in sync with the amount of the first invoice
+    if (rounded > 0) elements?.update({ amount: Math.round(rounded * 100) });
   };
 
   const handleCouponRemoved = () => {
     setAppliedCoupon(null);
     setDiscountedPrice(null);
+    elements?.update({ amount: Math.round(originalPrice * 100) });
   };
 
   return (
@@ -150,6 +156,9 @@ export function CheckoutForm({
         </div>
         
         <PaymentElement />
+        <p className="text-xs text-gray-500">
+          Your membership renews automatically every month. You can cancel anytime by switching to the Basic plan.
+        </p>
       </div>
       
       <Button 
@@ -163,7 +172,7 @@ export function CheckoutForm({
             Processing...
           </>
         ) : (
-          `Pay ${discountedPrice !== null ? `$${discountedPrice.toFixed(2)}` : `$${originalPrice.toFixed(2)}`}`
+          `Subscribe for ${discountedPrice !== null ? `$${discountedPrice.toFixed(2)}` : `$${originalPrice.toFixed(2)}`}/month`
         )}
       </Button>
     </form>

@@ -1,5 +1,5 @@
 import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import React from 'react';
 import { env } from '@/config/env';
 
@@ -9,13 +9,14 @@ const stripePromise = loadStripe(env.stripePublishableKey);
 interface StripeProviderProps {
   children: React.ReactNode;
   clientSecret?: string;
+  options?: StripeElementsOptions;
 }
 
-export function StripeProvider({ children, clientSecret }: StripeProviderProps) {
-  const options = clientSecret ? { clientSecret } : undefined;
+export function StripeProvider({ children, clientSecret, options }: StripeProviderProps) {
+  const elementsOptions = options ?? (clientSecret ? { clientSecret } : undefined);
 
   return (
-    <Elements stripe={stripePromise} options={options}>
+    <Elements stripe={stripePromise} options={elementsOptions}>
       {children}
     </Elements>
   );

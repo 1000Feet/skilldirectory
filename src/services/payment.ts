@@ -1,16 +1,6 @@
 import { MembershipType } from '@/lib/auth-types';
-import { createPaymentIntent as apiCreatePaymentIntent } from '@/api/create-payment-intent';
 import { callEdge } from '@/integrations/supabase/edge';
 import { MEMBERSHIP_PRODUCTS } from './payment-config';
-
-export async function createPaymentIntent(membershipType: MembershipType, educatorId: string) {
-  try {
-    return await apiCreatePaymentIntent(membershipType, educatorId);
-  } catch (error) {
-    console.error('Error creating payment intent:', error);
-    throw error;
-  }
-}
 
 // Activates the membership paid with `paymentIntentId`. Stripe is checked on the server.
 export async function updateMembershipStatus(paymentIntentId: string) {

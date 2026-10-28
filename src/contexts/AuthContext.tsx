@@ -18,7 +18,7 @@ interface AuthContextType {
     membershipType?: string
   ) => Promise<
     | { profileId: string; skipPayment: boolean }
-    | { clientSecret: string; profileId: string }
+    | { profileId: string; needsPayment: true }
   >;
   userType: UserType | null;
 }

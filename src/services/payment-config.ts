@@ -2,18 +2,10 @@ import { MembershipType } from "@/lib/auth-types";
 
 // Membership prices and IDs for easy reference throughout the app
 export const MEMBERSHIP_PRODUCTS = {
-  basic: {
-    amount: 0,       // $0.00 (free)
-    priceId: 'price_1Qxp1X2ef3wsxdNewIs5Ewzl'
-  },
-  standard: {
-    amount: 1900,    // $19.00
-    priceId: 'price_1RHKoY2ef3wsxdNeoNN5iTmM'
-  },
-  premium: {
-    amount: 4900,    // $49.00
-    priceId: 'price_1RHKp42ef3wsxdNeAWZG9i4N'
-  }
+  // Display only: the real prices are the Stripe prices used by the `payments` Edge Function.
+  basic: { amount: 0 },        // $0.00 (free)
+  standard: { amount: 1900 },  // $19.00 / month
+  premium: { amount: 4900 }    // $49.00 / month
 };
 
 // Display names for membership types

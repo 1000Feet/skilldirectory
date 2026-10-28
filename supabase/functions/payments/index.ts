@@ -1,13 +1,16 @@
-// Payments & memberships for SkillDirectory.
-// Replaces the browser-side Stripe secret key and service_role usage.
+// Payments & memberships for SkillDirectory: monthly Stripe subscriptions with automatic renewal.
+// The browser never sees the Stripe secret key or decides prices. Renewals, failed payments and
+// cancellations arrive through the `stripe-webhook` function.
+import type Stripe from "npm:stripe@17";
 import {
-  adminClient, handler, HttpError, isMembershipType, json,
-  MEMBERSHIP_PRODUCTS, MembershipType, requireUser, stripeClient,
+  adminClient, handler, HttpError, isMembershipType, json, requireUser, stripeClient,
 } from "../_shared/server.ts";
+import { getMembership, isPaidSubscription, priceIdFor, syncSubscription, writeMembership } from "../_shared/billing.ts";
 
 const DAYS_30 = 30 * 24 * 60 * 60 * 1000;
+type Admin = ReturnType<typeof adminClient>;
 
-async function findCoupon(stripe: ReturnType<typeof stripeClient>, code: string) {
+async function findCoupon(stripe: Stripe, code: string) {
   try {
     return await stripe.coupons.retrieve(code);
   } catch {
@@ -16,53 +19,84 @@ async function findCoupon(stripe: ReturnType<typeof stripeClient>, code: string)
   }
 }
 
-async function educatorExists(admin: ReturnType<typeof adminClient>, educatorId: string) {
-  const { data } = await admin.from("educator_profiles").select("id, email, user_id").eq("id", educatorId).maybeSingle();
+async function getEducator(admin: Admin, educatorId: string) {
+  const { data } = await admin.from("educator_profiles").select("id, email, name, user_id").eq("id", educatorId).maybeSingle();
+  if (!data) throw new HttpError(404, "Educator not found");
   return data;
 }
 
-async function upsertMembership(
-  admin: ReturnType<typeof adminClient>,
-  educatorId: string,
-  type: MembershipType,
-  status: "active" | "inactive",
-  extraMetadata: Record<string, unknown> = {},
-) {
-  const now = new Date();
-  const periodEnd = new Date(now.getTime() + DAYS_30);
-  const { data: existing } = await admin.from("memberships").select("*").eq("educator_id", educatorId).maybeSingle();
-  const metadata = { ...(existing?.metadata ?? {}), priceId: MEMBERSHIP_PRODUCTS[type].priceId, ...extraMetadata };
-  if (!existing) {
-    const { error } = await admin.from("memberships").insert([{
-      educator_id: educatorId, type, status,
-      start_date: now.toISOString(), current_period_start: now.toISOString(),
-      current_period_end: periodEnd.toISOString(), auto_renew: true, metadata,
-    }]);
-    if (error) throw new HttpError(500, error.message);
-  } else {
-    const { error } = await admin.from("memberships").update({
-      type, status, updated_at: now.toISOString(),
-      current_period_start: now.toISOString(), current_period_end: periodEnd.toISOString(), metadata,
-    }).eq("educator_id", educatorId);
-    if (error) throw new HttpError(500, error.message);
+async function requireOwner(req: Request, admin: Admin, educatorId: string) {
+  const user = await requireUser(req, admin);
+  const educator = await getEducator(admin, educatorId);
+  if (educator.user_id !== user.id) throw new HttpError(403, "Not your profile");
+  return educator;
+}
+
+// The educator's current Stripe subscription (if any, and if it exists in this Stripe mode).
+async function currentSubscription(stripe: Stripe, membership: { metadata?: Record<string, unknown> } | null) {
+  const id = membership?.metadata?.stripeSubscriptionId;
+  if (typeof id !== "string") return null;
+  try {
+    return await stripe.subscriptions.retrieve(id);
+  } catch {
+    return null; // e.g. created with test keys and we are now live
   }
+}
+
+async function getOrCreateCustomer(
+  stripe: Stripe,
+  educator: { id: string; email: string | null; name: string | null },
+  membership: { metadata?: Record<string, unknown> } | null,
+) {
+  const saved = membership?.metadata?.stripeCustomerId;
+  if (typeof saved === "string") {
+    try {
+      const c = await stripe.customers.retrieve(saved);
+      if (!("deleted" in c && c.deleted)) return c.id;
+    } catch { /* not in this Stripe mode: create a new one */ }
+  }
+  const found = await stripe.customers.search({ query: `metadata['educatorId']:'${educator.id}'`, limit: 1 })
+    .catch(() => ({ data: [] as Stripe.Customer[] }));
+  if (found.data[0]) return found.data[0].id;
+  const c = await stripe.customers.create({
+    email: educator.email ?? undefined,
+    name: educator.name ?? undefined,
+    metadata: { educatorId: educator.id },
+  });
+  return c.id;
+}
+
+async function setBasic(admin: Admin, educatorId: string) {
+  const now = new Date();
+  await writeMembership(admin, educatorId, {
+    type: "basic", status: "active", auto_renew: false, end_date: null,
+    current_period_start: now.toISOString(),
+    current_period_end: new Date(now.getTime() + DAYS_30).toISOString(),
+  });
 }
 
 Deno.serve(handler(async (req, body) => {
   const admin = adminClient();
-  const action = body.action;
+  const action = body.action === "create-payment-intent" ? "create-subscription" : body.action;
 
   switch (action) {
-    // Called right after sign-up (the user may not have a session yet because email
-    // confirmation is required). It can only CREATE a missing membership: basic becomes
-    // active, paid plans stay inactive until a verified payment activates them.
+    // Right after sign-up (the user may not have a session yet because email confirmation is
+    // required). It only CREATES a missing membership: basic = active, paid = inactive until paid.
     case "init-membership": {
       const educatorId = String(body.educatorId ?? "");
       const type = body.membershipType;
       if (!educatorId || !isMembershipType(type)) throw new HttpError(400, "Invalid request");
-      if (!(await educatorExists(admin, educatorId))) throw new HttpError(404, "Educator not found");
-      const { data: existing } = await admin.from("memberships").select("id").eq("educator_id", educatorId).maybeSingle();
-      if (!existing) await upsertMembership(admin, educatorId, type, type === "basic" ? "active" : "inactive");
+      await getEducator(admin, educatorId);
+      const existing = await getMembership(admin, educatorId);
+      if (!existing) {
+        if (type === "basic") await setBasic(admin, educatorId);
+        else {
+          const now = new Date().toISOString();
+          await writeMembership(admin, educatorId, {
+            type, status: "inactive", auto_renew: true, current_period_start: now, current_period_end: now,
+          });
+        }
+      }
       return json({ ok: true, created: !existing });
     }
 
@@ -83,53 +117,6 @@ Deno.serve(handler(async (req, body) => {
       return json({ profile });
     }
 
-    case "create-payment-intent": {
-      const educatorId = String(body.educatorId ?? "");
-      const type = body.membershipType;
-      if (!educatorId || !isMembershipType(type)) throw new HttpError(400, "Invalid request");
-      const educator = await educatorExists(admin, educatorId);
-      if (!educator) throw new HttpError(404, "Educator not found");
-      const originalAmount = MEMBERSHIP_PRODUCTS[type].amount;
-      if (originalAmount === 0) return json({ free: true });
-
-      const stripe = stripeClient();
-      let amount: number = originalAmount;
-      let coupon = null;
-      if (typeof body.couponCode === "string" && body.couponCode.trim()) {
-        coupon = await findCoupon(stripe, body.couponCode.trim());
-        if (coupon?.valid) {
-          if (coupon.percent_off) amount = Math.round(amount * (1 - coupon.percent_off / 100));
-          else if (coupon.amount_off) amount = Math.max(0, amount - coupon.amount_off);
-        } else coupon = null;
-      }
-      if (amount === 0) {
-        // 100% coupon: nothing to charge, activate directly.
-        await upsertMembership(admin, educatorId, type, "active", { couponCode: coupon?.id ?? "" });
-        return json({ free: true, couponApplied: !!coupon });
-      }
-      const pi = await stripe.paymentIntents.create({
-        amount, currency: "usd", automatic_payment_methods: { enabled: true },
-        metadata: {
-          membershipType: type, educatorId, email: educator.email ?? "",
-          priceId: MEMBERSHIP_PRODUCTS[type].priceId, couponCode: coupon?.id ?? "",
-          originalAmount: String(originalAmount), discountedAmount: String(amount),
-          discountAmount: String(originalAmount - amount),
-        },
-      });
-      if (coupon && educator.email) {
-        try {
-          const customers = await stripe.customers.list({ email: educator.email, limit: 1 });
-          if (customers.data[0]) {
-            await stripe.promotionCodes.create({
-              coupon: coupon.id, customer: customers.data[0].id,
-              metadata: { paymentIntent: pi.id, educatorId },
-            });
-          }
-        } catch (e) { console.error("coupon tracking failed", e); }
-      }
-      return json({ clientSecret: pi.client_secret, amount, originalAmount, couponApplied: !!coupon });
-    }
-
     case "validate-coupon": {
       const code = String(body.code ?? "").trim();
       if (!code) return json({ valid: false, error: "Invalid coupon code. Please try another one." });
@@ -141,26 +128,123 @@ Deno.serve(handler(async (req, body) => {
       return json({ valid: false, error: "Invalid coupon format" });
     }
 
-    // Activates a paid membership only after Stripe confirms the payment succeeded.
+    // New monthly subscription. Returns the client secret of the first invoice's payment, which the
+    // browser confirms with Stripe Elements. A 100% coupon activates the plan without payment.
+    case "create-subscription": {
+      const educatorId = String(body.educatorId ?? "");
+      const type = body.membershipType;
+      if (!educatorId || !isMembershipType(type) || type === "basic") throw new HttpError(400, "Invalid request");
+      const stripe = stripeClient();
+      const educator = await getEducator(admin, educatorId);
+      const membership = await getMembership(admin, educatorId);
+
+      const existing = await currentSubscription(stripe, membership);
+      if (isPaidSubscription(existing)) {
+        throw new HttpError(409, "You already have an active subscription: change plan from the Pricing page");
+      }
+
+      const customer = await getOrCreateCustomer(stripe, educator, membership);
+      // Drop unfinished checkouts so a customer never ends up with two subscriptions.
+      const pending = await stripe.subscriptions.list({ customer, status: "incomplete", limit: 10 });
+      for (const s of pending.data) await stripe.subscriptions.cancel(s.id).catch(() => {});
+
+      let coupon: Stripe.Coupon | null = null;
+      if (typeof body.couponCode === "string" && body.couponCode.trim()) {
+        coupon = await findCoupon(stripe, body.couponCode.trim());
+        if (!coupon?.valid) coupon = null;
+      }
+
+      const sub = await stripe.subscriptions.create({
+        customer,
+        items: [{ price: await priceIdFor(stripe, type) }],
+        payment_behavior: "default_incomplete",
+        payment_settings: { save_default_payment_method: "on_subscription" },
+        ...(coupon ? { discounts: [{ coupon: coupon.id }] } : {}),
+        metadata: { educatorId, membershipType: type },
+        expand: ["latest_invoice.payment_intent"],
+      });
+      await writeMembership(admin, educatorId, {
+        metadata: { stripeCustomerId: customer, stripeSubscriptionId: sub.id, stripeStatus: sub.status },
+      });
+
+      const invoice = sub.latest_invoice as Stripe.Invoice | null;
+      const pi = invoice?.payment_intent as Stripe.PaymentIntent | null;
+      if (!pi) {
+        // Nothing to pay now (100% coupon): the subscription is already active.
+        await syncSubscription(admin, sub);
+        return json({ free: true, couponApplied: !!coupon });
+      }
+      return json({
+        clientSecret: pi.client_secret,
+        amount: invoice?.amount_due ?? pi.amount,
+        couponApplied: !!coupon,
+      });
+    }
+
+    // Called after the browser confirmed the first payment: verifies it with Stripe and activates
+    // the plan right away (the webhook would do the same a few seconds later).
     case "activate-paid": {
       const piId = String(body.paymentIntentId ?? "");
       if (!piId.startsWith("pi_")) throw new HttpError(400, "Invalid payment");
-      const pi = await stripeClient().paymentIntents.retrieve(piId);
+      const stripe = stripeClient();
+      const pi = await stripe.paymentIntents.retrieve(piId, { expand: ["invoice"] });
       if (pi.status !== "succeeded") throw new HttpError(402, "Payment not completed");
-      const educatorId = pi.metadata?.educatorId;
-      const type = pi.metadata?.membershipType;
-      if (!educatorId || !isMembershipType(type)) throw new HttpError(400, "Payment is not a membership payment");
-      await upsertMembership(admin, educatorId, type, "active", { paymentIntentId: pi.id, couponCode: pi.metadata?.couponCode ?? "" });
-      return json({ ok: true, educatorId, membershipType: type });
+      const invoice = pi.invoice as Stripe.Invoice | null;
+      const subId = typeof invoice?.subscription === "string" ? invoice.subscription : invoice?.subscription?.id;
+      if (!subId) throw new HttpError(400, "Payment is not a membership payment");
+      const sub = await stripe.subscriptions.retrieve(subId);
+      await syncSubscription(admin, sub);
+      return json({ ok: true, educatorId: sub.metadata?.educatorId, membershipType: sub.metadata?.membershipType });
     }
 
-    // Downgrade to the free plan: only the profile owner can do it.
-    case "set-basic": {
-      const user = await requireUser(req, admin);
+    // Standard <-> Premium for an active subscriber: Stripe charges/credits the difference
+    // (proration) on the saved card immediately.
+    case "change-plan": {
       const educatorId = String(body.educatorId ?? "");
-      const educator = await educatorExists(admin, educatorId);
-      if (!educator || educator.user_id !== user.id) throw new HttpError(403, "Not your profile");
-      await upsertMembership(admin, educatorId, "basic", "active");
+      const type = body.membershipType;
+      if (!isMembershipType(type) || type === "basic") throw new HttpError(400, "Invalid request");
+      await requireOwner(req, admin, educatorId);
+      const stripe = stripeClient();
+      const sub = await currentSubscription(stripe, await getMembership(admin, educatorId));
+      if (!isPaidSubscription(sub)) return json({ needsCheckout: true });
+      const updated = await stripe.subscriptions.update(sub!.id, {
+        items: [{ id: sub!.items.data[0].id, price: await priceIdFor(stripe, type) }],
+        proration_behavior: "always_invoice",
+        payment_behavior: "error_if_incomplete",
+        cancel_at_period_end: false,
+        metadata: { ...sub!.metadata, educatorId, membershipType: type },
+      }).catch((e) => {
+        throw new HttpError(402, e?.message ?? "The payment for the new plan failed");
+      });
+      await syncSubscription(admin, updated);
+      return json({ ok: true, membershipType: type });
+    }
+
+    // Switch to the free plan. With an active subscription, it is cancelled at the end of the
+    // period already paid (the webhook then moves the profile to Basic).
+    case "set-basic": {
+      const educatorId = String(body.educatorId ?? "");
+      await requireOwner(req, admin, educatorId);
+      const stripe = stripeClient();
+      const sub = await currentSubscription(stripe, await getMembership(admin, educatorId));
+      if (isPaidSubscription(sub)) {
+        const updated = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: true });
+        await syncSubscription(admin, updated);
+        return json({ ok: true, scheduled: true, until: new Date(updated.current_period_end * 1000).toISOString() });
+      }
+      await setBasic(admin, educatorId);
+      return json({ ok: true, scheduled: false });
+    }
+
+    // Undo a scheduled cancellation.
+    case "resume-subscription": {
+      const educatorId = String(body.educatorId ?? "");
+      await requireOwner(req, admin, educatorId);
+      const stripe = stripeClient();
+      const sub = await currentSubscription(stripe, await getMembership(admin, educatorId));
+      if (!isPaidSubscription(sub)) throw new HttpError(400, "No active subscription");
+      const updated = await stripe.subscriptions.update(sub!.id, { cancel_at_period_end: false });
+      await syncSubscription(admin, updated);
       return json({ ok: true });
     }
 
@@ -168,3 +252,4 @@ Deno.serve(handler(async (req, body) => {
       throw new HttpError(400, "Unknown action");
   }
 }));
+
