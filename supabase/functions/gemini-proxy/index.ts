@@ -5,12 +5,13 @@ import { adminClient, handler, HttpError, json } from "../_shared/server.ts";
 
 // Model can be overridden with the GEMINI_MODEL secret. Google retires models over time
 // (gemini-2.0-flash was retired in 2026), so we fall back through a short list when a model is
-// missing (404), rate limited (429), overloaded (503) or too slow.
+// missing (404), rate limited (429), overloaded (503) or too slow. The lite model comes first
+// because it answers in a couple of seconds; the bigger ones often take 20s+.
 const MODELS = [
-  Deno.env.get("GEMINI_MODEL"), "gemini-3.8-flash", "gemini-flash-latest", "gemini-flash-lite-latest",
+  Deno.env.get("GEMINI_MODEL"), "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-flash-latest",
 ].filter(Boolean) as string[];
 const RETRY_STATUSES = new Set([404, 429, 500, 503, 504]);
-const TIMEOUT_MS = 20_000;
+const TIMEOUT_MS = 15_000;
 const modelUrl = (m: string) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 
 // deno-lint-ignore no-explicit-any
