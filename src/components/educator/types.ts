@@ -1,4 +1,3 @@
-
 export interface EducatorProfile {
   id?: string;
   user_id?: string;
@@ -9,14 +8,10 @@ export interface EducatorProfile {
   phone: string;
   email: string;
   about_business: string;
-  social: {
-    facebook: string;
-    instagram: string;
-    youtube?: string;
-  };
-  ai_chatbot?: {
-    knowledge_base: string[];
-  };
+  facebook_url: string;
+  instagram_url: string;
+  youtube_url?: string;
+  ai_chatbot?: string;
   ai_voice_agent?: {
     knowledge_base: string[];
     voice_id: string;
@@ -24,7 +19,6 @@ export interface EducatorProfile {
   image?: string | null;
   categories?: string[];
   tags?: string[];
-  subscription_tier?: string;
 }
 
 export interface EducatorProfileFormProps {

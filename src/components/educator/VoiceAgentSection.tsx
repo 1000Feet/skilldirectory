@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,25 +10,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface VoiceAgent {
-  knowledge_base: string[];
-  voice_id: string;
-}
+import { VoiceAgent } from '@/types/supabase';
 
 interface VoiceAgentSectionProps {
-  voiceAgent: VoiceAgent;
+  knowledgeBase?: string[];
+  voiceId?: string;
   onChange: (voiceAgent: VoiceAgent) => void;
 }
 
-export function VoiceAgentSection({ voiceAgent, onChange }: VoiceAgentSectionProps) {
+const DEFAULT_VOICE_ID = 'cjVigY5qzO86Huf0OWal';
+
+export function VoiceAgentSection({ 
+  knowledgeBase = [], 
+  voiceId = DEFAULT_VOICE_ID, 
+  onChange 
+}: VoiceAgentSectionProps) {
   const [newUrl, setNewUrl] = useState('');
 
   const addUrl = () => {
-    if (newUrl && !voiceAgent.knowledge_base.includes(newUrl)) {
+    if (newUrl && !knowledgeBase.includes(newUrl)) {
       onChange({
-        ...voiceAgent,
-        knowledge_base: [...voiceAgent.knowledge_base, newUrl]
+        knowledge_base: [...knowledgeBase, newUrl],
+        voice_id: voiceId
       });
       setNewUrl('');
     }
@@ -37,8 +39,8 @@ export function VoiceAgentSection({ voiceAgent, onChange }: VoiceAgentSectionPro
 
   const removeUrl = (urlToRemove: string) => {
     onChange({
-      ...voiceAgent,
-      knowledge_base: voiceAgent.knowledge_base.filter(url => url !== urlToRemove)
+      knowledge_base: knowledgeBase.filter(url => url !== urlToRemove),
+      voice_id: voiceId
     });
   };
 
@@ -47,8 +49,8 @@ export function VoiceAgentSection({ voiceAgent, onChange }: VoiceAgentSectionPro
       <div className="space-y-2">
         <Label>Voice Selection</Label>
         <Select
-          value={voiceAgent.voice_id}
-          onValueChange={(value) => onChange({ ...voiceAgent, voice_id: value })}
+          value={voiceId}
+          onValueChange={(value) => onChange({ knowledge_base: knowledgeBase, voice_id: value })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a voice" />
@@ -83,7 +85,7 @@ export function VoiceAgentSection({ voiceAgent, onChange }: VoiceAgentSectionPro
       </div>
 
       <div className="space-y-2">
-        {voiceAgent.knowledge_base.map((url, index) => (
+        {knowledgeBase.map((url, index) => (
           <div key={index} className="flex items-center gap-2 bg-muted/50 p-2 rounded-md">
             <span className="flex-1 truncate text-sm">{url}</span>
             <Button

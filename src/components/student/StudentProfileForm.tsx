@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,25 +21,15 @@ const profileFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address").optional(),
   phone: z.string().min(1, "Phone number is required"),
+  address: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
-interface StudentProfile {
-  id: string;
-  user_id: string;
-  name: string | null;
-  email: string;
-  phone: string | null;
-  created_at: string;
-  updated_at: string;
-}
 
 export function StudentProfileForm() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [profileId, setProfileId] = useState<string | null>(null);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -48,14 +37,15 @@ export function StudentProfileForm() {
       name: "",
       email: user?.email || "",
       phone: "",
+      address: "",
     },
   });
 
   const loadProfile = async () => {
     try {
       if (!user) return;
-
-      setIsInitialLoading(true);
+      
+      setIsInitialLoading(true); // Set loading state before fetching
       
       const { data: profile, error } = await supabase
         .from('student_profiles')
@@ -63,18 +53,18 @@ export function StudentProfileForm() {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error loading profile:', error);
         toast.error('Failed to load profile');
         return;
       }
 
       if (profile) {
-        setProfileId(profile.id);
         form.reset({
           name: profile.name || "",
           email: user.email || "",
           phone: profile.phone || "",
+          address: profile.address || "",
         });
       }
     } catch (error) {
@@ -91,44 +81,42 @@ export function StudentProfileForm() {
     }
   }, [user]);
 
-  async function onSubmit(data: ProfileFormValues) {
-    try {
-      if (!user) {
-        toast.error('Please log in to update your profile');
-        return;
-      }
+  const onSubmit = async (data: ProfileFormValues) => {
+    if (!user) {
+      toast.error('Please log in to update your profile');
+      return;
+    }
 
+    try {
       setLoading(true);
 
-      // Use upsert with user_id as the key to prevent duplicate profiles
-      const { error } = await supabase
+      // Use upsert to handle both insert and update cases
+      const { error: upsertError } = await supabase
         .from('student_profiles')
         .upsert({
           user_id: user.id,
+          email: user.email || '',
           name: data.name,
           phone: data.phone,
-          email: user.email,
+          address: data.address,
           updated_at: new Date().toISOString()
         }, {
-          onConflict: 'user_id',
-          ignoreDuplicates: false
+          onConflict: 'user_id'
         });
 
-      if (error) {
-        console.error('Error saving profile:', error);
-        toast.error('Failed to save profile');
-        return;
+      if (upsertError) {
+        console.error('Error saving profile:', upsertError);
+        throw upsertError;
       }
 
       toast.success('Profile updated successfully');
-      await loadProfile(); // Reload the profile data
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Failed to update profile');
+      console.error('Error saving profile:', error);
+      toast.error('Failed to save profile');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   if (!user) return null;
 
@@ -189,6 +177,20 @@ export function StudentProfileForm() {
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter your phone number" {...field} disabled={loading} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your address" {...field} disabled={loading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

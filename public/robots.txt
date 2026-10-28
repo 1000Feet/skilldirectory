@@ -1,0 +1,14 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://skilldirectory.com/sitemap.xml
+
+# Disallow crawling of authentication and payment pages
+Disallow: /auth
+Disallow: /payment
+Disallow: /payment-complete
+Disallow: /dashboard
+Disallow: /student-dashboard
+Disallow: /admin

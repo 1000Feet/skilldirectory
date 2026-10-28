@@ -1,69 +1,177 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { AuthUser, UserType, Profile } from '@/lib/auth-types';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthActions } from '@/hooks/useAuthActions';
 import { useProfileManagement } from '@/hooks/useProfileManagement';
+import { useOnlineStatusUpdater } from '@/hooks/useOnlineStatusUpdater';
+import { UserType } from '@/lib/auth-types';
 
 interface AuthContextType {
-  user: AuthUser | null;
+  user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<any>;
-  signUp: (email: string, password: string, userType: UserType) => Promise<any>;
+  signIn: (email: string, password: string) => Promise<{ user: User | null; session: Session | null }>;
   signOut: () => Promise<void>;
-  updateProfile: (data: any) => Promise<Profile>;
+  signUp: (
+    email: string,
+    password: string,
+    userType: UserType,
+    membershipType?: string
+  ) => Promise<
+    | { profileId: string; skipPayment: boolean }
+    | { clientSecret: string; profileId: string }
+  >;
+  userType: UserType | null;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { signIn, signUp, signOut } = useAuthActions();
-  const { updateProfile } = useProfileManagement();
+  const { fetchProfile, updateProfile: updateUserProfile, createProfile } = useProfileManagement();
+  
+  // Use the online status updater
+  const isEducator = user?.user_metadata?.user_type === 'educator';
+  useOnlineStatusUpdater(user?.id, isEducator);
 
   useEffect(() => {
-    const getSession = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        const authUser: AuthUser = {
-          id: session.user.id,
-          email: session.user.email || '',
-          user_metadata: session.user.user_metadata as { user_type: UserType }
-        };
-
-        setUser(authUser);
-      }
-      setLoading(false);
-    }
-
-    getSession();
-
-    supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
-        const authUser: AuthUser = {
-          id: session.user.id,
-          email: session.user.email || '',
-          user_metadata: session.user.user_metadata as { user_type: UserType }
-        };
-        setUser(authUser);
+    // Check active sessions and sets the user
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        handleUserChange(session.user);
       } else {
         setUser(null);
       }
-    })
+      setLoading(false);
+    });
+
+    // Listen for changes on auth state (sign in, sign out, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        handleUserChange(session.user);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
+  const handleUserChange = async (authUser: User) => {
+    try {
+      const userType = authUser.user_metadata?.user_type as UserType;
+      console.log('Handling user change:', authUser.id, userType);
+
+      // Check for deactivated accounts
+      if (userType === 'student') {
+        const { data: profileData } = await supabase
+          .from('student_profiles')
+          .select('is_active')
+          .eq('user_id', authUser.id)
+          .single();
+
+        if (profileData && profileData.is_active === false) {
+          // Sign out the user immediately
+          await supabase.auth.signOut();
+          // toast.error('Your account has been deactivated. Please contact support for reactivation.');
+          setUser(null);
+          return;
+        }
+      } else if (userType === 'educator') {
+        const { data: profileData } = await supabase
+          .from('educator_profiles')
+          .select('is_active')
+          .eq('user_id', authUser.id)
+          .single();
+
+        if (profileData && profileData.is_active === false) {
+          // Sign out the user immediately
+          await supabase.auth.signOut();
+          // toast.error('Your account has been deactivated. Please contact support for reactivation.');
+          setUser(null);
+          return;
+        }
+      }
+
+      // Try to get profile from local storage first
+      const storedUserData = localStorage.getItem('auth.user');
+      let profile = storedUserData ? JSON.parse(storedUserData).profile : null;
+
+      // If no profile in storage, fetch or create from DB
+      if (!profile) {
+        // First try to fetch existing profile
+        profile = await fetchProfile(authUser.id, userType);
+        
+        // If no profile exists, create one
+        if (!profile) {
+          console.log('No profile found, creating new profile');
+          await createProfile(authUser.id, userType, {
+            email: authUser.email,
+            user_type: userType
+          });
+          // Fetch the newly created profile
+          profile = await fetchProfile(authUser.id, userType);
+        }
+      }
+
+      const userData: User = {
+        ...authUser,
+        user_metadata: {
+          ...authUser.user_metadata,
+          profile
+        }
+      };
+
+      setUser(userData);
+      
+      // Save user data to localStorage for persistence
+      localStorage.setItem('auth.user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Error handling user change:', error);
+      // Clear potentially corrupted data
+      localStorage.removeItem('auth.user');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (data: any) => {
+    if (!user) throw new Error('No user logged in');
+    
+    const updatedProfile = await updateUserProfile(
+      user.id,
+      user.user_metadata.user_type,
+      data
+    );
+
+    const updatedUser = {
+      ...user,
+      profile: updatedProfile
+    };
+
+    setUser(updatedUser);
+    localStorage.setItem('auth.user', JSON.stringify(updatedUser));
+  };
+
+  const value = {
+    user,
+    loading,
+    signIn,
+    signOut,
+    signUp,
+    userType: user?.user_metadata?.user_type || null
+  };
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      signIn,
-      signUp,
-      signOut,
-      updateProfile
-    }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
