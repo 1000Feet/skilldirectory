@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { getChatResponse } from "@/integrations/gemini/client";
+import { getChatResponse } from "@/integrations/gemini/hybrid-client";
 import type { EducatorProfile } from "./types";
 
 interface Message {
@@ -25,7 +25,7 @@ const getSuggestedQuestions = (profile: EducatorProfile) => [
   "How can I contact you?",
 ].filter(Boolean);
 
-const WELCOME_MESSAGE = (profile: EducatorProfile) => `Hi! I'm Skill Directory, ${profile.name}'s AI assistant. I can help you learn more about their educational services, expertise, and teaching approach. Feel free to ask me anything about their offerings!\n\nHere are some questions you might be interested in:\n${getSuggestedQuestions(profile).map(q => `• ${q}`).join('\n')}`;
+const WELCOME_MESSAGE = (profile: EducatorProfile) => `Hi! I'm ${profile.name}'s AI assistant. I can help you learn more about our educational services, expertise, and teaching approach. Feel free to ask me anything!`;
 
 export function ChatContainer({ profile }: ChatContainerProps) {
   const [messages, setMessages] = useState<Message[]>([
@@ -64,11 +64,24 @@ export function ChatContainer({ profile }: ChatContainerProps) {
       }]);
     } catch (error) {
       console.error('Chat error:', error);
-      toast.error('Failed to get response from AI');
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'I apologize, but I encountered an error. Please try asking your question again.'
-      }]);
+      
+      // Check if the error is related to the API key
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const isApiKeyError = errorMessage.includes('API key');
+      
+      if (isApiKeyError) {
+        toast.error('AI service configuration error. Please contact support.');
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: 'I apologize, but there seems to be an issue with the AI service configuration. The team has been notified and is working to resolve this. Please try again later.'
+        }]);
+      } else {
+        toast.error('Failed to get response from AI');
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: 'I apologize, but I encountered an error. Please try asking your question again.'
+        }]);
+      }
     } finally {
       setLoading(false);
     }

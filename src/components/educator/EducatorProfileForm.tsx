@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -9,40 +9,23 @@ import { AIChatbotSection } from './AIChatbotSection';
 import { VoiceAgentSection } from './VoiceAgentSection';
 import { EducatorImageUpload } from './EducatorImageUpload';
 import { CategorySelection } from './CategorySelection';
-
-interface EducatorProfile {
-  id?: string;
-  user_id?: string;
-  name: string;
-  description: string;
-  website: string;
-  address: string;
-  phone: string;
-  email: string;
-  about_business: string;
-  facebook_url: string;
-  instagram_url: string;
-  youtube_url?: string;
-  ai_chatbot?: string;
-  ai_voice_agent?: {
-    knowledge_base: string[];
-    voice_id: string;
-  };
-  image?: string | null;
-  categories?: string[];
-  tags?: string[];
-  subscription_tier?: string;
-}
+import { EducatorProfile, VoiceAgent } from '@/types/supabase';
+import { MembershipType } from '@/lib/auth-types';
+import { Database } from '@/lib/database.types';
+import { MembershipFieldPermissions, DEFAULT_FIELD_PERMISSIONS, EDUCATOR_PROFILE_FIELDS } from '@/types/membership-fields';
 
 interface FormProps {
   initialData?: EducatorProfile | null;
   onSuccess?: (updatedProfile: EducatorProfile) => void;
+  membershipType?: MembershipType;
 }
 
-export function EducatorProfileForm({ initialData, onSuccess }: FormProps) {
+export function EducatorProfileForm({ initialData, onSuccess, membershipType: propMembershipType }: FormProps) {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [fieldPermissions, setFieldPermissions] = useState<MembershipFieldPermissions>(DEFAULT_FIELD_PERMISSIONS);
+  const [userMembershipType, setUserMembershipType] = useState<MembershipType>(propMembershipType || 'standard');
+  const [formData, setFormData] = useState<Omit<EducatorProfile, 'id' | 'user_id' | 'created_at' | 'updated_at'>>({
     name: initialData?.name || '',
     description: initialData?.description || '',
     website: initialData?.website || '',
@@ -60,9 +43,104 @@ export function EducatorProfileForm({ initialData, onSuccess }: FormProps) {
       voice_id: 'cjVigY5qzO86Huf0OWal' 
     },
     categories: initialData?.categories || [],
-    tags: initialData?.tags || [],
-    subscription_tier: initialData?.subscription_tier || 'basic'
+    tags: initialData?.tags || []
   });
+
+  useEffect(() => {
+    fetchUserMembership();
+    fetchFieldPermissions();
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (propMembershipType) {
+      setUserMembershipType(propMembershipType);
+    }
+  }, [propMembershipType]);
+
+  const fetchUserMembership = async () => {
+    if (!user?.id) return;
+
+    try {
+      // First get the educator profile to get the educator_id
+      const { data: educatorData, error: educatorError } = await supabase
+        .from('educator_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (educatorError) {
+        throw educatorError;
+      }
+
+      if (!educatorData?.id) {
+        console.log('No educator profile found, using standard membership');
+        return;
+      }
+
+      // Then get the active membership for this educator
+      const { data: membershipData, error: membershipError } = await supabase
+        .from('memberships')
+        .select('type')
+        .eq('educator_id', educatorData.id)
+        .eq('status', 'active')
+        .single();
+
+      if (membershipError) {
+        if (membershipError.code === 'PGRST116') { // Not found error
+          console.log('No active membership found, using standard membership');
+          return;
+        }
+        throw membershipError;
+      }
+
+      if (membershipData) {
+        console.log('Found membership:', membershipData.type);
+        setUserMembershipType(membershipData.type as MembershipType);
+      }
+    } catch (error) {
+      console.error('Error fetching user membership:', error);
+      // Keep using the current membership type on error
+    }
+  };
+
+  const fetchFieldPermissions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('field_permissions')
+        .select('*')
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No data found, use defaults
+          console.log('Using default permissions:', DEFAULT_FIELD_PERMISSIONS);
+          setFieldPermissions(DEFAULT_FIELD_PERMISSIONS);
+        } else {
+          throw error;
+        }
+      } else if (data) {
+        console.log('Fetched permissions:', data.permissions);
+        // Ensure all fields have permission entries
+        const updatedPermissions = { ...DEFAULT_FIELD_PERMISSIONS };
+        EDUCATOR_PROFILE_FIELDS.forEach(field => {
+          if (data.permissions[field]) {
+            updatedPermissions[field] = data.permissions[field];
+          }
+        });
+        console.log('Updated permissions:', updatedPermissions);
+        setFieldPermissions(updatedPermissions);
+      }
+    } catch (error) {
+      console.error('Error fetching field permissions:', error);
+      toast.error('Failed to load field permissions');
+    }
+  };
+
+  const isFieldEnabled = (fieldName: keyof typeof formData) => {
+    const permission = fieldPermissions[fieldName]?.[userMembershipType];
+    console.log(`Field ${fieldName} permission for ${userMembershipType}:`, permission);
+    return permission ?? true;
+  };
 
   const handleBasicInfoChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -90,13 +168,14 @@ export function EducatorProfileForm({ initialData, onSuccess }: FormProps) {
   };
 
   const handleChatbotChange = (value: string) => {
+    console.log('Updating chatbot knowledge base:', value);
     setFormData(prev => ({
       ...prev,
       ai_chatbot: value
     }));
   };
 
-  const handleVoiceAgentChange = (ai_voice_agent: { knowledge_base: string[], voice_id: string }) => {
+  const handleVoiceAgentChange = (ai_voice_agent: VoiceAgent) => {
     setFormData(prev => ({ ...prev, ai_voice_agent }));
   };
 
@@ -118,7 +197,6 @@ export function EducatorProfileForm({ initialData, onSuccess }: FormProps) {
     }
 
     setIsSubmitting(true);
-    console.log('Starting profile update with data:', formData);
 
     try {
       const formatUrl = (url: string) => {
@@ -131,39 +209,29 @@ export function EducatorProfileForm({ initialData, onSuccess }: FormProps) {
 
       const profileData = {
         user_id: user.id,
-        name: formData.name.trim(),
-        description: formData.description.trim(),
+        ...formData,
         website: formatUrl(formData.website.trim()),
-        address: formData.address.trim(),
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
-        about_business: formData.about_business.trim(),
-        image: formData.image,
         facebook_url: formatUrl(formData.facebook_url.trim()),
         instagram_url: formatUrl(formData.instagram_url.trim()),
         youtube_url: formData.youtube_url ? formatUrl(formData.youtube_url.trim()) : '',
-        ai_chatbot: formData.ai_chatbot,
-        ai_voice_agent: formData.ai_voice_agent,
-        categories: formData.categories,
-        tags: formData.tags,
-        subscription_tier: formData.subscription_tier,
         updated_at: new Date().toISOString()
       };
 
       let result;
       if (initialData?.id) {
-        console.log('Updating existing profile with data:', profileData);
         result = await supabase
           .from('educator_profiles')
           .update(profileData)
-          .eq('user_id', user.id)
+          .eq('id', initialData.id)
           .select()
           .single();
       } else {
-        console.log('Creating new profile with data:', profileData);
         result = await supabase
           .from('educator_profiles')
-          .insert(profileData)
+          .insert({
+            ...profileData,
+            created_at: new Date().toISOString()
+          })
           .select()
           .single();
       }
@@ -172,11 +240,11 @@ export function EducatorProfileForm({ initialData, onSuccess }: FormProps) {
         throw result.error;
       }
 
-      onSuccess?.(result.data);
+      onSuccess?.(result.data as EducatorProfile);
       toast.success('Profile saved successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving profile:', error);
-      toast.error('Failed to save profile');
+      toast.error(`Failed to save profile: ${error.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -186,49 +254,86 @@ export function EducatorProfileForm({ initialData, onSuccess }: FormProps) {
     return null;
   }
 
+  // Get the basic info fields that are hidden
+  const hiddenBasicInfoFields = {
+    name: !isFieldEnabled('name'),
+    description: !isFieldEnabled('description'),
+    website: !isFieldEnabled('website'),
+    address: !isFieldEnabled('address'),
+    phone: !isFieldEnabled('phone'),
+    email: !isFieldEnabled('email'),
+    about_business: !isFieldEnabled('about_business'),
+  };
+
+  // Get the social media fields that are hidden
+  const hiddenSocialFields = {
+    facebook: !isFieldEnabled('facebook_url'),
+    instagram: !isFieldEnabled('instagram_url'),
+    youtube: !isFieldEnabled('youtube_url')
+  };
+
+  // Check if any field in a section is enabled to show the section
+  const showSocialSection = Object.values(hiddenSocialFields).some(hidden => !hidden);
+
   return (
     <form onSubmit={onSubmit} className="space-y-8 p-6">
-      <EducatorImageUpload
-        currentImage={formData.image}
-        onImageUpload={handleImageChange}
-        loading={isSubmitting}
-      />
+      {/* Image upload is controlled by field permissions */}
+      {isFieldEnabled('image') && (
+        <EducatorImageUpload
+          currentImage={formData.image}
+          onImageUpload={handleImageChange}
+          loading={isSubmitting}
+        />
+      )}
 
+      {/* Basic Info section with hidden fields */}
       <BasicInfoSection 
         info={formData} 
         onChange={handleBasicInfoChange}
+        hiddenFields={hiddenBasicInfoFields}
       />
 
-      <CategorySelection
-        categories={formData.categories}
-        selectedCategories={formData.categories}
-        onChange={handleCategoryChange}
-      />
+      {/* Social Media section with hidden fields */}
+      {showSocialSection && (
+        <SocialMediaSection 
+          facebook={formData.facebook_url}
+          instagram={formData.instagram_url}
+          youtube={formData.youtube_url}
+          onChange={handleSocialChange}
+          hiddenFields={hiddenSocialFields}
+        />
+      )}
 
-      <SocialMediaSection
-        facebook={formData.facebook_url}
-        instagram={formData.instagram_url}
-        youtube={formData.youtube_url}
-        onChange={handleSocialChange}
-      />
+      {/* AI Chatbot section is controlled by field permissions */}
+      {isFieldEnabled('ai_chatbot') && (
+        <AIChatbotSection
+          value={formData.ai_chatbot}
+          onChange={handleChatbotChange}
+        />
+      )}
 
-      <AIChatbotSection
-        chatbot={formData.ai_chatbot}
-        onChange={handleChatbotChange}
-      />
+      {/* Voice Agent section is controlled by field permissions */}
+      {isFieldEnabled('ai_voice_agent') && (
+        <VoiceAgentSection
+          knowledgeBase={formData.ai_voice_agent?.knowledge_base}
+          voiceId={formData.ai_voice_agent?.voice_id}
+          onChange={handleVoiceAgentChange}
+        />
+      )}
 
-      <VoiceAgentSection
-        voiceAgent={formData.ai_voice_agent}
-        onChange={handleVoiceAgentChange}
-      />
+      {/* Category Selection is controlled by field permissions */}
+      {isFieldEnabled('categories') && (
+        <CategorySelection
+          selectedCategories={formData.categories}
+          onChange={handleCategoryChange}
+        />
+      )}
 
-      <Button 
-        type="submit"
-        className="w-full"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? 'Saving...' : (initialData ? 'Update Profile' : 'Create Profile')}
-      </Button>
+      <div className="flex justify-end">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </div>
     </form>
   );
 }

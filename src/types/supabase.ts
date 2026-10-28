@@ -1,137 +1,117 @@
+Need to install the following packages:
+supabase@2.19.7
+
+import { Database } from '@/lib/database.types';
+
+export type Tables = Database['public']['Tables'];
+
+// Field Permissions Table
+export interface FieldPermission {
+  id: string;
+  field_name: string;
+  basic: boolean;
+  standard: boolean;
+  premium: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Membership Table
+export interface Membership {
+  id: string;
+  educator_id: string;
+  type: 'basic' | 'standard' | 'premium';
+  status: 'active' | 'past_due' | 'canceled';
+  created_at: string;
+  updated_at: string;
+}
+
+// Educator Profile
+export interface EducatorProfile {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  website: string;
+  address: string;
+  phone: string;
+  email: string;
+  about_business: string;
+  facebook_url: string;
+  instagram_url: string;
+  youtube_url?: string;
+  ai_chatbot?: string;
+  ai_voice_agent?: {
+    knowledge_base: string[];
+    voice_id: string;
+  };
+  image?: string;
+  categories?: string[];
+  tags?: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export type VoiceAgent = {
+  knowledge_base: string[];
+  voice_id: string;
+};
+
 export type Json =
   | string
   | number
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export interface Database {
   public: {
     Tables: {
-      reviews: {
+      chat_messages: {
         Row: {
-          id: string
-          educator_id: string
-          student_id: string
-          rating: number
-          review_text: string
-          created_at: string
-          updated_at: string
-        }
+          id: string;
+          sender_id: string;
+          receiver_id: string;
+          content: string;
+          created_at: string;
+          read_at: string | null;
+          deleted_at: string | null;
+        };
         Insert: {
-          id?: string
-          educator_id: string
-          student_id: string
-          rating: number
-          review_text: string
-          created_at?: string
-          updated_at?: string
-        }
+          id?: string;
+          sender_id: string;
+          receiver_id: string;
+          content: string;
+          created_at?: string;
+          read_at?: string | null;
+          deleted_at?: string | null;
+        };
         Update: {
-          id?: string
-          educator_id?: string
-          student_id?: string
-          rating?: number
-          review_text?: string
-          created_at?: string
-          updated_at?: string
-        }
+          id?: string;
+          sender_id?: string;
+          receiver_id?: string;
+          content?: string;
+          created_at?: string;
+          read_at?: string | null;
+          deleted_at?: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "reviews_educator_id_fkey"
-            columns: ["educator_id"]
-            referencedRelation: "educator_profiles"
-            referencedColumns: ["id"]
+            foreignKeyName: "chat_messages_receiver_id_fkey";
+            columns: ["receiver_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "reviews_student_id_fkey"
-            columns: ["student_id"]
-            referencedRelation: "student_profiles"
-            referencedColumns: ["id"]
+            foreignKeyName: "chat_messages_sender_id_fkey";
+            columns: ["sender_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
           }
-        ]
-      }
-      student_profiles: {
-        Row: {
-          id: string
-          user_id: string
-          name: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          name: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          name?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "student_profiles_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      educator_profiles: {
-        Row: {
-          id: string
-          user_id: string
-          name: string
-          image: string | null
-          categories: string[]
-          created_at: string
-          is_active: boolean
-          is_featured: boolean
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          name: string
-          image?: string | null
-          categories?: string[]
-          created_at?: string
-          is_active?: boolean
-          is_featured?: boolean
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          name?: string
-          image?: string | null
-          categories?: string[]
-          created_at?: string
-          is_active?: boolean
-          is_featured?: boolean
-        }
-        Relationships: [
-          {
-            foreignKeyName: "educator_profiles_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+        ];
+      };
+      // ... existing tables ...
+    };
+  };
+};

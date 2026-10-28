@@ -1,3 +1,4 @@
+import L from 'leaflet';
 
 interface Coordinates {
   lat: number;
@@ -12,29 +13,37 @@ interface Distance {
 export async function getCoordinates(address: string): Promise<Coordinates | null> {
   try {
     console.log('Geocoding address:', address);
+    
+    // Using OpenStreetMap's Nominatim service for geocoding
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
         address
-      )}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
+      )}&limit=1`,
+      {
+        headers: {
+          'User-Agent': 'SkillDirectory/1.0' // Required by Nominatim's usage policy
+        }
+      }
     );
+    
     const data = await response.json();
 
-    if (data.status === 'ZERO_RESULTS') {
+    if (!data || data.length === 0) {
       console.log('No coordinates found for address:', address);
       return null;
     }
 
-    if (data.status !== 'OK') {
-      console.error('Geocoding API error:', data.status, data.error_message);
+    const result = data[0];
+    const lat = parseFloat(result.lat);
+    const lng = parseFloat(result.lon);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      console.error('Invalid coordinates received from Nominatim');
       return null;
     }
 
-    if (data.results && data.results[0]) {
-      const { lat, lng } = data.results[0].geometry.location;
-      console.log('Coordinates found:', { lat, lng }, 'for address:', address);
-      return { lat, lng };
-    }
-    return null;
+    console.log('Coordinates found:', { lat, lng }, 'for address:', address);
+    return { lat, lng };
   } catch (error) {
     console.error('Error getting coordinates:', error);
     return null;
@@ -48,27 +57,25 @@ export function calculateDistance(
   lat2: number,
   lon2: number
 ): Distance {
-  const R = 6371; // Earth's radius in kilometers
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distanceKm = R * c;
-  const distanceMiles = distanceKm * 0.621371; // Convert km to miles
+  // Using Leaflet's built-in distance calculation
+  const point1 = L.latLng(lat1, lon1);
+  const point2 = L.latLng(lat2, lon2);
+  
+  // Get distance in meters
+  const distanceInMeters = point1.distanceTo(point2);
+  
+  // Convert to kilometers and miles
+  const kilometers = distanceInMeters / 1000;
+  const miles = kilometers * 0.621371;
 
   return {
-    kilometers: Math.round(distanceKm * 10) / 10, // Round to 1 decimal place
-    miles: Math.round(distanceMiles * 10) / 10
+    kilometers: Math.round(kilometers * 100) / 100, // Round to 2 decimal places
+    miles: Math.round(miles * 100) / 100
   };
 }
 
 function toRad(degrees: number): number {
-  return (degrees * Math.PI) / 180;
+  return degrees * (Math.PI / 180);
 }
 
 export async function getDistanceBetweenAddresses(
@@ -76,48 +83,32 @@ export async function getDistanceBetweenAddresses(
   address2: string | null
 ): Promise<Distance | null> {
   if (!address1 || !address2) {
-    console.log('Missing address(es):', { address1, address2 });
+    console.log('Missing address(es)');
     return null;
   }
 
-  console.log('Calculating distance between:', address1, 'and', address2);
-  
-  const coords1 = await getCoordinates(address1);
-  const coords2 = await getCoordinates(address2);
+  try {
+    const coords1 = await getCoordinates(address1);
+    const coords2 = await getCoordinates(address2);
 
-  if (!coords1 || !coords2) {
-    console.log('Could not get coordinates for one or both addresses');
+    if (!coords1 || !coords2) {
+      console.log('Could not get coordinates for one or both addresses');
+      return null;
+    }
+
+    return calculateDistance(coords1.lat, coords1.lng, coords2.lat, coords2.lng);
+  } catch (error) {
+    console.error('Error calculating distance between addresses:', error);
     return null;
   }
-
-  const distance = calculateDistance(
-    coords1.lat,
-    coords1.lng,
-    coords2.lat,
-    coords2.lng
-  );
-
-  console.log('Calculated distance:', distance);
-  return distance;
 }
 
 export async function testGeocodingAPI(address: string = "New York, NY"): Promise<boolean> {
   try {
-    console.log('Testing geocoding API with address:', address);
-    console.log('API Key:', import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-        address
-      )}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
-    );
-    const data = await response.json();
-    console.log('Geocoding API response:', data);
-    
-    const coords = await getCoordinates(address);
-    console.log('Geocoding test result:', coords);
-    return coords !== null;
+    const result = await getCoordinates(address);
+    return result !== null;
   } catch (error) {
-    console.error('Geocoding test failed:', error);
+    console.error('Error testing geocoding API:', error);
     return false;
   }
 }

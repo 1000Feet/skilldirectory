@@ -1,12 +1,67 @@
-
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteRule . /index.html [L]
+  
+  # Don't rewrite files or directories
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  
+  # Handle all paths by serving index.html
+  RewriteRule ^ index.html [L]
 </IfModule>
 
+# Set correct MIME types for JavaScript modules
+<IfModule mod_mime.c>
+  # JavaScript
+  AddType application/javascript .js
+  AddType application/javascript .mjs
+  
+  # JSON
+  AddType application/json .json
+  
+  # WebAssembly
+  AddType application/wasm .wasm
+  
+  # TypeScript
+  AddType application/x-typescript .ts
+  AddType application/x-typescript .tsx
+</IfModule>
+
+# Enable CORS
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "*"
+  
+  # Cache Control for static assets
+  <FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif|js|css|woff2|woff|ttf)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
+  
+  # Cache Control for HTML and data files
+  <FilesMatch "\.(html|htm|xml|txt|json)$">
+    Header set Cache-Control "max-age=0, public, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json application/xml
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set X-XSS-Protection "1; mode=block"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# Error Documents
+ErrorDocument 404 /index.html
+
+# Prevent directory listings
+Options -Indexes
+
+# Set default document
 DirectoryIndex index.html

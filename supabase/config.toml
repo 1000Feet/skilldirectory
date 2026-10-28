@@ -6,14 +6,38 @@ enabled = true
 port = 54321
 schemas = ["public", "storage", "graphql_public"]
 
-[db]
-port = 54322
-
-[studio]
-port = 54323
-
-[functions.create-checkout-session]
+[functions]
+[functions.chat]
 verify_jwt = false
 
-[functions.stripe-webhook]
+[functions.hello-world]
+enabled = true
+verify_jwt = true
+import_map = "./functions/hello-world/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/hello-world/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/hello-world/*.html" ]
+
+[functions.delete-user-account]
+enabled = true
+verify_jwt = true
+import_map = "./functions/delete-user-account/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/delete-user-account/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/delete-user-account/*.html" ]
+
+# New-key functions: they verify the caller themselves (publishable keys are not JWTs).
+[functions.payments]
+verify_jwt = false
+
+[functions.admin-api]
+verify_jwt = false
+
+[functions.gemini-proxy]
 verify_jwt = false

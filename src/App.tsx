@@ -1,100 +1,110 @@
-
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'sonner';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './contexts/AuthContext';
-
-// Pages
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Index from './pages/Index';
-import Auth from './pages/Auth';
-import Listings from './pages/Listings';
-import EducatorProfile from './pages/EducatorProfile';
-import EducatorDashboard from './pages/EducatorDashboard';
-import StudentDashboard from './pages/StudentDashboard';
 import About from './pages/About';
 import Support from './pages/Support';
-import NotFound from './pages/NotFound';
-import AdminSettings from './pages/AdminSettings';
 import Pricing from './pages/Pricing';
-import SubscriptionPlans from './pages/SubscriptionPlans';
-import SubscriptionSuccess from './pages/SubscriptionSuccess';
-import SubscriptionCancel from './pages/SubscriptionCancel';
-
-// Components
+import Listings from './pages/Listings';
+import Auth from './pages/Auth';
+import NotFound from './pages/NotFound';
+import EducatorDashboard from './pages/EducatorDashboard';
+import StudentDashboard from './pages/StudentDashboard';
+import EducatorProfile from './pages/EducatorProfile';
+import AdminSettings from './pages/AdminSettings';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from './contexts/AuthContext';
+import { Toaster as SonnerToaster } from 'sonner';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { StripeProvider } from '@/providers/StripeProvider';
+import PaymentPage from './pages/PaymentPage';
+import PaymentComplete from './pages/PaymentComplete';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import { useEffect, useState } from 'react';
 
-// Initialize QueryClient
-const queryClient = new QueryClient();
+function BusinessRedirect() {
+  const location = useLocation();
+  const newPath = location.pathname.replace('business', 'educator');
+  return <Navigate to={newPath} replace />;
+}
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Failed to initialize app:', err);
+        setError('Failed to initialize application. Please try again later.');
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-500 text-center">
+          <h1 className="text-2xl font-bold mb-2">Error</h1>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
+    <Router>
       <AuthProvider>
-        <Router>
+        <StripeProvider>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
             <Route path="/about" element={<About />} />
             <Route path="/support" element={<Support />} />
-            <Route path="/listings" element={<Listings />} />
-            <Route path="/search" element={<Listings />} />
             <Route path="/pricing" element={<Pricing />} />
-            <Route path="/educator/:id" element={<EducatorProfile />} />
-            
-            {/* Subscription Routes */}
-            <Route path="/subscription/plans" element={<SubscriptionPlans />} />
-            <Route path="/subscription/success" element={<SubscriptionSuccess />} />
-            <Route path="/subscription/cancel" element={<SubscriptionCancel />} />
-            
-            {/* Protected Routes */}
-            <Route
-              path="/student/dashboard"
+            <Route path="/listings" element={<Listings />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute userType="educator">
+                  <EducatorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student-dashboard" 
               element={
                 <ProtectedRoute userType="student">
                   <StudentDashboard />
                 </ProtectedRoute>
-              }
+              } 
             />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute userType="educator">
-                  <EducatorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/educator/dashboard"
-              element={
-                <ProtectedRoute userType="educator">
-                  <EducatorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/educator/profile"
-              element={
-                <ProtectedRoute userType="educator">
-                  <EducatorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminSettings />
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* 404 Route */}
+            <Route path="/educator/:slug" element={<EducatorProfile />} />
+            <Route path="/business/:slug" element={<BusinessRedirect />} />
+            <Route path="/admin" element={<AdminSettings />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/payment-complete" element={<PaymentComplete />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Router>
-        <Toaster position="top-right" richColors />
+          <Toaster />
+          <SonnerToaster />
+        </StripeProvider>
       </AuthProvider>
-    </QueryClientProvider>
+    </Router>
   );
 }
 

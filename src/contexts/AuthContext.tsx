@@ -1,59 +1,103 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { AuthUser, UserType } from '@/lib/auth-types';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthActions } from '@/hooks/useAuthActions';
 import { useProfileManagement } from '@/hooks/useProfileManagement';
+import { useOnlineStatusUpdater } from '@/hooks/useOnlineStatusUpdater';
+import { UserType } from '@/lib/auth-types';
 
 interface AuthContextType {
-  user: AuthUser | null;
+  user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<any>;
-  signUp: (email: string, password: string, userType: UserType) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ user: User | null; session: Session | null }>;
   signOut: () => Promise<void>;
-  updateProfile: (data: any) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+    userType: UserType,
+    membershipType?: string
+  ) => Promise<
+    | { profileId: string; skipPayment: boolean }
+    | { clientSecret: string; profileId: string }
+  >;
+  userType: UserType | null;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { signIn, signUp, signOut } = useAuthActions();
   const { fetchProfile, updateProfile: updateUserProfile, createProfile } = useProfileManagement();
+  
+  // Use the online status updater
+  const isEducator = user?.user_metadata?.user_type === 'educator';
+  useOnlineStatusUpdater(user?.id, isEducator);
 
   useEffect(() => {
-    // Get current session
+    // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         handleUserChange(session.user);
       } else {
-        setLoading(false);
-      }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event, session?.user?.id);
-      
-      if (session?.user) {
-        await handleUserChange(session.user);
-      } else {
         setUser(null);
-        // Clear stored user data on sign out
-        localStorage.removeItem('auth.user');
       }
       setLoading(false);
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    // Listen for changes on auth state (sign in, sign out, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        handleUserChange(session.user);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const handleUserChange = async (authUser: any) => {
+  const handleUserChange = async (authUser: User) => {
     try {
       const userType = authUser.user_metadata?.user_type as UserType;
       console.log('Handling user change:', authUser.id, userType);
+
+      // Check for deactivated accounts
+      if (userType === 'student') {
+        const { data: profileData } = await supabase
+          .from('student_profiles')
+          .select('is_active')
+          .eq('user_id', authUser.id)
+          .single();
+
+        if (profileData && profileData.is_active === false) {
+          // Sign out the user immediately
+          await supabase.auth.signOut();
+          // toast.error('Your account has been deactivated. Please contact support for reactivation.');
+          setUser(null);
+          return;
+        }
+      } else if (userType === 'educator') {
+        const { data: profileData } = await supabase
+          .from('educator_profiles')
+          .select('is_active')
+          .eq('user_id', authUser.id)
+          .single();
+
+        if (profileData && profileData.is_active === false) {
+          // Sign out the user immediately
+          await supabase.auth.signOut();
+          // toast.error('Your account has been deactivated. Please contact support for reactivation.');
+          setUser(null);
+          return;
+        }
+      }
 
       // Try to get profile from local storage first
       const storedUserData = localStorage.getItem('auth.user');
@@ -76,13 +120,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      const userData = {
-        id: authUser.id,
-        email: authUser.email,
+      const userData: User = {
+        ...authUser,
         user_metadata: {
-          user_type: userType
-        },
-        profile
+          ...authUser.user_metadata,
+          profile
+        }
       };
 
       setUser(userData);
@@ -93,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error handling user change:', error);
       // Clear potentially corrupted data
       localStorage.removeItem('auth.user');
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -116,16 +160,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('auth.user', JSON.stringify(updatedUser));
   };
 
+  const value = {
+    user,
+    loading,
+    signIn,
+    signOut,
+    signUp,
+    userType: user?.user_metadata?.user_type || null
+  };
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      signIn,
-      signUp,
-      signOut,
-      updateProfile
-    }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

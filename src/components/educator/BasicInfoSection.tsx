@@ -14,90 +14,54 @@ interface BasicInfo {
 
 interface BasicInfoSectionProps {
   info: BasicInfo;
-  onChange: (field: keyof BasicInfo, value: string) => void;
+  onChange: (field: string, value: string) => void;
+  hiddenFields?: Record<string, boolean>;
 }
 
-export function BasicInfoSection({ info, onChange }: BasicInfoSectionProps) {
+export function BasicInfoSection({ info, onChange, hiddenFields = {} }: BasicInfoSectionProps) {
+  const fields = [
+    { id: 'name', label: 'Business Name *', type: 'input', required: true },
+    { id: 'description', label: 'Short Description', type: 'input', placeholder: 'Brief description of your business' },
+    { id: 'website', label: 'Website', type: 'input', placeholder: 'https://example.com' },
+    { id: 'address', label: 'Address', type: 'input', placeholder: 'Business address' },
+    { id: 'phone', label: 'Phone Number', type: 'input', placeholder: '+1 (555) 123-4567' },
+    { id: 'email', label: 'Email *', type: 'input', required: true },
+    { id: 'about_business', label: 'About Your Business', type: 'textarea', placeholder: 'Tell us about your business...' }
+  ];
+
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="businessName">Business Name</Label>
-        <Input
-          id="businessName"
-          value={info.name}
-          onChange={(e) => onChange('name', e.target.value)}
-          className="bg-white focus:bg-white"
-          required
-        />
-      </div>
+    <div className="space-y-6">
+      <h3 className="text-lg font-semibold">Basic Information</h3>
+      
+      <div className="grid gap-4">
+        {fields.map(field => {
+          if (hiddenFields[field.id]) return null;
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={info.description}
-          onChange={(e) => onChange('description', e.target.value)}
-          className="bg-white focus:bg-white"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="website">Website</Label>
-        <Input
-          id="website"
-          type="url"
-          value={info.website}
-          onChange={(e) => onChange('website', e.target.value)}
-          className="bg-white focus:bg-white"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
-        <Input
-          id="address"
-          value={info.address}
-          onChange={(e) => onChange('address', e.target.value)}
-          className="bg-white focus:bg-white"
-          required
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input
-            id="phone"
-            type="tel"
-            value={info.phone}
-            onChange={(e) => onChange('phone', e.target.value)}
-            className="bg-white focus:bg-white"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={info.email}
-            onChange={(e) => onChange('email', e.target.value)}
-            className="bg-white focus:bg-white"
-            required
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="aboutBusiness">About Your Business</Label>
-        <Textarea
-          id="aboutBusiness"
-          value={info.about_business}
-          onChange={(e) => onChange('about_business', e.target.value)}
-          className="h-32 bg-white focus:bg-white"
-        />
+          return (
+            <div key={field.id} className="grid gap-2">
+              <Label htmlFor={field.id}>{field.label}</Label>
+              {field.type === 'textarea' ? (
+                <Textarea
+                  id={field.id}
+                  value={info[field.id as keyof BasicInfo]}
+                  onChange={(e) => onChange(field.id, e.target.value)}
+                  placeholder={field.placeholder}
+                  className="h-32"
+                  required={field.required}
+                />
+              ) : (
+                <Input
+                  id={field.id}
+                  type={field.id === 'email' ? 'email' : 'text'}
+                  value={info[field.id as keyof BasicInfo]}
+                  onChange={(e) => onChange(field.id, e.target.value)}
+                  placeholder={field.placeholder}
+                  required={field.required}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

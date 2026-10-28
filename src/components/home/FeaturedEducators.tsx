@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Star, Heart } from "lucide-react";
 import { 
@@ -22,6 +21,17 @@ interface EducatorProfile {
   image: string;
   categories: string[];
 }
+
+// Helper function to create consistent slugs
+const createSlug = (name: string) => {
+  return name
+    .toLowerCase()
+    // Replace ampersand with 'and' before general replacement
+    .replace(/&/g, 'and')
+    // Then replace all non-alphanumeric characters with hyphens
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+};
 
 export const FeaturedEducators = () => {
   const [educators, setEducators] = useState<EducatorProfile[]>([]);
@@ -69,7 +79,6 @@ export const FeaturedEducators = () => {
     const fetchFeaturedEducators = async () => {
       try {
         setLoading(true);
-        console.log("Fetching featured educators");
         const { data, error } = await supabase
           .from('educator_profiles')
           .select('id, name, image, categories')
@@ -79,13 +88,8 @@ export const FeaturedEducators = () => {
           .not('name', 'is', null)
           .limit(6);
 
-        if (error) {
-          console.error('Error fetching featured educators:', error);
-          toast.error('Error loading featured educators');
-          throw error;
-        }
+        if (error) throw error;
 
-        console.log("Featured educators data:", data);
         setEducators(data || []);
 
         // Fetch ratings for all featured educators
@@ -151,8 +155,9 @@ export const FeaturedEducators = () => {
               {educators.map(educator => (
                 <CarouselItem key={educator.id} className="md:basis-1/2 lg:basis-1/3">
                   <Link 
-                    to={`/educator/${educator.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    to={`/educator/${encodeURIComponent(createSlug(educator.name))}`}
                     className="block relative"
+                    state={{ id: educator.id }}
                   >
                     <div className="p-4">
                       <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">

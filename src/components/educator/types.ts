@@ -19,7 +19,6 @@ export interface EducatorProfile {
   image?: string | null;
   categories?: string[];
   tags?: string[];
-  subscription_tier?: string;
 }
 
 export interface EducatorProfileFormProps {

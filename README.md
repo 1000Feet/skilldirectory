@@ -4,6 +4,30 @@
 
 **URL**: https://lovable.dev/projects/e3ddad9b-ca41-4754-9053-53cb3790d224
 
+## Skill Directory - Professional Networking Platform
+
+This project is a comprehensive web platform for skill-based professional networking and education. It features:
+
+1. **User Management**
+   - Role-based access (educators, students, admins)
+   - Authentication using Supabase
+   - Profile management
+
+2. **Membership Tiers**
+   - Basic (Free): $0.00
+   - Standard: $30.00/month
+   - Premium: $50.00/month
+
+3. **Payment Processing**
+   - Secure payment processing with Stripe
+   - Membership tier selection
+   - Automatic subscription management
+
+4. **Dashboard System**
+   - Separate dashboards for educators and students
+   - Profile management
+   - Membership status display
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
@@ -52,13 +76,30 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with:
 
-- Vite
+- React 18
 - TypeScript
-- React
+- Vite
+- Supabase (Authentication & Database)
+- Stripe (Payment Processing)
+- React Router v6
 - shadcn-ui
 - Tailwind CSS
+- React Query
+- React Hook Form
+- sonner (for toast notifications)
+
+## Environment Variables
+
+To run this project locally, you'll need the following environment variables:
+
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+VITE_STRIPE_SECRET_KEY=your_stripe_secret_key
+```
 
 ## How can I deploy this project?
 

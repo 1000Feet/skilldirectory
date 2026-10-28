@@ -10,9 +10,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MessageSquare, Video, Calendar } from "lucide-react";
+import { MessageSquare, Video, Calendar, Lock } from "lucide-react";
 import { ChatModal } from "@/components/educator/ChatModal";
 import { Reviews } from '@/components/educator/Reviews';
+import { ProfileViewTracker } from "@/components/ProfileViewTracker";
+import { StudentChatModal } from "@/components/chat/StudentChatModal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface EducatorProfile {
   id: string;
@@ -34,6 +37,9 @@ interface EducatorProfile {
 const createSlug = (name: string) => {
   return name
     .toLowerCase()
+    // Replace ampersand with 'and' before general replacement
+    .replace(/&/g, 'and')
+    // Then replace all non-alphanumeric characters with hyphens
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 };
@@ -48,133 +54,170 @@ const getEmbedUrl = (url: string) => {
 };
 
 const EducatorProfile = () => {
-  const { id: slugParam } = useParams();
+  const { slug } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const profileId = location.state?.id;
+  const queryParams = new URLSearchParams(location.search);
+  const queryProfileId = queryParams.get('id');
+  const [sessionProfileId, setSessionProfileId] = useState<string | null>(null);
   
-  const [showClaimBanner, setShowClaimBanner] = useState(true);
+  // Get the ID from all possible sources, with priority
+  const effectiveProfileId = profileId || queryProfileId || sessionProfileId;
+  const { user } = useAuth();
+  const [isStudent, setIsStudent] = useState(false);
+
+  // Get profile ID from sessionStorage on component mount
+  useEffect(() => {
+    const storedId = sessionStorage.getItem('educator_profile_id');
+    if (storedId) {
+      setSessionProfileId(storedId);
+      // Clear the session storage after getting the ID
+      sessionStorage.removeItem('educator_profile_id');
+    }
+  }, []);
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      if (!user) {
+        setIsStudent(false);
+        return;
+      }
+
+      const { data: studentProfile } = await supabase
+        .from('student_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      setIsStudent(!!studentProfile);
+    };
+
+    checkUserRole();
+  }, [user]);
+  
+  const [showClaimBanner, setShowClaimBanner] = useState(false);
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [profile, setProfile] = useState<EducatorProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isStudentChatOpen, setIsStudentChatOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      setLoading(true);
-      
       try {
-        // If we have a profile ID from state, use that directly
-        if (profileId) {
-          const { data, error: fetchError } = await supabase
+        let profileData;
+        
+        if (effectiveProfileId) {
+          // If we have a profileId from any source, use it directly
+          const { data, error } = await supabase
             .from('educator_profiles')
-            .select('*')
-            .eq('id', profileId)
-            .maybeSingle();
-
-          if (fetchError) {
-            console.error('Error fetching profile by ID:', fetchError);
-            throw fetchError;
-          }
-
-          if (!data) {
-            setError("Profile not found");
-            setLoading(false);
-            return;
-          }
-
-          // Check if the URL matches the slug for this profile
-          if (data.name) {
-            const correctSlug = createSlug(data.name);
-            if (slugParam !== correctSlug) {
-              navigate(`/educator/${correctSlug}`, { 
-                state: { id: profileId },
-                replace: true 
-              });
-              return;
-            }
-          }
-
-          setProfile(data);
-        } 
-        // Otherwise, try to find the educator by slug
-        else if (slugParam) {
-          console.log('Fetching profile by slug:', slugParam);
-          
-          // First, try a direct slug match by converting the slug format back to possible name patterns
-          const slugWithSpaces = slugParam.replace(/-/g, ' ');
-          
-          const { data: profiles, error: slugError } = await supabase
+            .select('*, memberships(*)')
+            .eq('id', effectiveProfileId)
+            .eq('is_active', true)
+            .single();
+            
+          if (error) throw error;
+          profileData = data;
+        } else if (slug) {
+          // Try to find the profile by exact slug match first
+          const decodedSlug = decodeURIComponent(slug);
+          const { data: exactMatches, error: exactError } = await supabase
             .from('educator_profiles')
-            .select('*')
-            .or(`name.ilike.%${slugWithSpaces}%,description.ilike.%${slugWithSpaces}%`);
+            .select('*, memberships(*)')
+            .eq('is_active', true)
+            .filter('name', 'neq', null)
+            .filter('name', 'neq', '');
 
-          if (slugError) {
-            console.error('Error searching profiles by slug:', slugError);
-            throw slugError;
-          }
+          if (exactError) throw exactError;
 
-          if (!profiles || profiles.length === 0) {
-            setError("Profile not found");
-            setLoading(false);
-            return;
-          }
-
-          // Find the profile whose slug would match the provided slug
-          const matchedProfile = profiles.find(p => 
-            createSlug(p.name) === slugParam
+          // Find the profile where the slug exactly matches
+          profileData = exactMatches?.find(profile => 
+            createSlug(profile.name) === decodedSlug
           );
 
-          // If no exact match, use the first result that's closest to the slug
-          const profileToUse = matchedProfile || profiles[0];
-          
-          // If we found a profile but its slug doesn't match the URL, redirect to the correct URL
-          if (profileToUse && createSlug(profileToUse.name) !== slugParam) {
-            navigate(`/educator/${createSlug(profileToUse.name)}`, { 
-              state: { id: profileToUse.id },
-              replace: true 
-            });
-            return;
-          }
+          // If no exact match found, try a more permissive search as fallback
+          if (!profileData) {
+            const normalizedSlug = decodedSlug.replace(/-/g, ' ').toLowerCase();
+            const { data: fuzzyMatches, error: fuzzyError } = await supabase
+              .from('educator_profiles')
+              .select('*, memberships(*)')
+              .eq('is_active', true)
+              .ilike('name', `%${normalizedSlug}%`)
+              .limit(5);  // Limit to prevent too many matches
 
-          setProfile(profileToUse);
+            if (fuzzyError) throw fuzzyError;
+            
+            // Try to find the closest match
+            profileData = fuzzyMatches?.find(profile => {
+              const profileSlug = createSlug(profile.name);
+              return profileSlug.includes(decodedSlug) || decodedSlug.includes(profileSlug);
+            });
+          }
         }
-      } catch (err) {
-        console.error('Error in fetchProfile:', err);
-        setError("Failed to load educator profile");
-        toast.error("Failed to load educator profile");
+
+        if (!profileData) {
+          setError('Educator profile not found or has been deactivated');
+          setLoading(false);
+          return;
+        }
+
+        // Always redirect to the canonical URL if needed, but without query parameters
+        const expectedSlug = createSlug(profileData.name);
+        if (!effectiveProfileId && slug !== expectedSlug) {
+          navigate(`/educator/${encodeURIComponent(expectedSlug)}`, { 
+            state: { id: profileData.id },
+            replace: true 
+          });
+          return;
+        } else if (queryProfileId) {
+          // If we have a query parameter ID, remove it from URL while preserving state
+          navigate(`/educator/${encodeURIComponent(expectedSlug)}`, {
+            state: { id: profileData.id },
+            replace: true
+          });
+          return;
+        }
+
+        setProfile(profileData);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        setError('Educator profile not found or has been deactivated');
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [profileId, slugParam, navigate]);
+  }, [effectiveProfileId, slug, navigate, queryProfileId]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <>
         <Header />
-        <main className="flex-1 flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </main>
-      </div>
+        </div>
+      </>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <>
         <Header />
-        <main className="flex-1 flex items-center justify-center">
+        <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-2">Profile Not Found</h2>
-            <p className="text-gray-600">{error || "The educator profile you're looking for doesn't exist."}</p>
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Profile Not Available</h1>
+            <p className="text-gray-600 mb-6">{error || 'This educator profile is not available or has been deactivated.'}</p>
+            <Button onClick={() => navigate('/')}>
+              Return to Home
+            </Button>
           </div>
-        </main>
-      </div>
+        </div>
+      </>
     );
   }
 
@@ -183,6 +226,7 @@ const EducatorProfile = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      {profile.id && <ProfileViewTracker educatorProfileId={profile.id} />}
       <main className="flex-1 bg-gray-50">
         <div className="container mx-auto py-8 px-4">
           {showClaimBanner && (
@@ -256,6 +300,40 @@ const EducatorProfile = () => {
                     Schedule Now
                   </Button>
                 </div>
+              </div>
+
+              <div className="bg-[#F2FCE2] p-6 rounded-lg">
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Direct Message
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Send a direct message to {profile.name} to discuss your learning needs
+                </p>
+                {!user && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => navigate('/auth')}
+                  >
+                    <Lock className="h-4 w-4 mr-2" />
+                    Login to Chat
+                  </Button>
+                )}
+                {user && !isStudent && (
+                  <p className="text-sm text-amber-600 text-center">
+                    Only students can initiate chats with educators
+                  </p>
+                )}
+                {user && isStudent && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setIsStudentChatOpen(true)}
+                  >
+                    Start Chat
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -336,6 +414,13 @@ const EducatorProfile = () => {
           profile={profile}
         />
       )}
+
+      <StudentChatModal
+        isOpen={isStudentChatOpen}
+        onOpenChange={setIsStudentChatOpen}
+        educatorId={profile.id}
+        educatorName={profile.name}
+      />
     </div>
   );
 };

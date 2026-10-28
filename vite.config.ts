@@ -1,11 +1,11 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc';
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
   return {
+    // Relative-to-root assets so the site works on any domain (Lovable, preview URLs, custom domain).
     base: '/',
     server: {
       host: "::",
@@ -25,13 +25,16 @@ export default defineConfig(({ mode }) => {
         "integrations": path.resolve(__dirname, "./src/integrations"),
       }
     },
+    // NOTE: never inject the whole environment (`'process.env': env`) — it publishes every
+    // variable of the build machine, secrets included, in the browser bundle.
     define: {
-      'process.env': env
+      'process.env': {}
     },
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
-      sourcemap: true,
+      sourcemap: false,
+      copyPublicDir: true, // Ensure public directory files are copied
       rollupOptions: {
         external: [
           '@supabase/auth-helpers-react'

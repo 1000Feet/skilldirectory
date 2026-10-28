@@ -1,4 +1,5 @@
 export type UserType = 'student' | 'educator';
+export type MembershipType = 'basic' | 'standard' | 'premium';
 
 export interface BaseProfile {
   id: string;
@@ -22,6 +23,7 @@ export interface EducatorProfile extends BaseProfile {
   name: string;
   description: string | null;
   image: string | null;
+  membership_type: MembershipType;
 }
 
 export type Profile = StudentProfile | EducatorProfile;
@@ -32,5 +34,6 @@ export interface AuthUser {
   profile?: Profile;
   user_metadata: {
     user_type: UserType;
+    membership_type?: MembershipType;
   };
 }

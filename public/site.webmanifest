@@ -1,0 +1,35 @@
+{
+  "name": "Skill Directory - Connect with Expert Educators",
+  "short_name": "SkillDir",
+  "description": "Find and connect with expert educators, tutors, and instructors. Learn new skills, advance your career, or explore your passions.",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#88C440",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "learning", "tutoring", "professional development"],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "platform": "wide"
+    }
+  ]
+}

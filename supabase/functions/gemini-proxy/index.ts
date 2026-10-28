@@ -1,113 +1,74 @@
-import { corsHeaders } from '@supabase/supabase-js/cors';
+// AI assistant on educator profiles. The Gemini key stays on the server (GEMINI_API_KEY secret)
+// and the prompt context is built here from the educator profile, so the endpoint cannot be
+// used as a free general-purpose LLM proxy.
+import { adminClient, handler, HttpError, json } from "../_shared/server.ts";
 
-const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-const formatSocialLinks = (profile: any) => {
-  const links: string[] = [];
-  if (profile.facebook_url) links.push(`Facebook: ${profile.facebook_url}`);
-  if (profile.instagram_url) links.push(`Instagram: ${profile.instagram_url}`);
-  return links.length > 0 ? links.join('\n') : 'No social media links available';
-};
-
-const formatContactInfo = (profile: any) => {
-  const info: string[] = [];
-  if (profile.phone) info.push(`Phone: ${profile.phone}`);
-  if (profile.email) info.push(`Email: ${profile.email}`);
-  if (profile.website) info.push(`Website: ${profile.website}`);
-  if (profile.address) info.push(`Address: ${profile.address}`);
-  return info.join('\n');
-};
-
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  try {
-    if (!GEMINI_API_KEY) {
-      return new Response(JSON.stringify({ error: 'Gemini API key not configured' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const { message, profile } = await req.json();
-
-    if (!message || typeof message !== 'string') {
-      return new Response(JSON.stringify({ error: 'Invalid message' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const safeProfile = profile || {};
-    const context = `
-      You are Skill Directory, the AI assistant for ${safeProfile.name || 'this educator'}, an educator on the 1000Feet platform.
+// deno-lint-ignore no-explicit-any
+function buildContext(p: any): string {
+  const contact = [
+    p.phone && `Phone: ${p.phone}`, p.email && `Email: ${p.email}`,
+    p.website && `Website: ${p.website}`, p.address && `Address: ${p.address}`,
+  ].filter(Boolean).join("\n");
+  const social = [p.facebook_url && `Facebook: ${p.facebook_url}`, p.instagram_url && `Instagram: ${p.instagram_url}`]
+    .filter(Boolean).join("\n") || "No social media links available";
+  return `
+      You are Skill Directory, the AI assistant for ${p.name}, an educator on the 1000Feet platform.
 
       EDUCATOR PROFILE:
-      Business Name: ${safeProfile.name || 'Not provided'}
-      Description: ${safeProfile.description || 'Not provided'}
-      Categories: ${safeProfile.categories?.join(', ') || 'Not specified'}
+      Business Name: ${p.name}
+      Description: ${p.description || "Not provided"}
+      Categories: ${Array.isArray(p.categories) ? p.categories.join(", ") : "Not specified"}
 
       CONTACT INFORMATION:
-      ${formatContactInfo(safeProfile)}
+      ${contact}
 
       SOCIAL MEDIA:
-      ${formatSocialLinks(safeProfile)}
+      ${social}
 
       ABOUT THE BUSINESS:
-      ${safeProfile.about_business || 'Not provided'}
+      ${p.about_business || "Not provided"}
 
       ADDITIONAL KNOWLEDGE BASE:
-      ${safeProfile.ai_chatbot || ''}
+      ${p.ai_chatbot || ""}
 
       CONVERSATION GUIDELINES:
       1. You are Skill Directory, a friendly and professional AI assistant
       2. Provide natural, conversational responses
-      3. Share relevant contact details from the profile when asked
-      4. Focus on the educator's specific services and expertise
-      5. If information is not available, acknowledge it and suggest alternatives
-      6. Stay focused on educational services
-      7. Politely redirect unrelated topics back to educational services
+      3. For contact inquiries: share relevant contact details from the profile, formatted clearly
+      4. For business inquiries: focus on the educator's specific services, categories and description
+      5. For location questions: share the address if available
+      6. For website/social media: share available links and platforms
+      7. If information is not available: acknowledge it and suggest alternative ways to get it
+      8. Stay focused on educational services
+      9. Be helpful but maintain professional boundaries
+      10. If asked about unrelated topics: politely redirect to educational services
 
-      Remember: You are representing ${safeProfile.name || 'the educator'}'s educational business.
+      Remember: You are representing ${p.name}'s educational business. Keep responses relevant, professional, and focused on their services.
     `;
+}
 
-    const response = await fetch(`${API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: context },
-            { text: message }
-          ]
-        }]
-      })
-    });
+Deno.serve(handler(async (_req, body) => {
+  const message = String(body.message ?? "").slice(0, 2000);
+  const educatorId = String(body.educatorId ?? "");
+  if (!message || !educatorId) throw new HttpError(400, "Invalid request");
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Gemini API error:', response.status, errText);
-      return new Response(JSON.stringify({ error: 'Gemini API error', status: response.status }), {
-        status: 502,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+  const key = Deno.env.get("GEMINI_API_KEY");
+  if (!key) throw new HttpError(500, "AI assistant is not configured");
 
-    const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const { data: profile } = await adminClient().from("educator_profiles").select("*").eq("id", educatorId).maybeSingle();
+  if (!profile) throw new HttpError(404, "Educator not found");
 
-    return new Response(JSON.stringify({ text }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error('gemini-proxy error:', error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  const res = await fetch(MODEL_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({ contents: [{ parts: [{ text: buildContext(profile) }, { text: message }] }] }),
+  });
+  if (!res.ok) {
+    console.error("Gemini error", res.status, await res.text());
+    throw new HttpError(502, "AI assistant unavailable");
   }
-});
+  const data = await res.json();
+  return json({ text: data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "" });
+}));

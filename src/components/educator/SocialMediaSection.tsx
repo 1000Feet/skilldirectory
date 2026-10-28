@@ -1,40 +1,53 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface SocialMediaSectionProps {
   facebook: string;
   instagram: string;
   youtube?: string;
-  onChange: (values: { facebook: string; instagram: string; youtube?: string }) => void;
+  onChange: (social: { facebook: string; instagram: string; youtube?: string }) => void;
+  hiddenFields?: {
+    facebook?: boolean;
+    instagram?: boolean;
+    youtube?: boolean;
+  };
 }
 
-export function SocialMediaSection({ facebook, instagram, youtube, onChange }: SocialMediaSectionProps) {
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>Social Media</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            placeholder="Facebook URL"
-            value={facebook}
-            onChange={(e) => onChange({ facebook: e.target.value, instagram, youtube })}
-          />
-          <Input
-            placeholder="Instagram URL"
-            value={instagram}
-            onChange={(e) => onChange({ facebook, instagram: e.target.value, youtube })}
-          />
-        </div>
-      </div>
+export function SocialMediaSection({ facebook, instagram, youtube, onChange, hiddenFields = {} }: SocialMediaSectionProps) {
+  const handleChange = (field: 'facebook' | 'instagram' | 'youtube', value: string) => {
+    onChange({
+      facebook: field === 'facebook' ? value : facebook,
+      instagram: field === 'instagram' ? value : instagram,
+      youtube: field === 'youtube' ? value : youtube,
+    });
+  };
 
-      <div className="space-y-2">
-        <Label>Introduction Video</Label>
-        <Input
-          placeholder="YouTube Video URL"
-          value={youtube}
-          onChange={(e) => onChange({ facebook, instagram, youtube: e.target.value })}
-        />
-        <p className="text-sm text-gray-600">Add the URL of your introductory video from YouTube</p>
+  const socialFields = [
+    { id: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/your-page' },
+    { id: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/your-profile' },
+    { id: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/your-channel' }
+  ] as const;
+
+  return (
+    <div className="space-y-6">
+      <h3 className="text-lg font-semibold">Social Media Links</h3>
+      
+      <div className="grid gap-4">
+        {socialFields.map(field => {
+          if (hiddenFields[field.id]) return null;
+
+          return (
+            <div key={field.id} className="grid gap-2">
+              <Label htmlFor={field.id}>{field.label}</Label>
+              <Input
+                id={field.id}
+                value={field.id === 'youtube' ? youtube : field.id === 'instagram' ? instagram : facebook}
+                onChange={(e) => handleChange(field.id, e.target.value)}
+                placeholder={field.placeholder}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

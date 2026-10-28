@@ -1,20 +1,31 @@
+import { getEnv } from '@/utils/environment';
+
 interface EnvConfig {
   supabaseUrl: string;
   supabaseAnonKey: string;
-  googleMapsApiKey: string;
   baseUrl: string;
+  stripePublishableKey: string;
+  apiUrl: string;
 }
 
 const getBaseUrl = () => {
   const isProd = import.meta.env.PROD
-  return isProd ? import.meta.env.VITE_BASE_URL || '/' : '/'
+  return isProd ? getEnv('VITE_BASE_URL', '/') : '/'
+}
+
+const getApiUrl = () => {
+  const isProd = import.meta.env.PROD
+  return isProd 
+    ? getEnv('VITE_API_URL', 'https://api.skilldirectory.com')
+    : 'http://localhost:3000'
 }
 
 export const env: EnvConfig = {
-  supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
-  supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-  googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
-  baseUrl: getBaseUrl()
+  supabaseUrl: getEnv('VITE_SUPABASE_URL', ''),
+  supabaseAnonKey: getEnv('VITE_SUPABASE_PUBLISHABLE_KEY', ''),
+  stripePublishableKey: getEnv('VITE_STRIPE_PUBLISHABLE_KEY', ''),
+  baseUrl: getBaseUrl(),
+  apiUrl: getApiUrl()
 }
 
 export type Env = typeof env
