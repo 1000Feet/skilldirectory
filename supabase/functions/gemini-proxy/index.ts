@@ -4,8 +4,13 @@
 import { adminClient, handler, HttpError, json } from "../_shared/server.ts";
 
 // Model can be overridden with the GEMINI_MODEL secret. Google retires models over time
-// (gemini-2.0-flash was retired in 2026), so we fall back through a short list on 404.
-const MODELS = [Deno.env.get("GEMINI_MODEL"), "gemini-3.8-flash", "gemini-flash-latest"].filter(Boolean) as string[];
+// (gemini-2.0-flash was retired in 2026), so we fall back through a short list when a model is
+// missing (404), rate limited (429), overloaded (503) or too slow.
+const MODELS = [
+  Deno.env.get("GEMINI_MODEL"), "gemini-3.8-flash", "gemini-flash-latest", "gemini-flash-lite-latest",
+].filter(Boolean) as string[];
+const RETRY_STATUSES = new Set([404, 429, 500, 503, 504]);
+const TIMEOUT_MS = 20_000;
 const modelUrl = (m: string) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 
 // deno-lint-ignore no-explicit-any
@@ -64,20 +69,23 @@ Deno.serve(handler(async (_req, body) => {
   if (!profile) throw new HttpError(404, "Educator not found");
 
   const payload = JSON.stringify({ contents: [{ parts: [{ text: buildContext(profile) }, { text: message }] }] });
-  let res: Response | null = null;
+  // deno-lint-ignore no-explicit-any
+  let data: any = null;
   for (const model of MODELS) {
-    res = await fetch(modelUrl(model), {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-      body: payload,
-    });
-    if (res.status !== 404) break;
-    console.error("Gemini model not available:", model);
+    try {
+      const res = await fetch(modelUrl(model), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+        body: payload,
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      });
+      if (res.ok) { data = await res.json(); break; }
+      console.error("Gemini error", model, res.status, (await res.text()).slice(0, 300));
+      if (!RETRY_STATUSES.has(res.status)) break;
+    } catch (e) {
+      console.error("Gemini request failed", model, String(e));
+    }
   }
-  if (!res || !res.ok) {
-    console.error("Gemini error", res?.status, await res?.text());
-    throw new HttpError(502, "AI assistant unavailable");
-  }
-  const data = await res.json();
+  if (!data) throw new HttpError(502, "AI assistant unavailable");
   return json({ text: data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "" });
 }));
