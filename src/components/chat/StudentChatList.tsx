@@ -135,7 +135,7 @@ export function StudentChatList() {
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user]);
 

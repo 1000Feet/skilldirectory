@@ -146,7 +146,7 @@ export function StudentChatMessages({ educatorId, educatorName }: StudentChatMes
         .subscribe();
 
       return () => {
-        channel.unsubscribe();
+        supabase.removeChannel(channel);
       };
     }
   }, [user, educatorId]);

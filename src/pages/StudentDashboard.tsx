@@ -110,7 +110,7 @@ export default function StudentDashboard() {
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user, navigate]);
 

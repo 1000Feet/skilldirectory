@@ -128,7 +128,7 @@ export function ChatMessages({ studentId, studentName }: ChatMessagesProps) {
     ).subscribe();
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user, studentId]);
 

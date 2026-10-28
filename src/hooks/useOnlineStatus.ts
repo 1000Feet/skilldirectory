@@ -81,7 +81,7 @@ export const useOnlineStatus = () => {
 
     // Cleanup subscription and interval
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
       clearInterval(interval);
     };
   }, []);

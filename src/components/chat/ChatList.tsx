@@ -111,7 +111,7 @@ export function ChatList() {
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user]);
 

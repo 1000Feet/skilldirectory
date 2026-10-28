@@ -206,7 +206,7 @@ export const useEngagementRate = (educatorId: string | undefined) => {
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [educatorId]);
 

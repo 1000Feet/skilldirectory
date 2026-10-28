@@ -80,7 +80,7 @@ export const useProfileViews = (educatorProfileId: string | undefined) => {
 
     return () => {
       mounted = false;
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
       clearInterval(interval);
     };
   }, [educatorProfileId]);

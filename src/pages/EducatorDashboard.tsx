@@ -173,7 +173,7 @@ export default function EducatorDashboard() {
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user, navigate]);
 
