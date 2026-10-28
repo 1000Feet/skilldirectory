@@ -27,18 +27,28 @@ export const useReviews = (educatorId?: string) => {
     try {
       const { data, error } = await supabase
         .from('reviews')
-        .select(`
-          *,
-          student_profiles(name)
-        `)
+        .select('*')
         .eq('educator_id', educatorId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
+      // Student profiles are private (RLS): reviewer names come from a function
+      // that returns only the name of students who wrote a review.
+      const studentIds = [...new Set(data.map(review => review.student_id))];
+      const names = new Map<string, string | null>();
+      if (studentIds.length > 0) {
+        const { data: nameRows, error: namesError } = await supabase
+          .rpc('get_reviewer_names' as never, { p_student_ids: studentIds } as never);
+        if (namesError) console.error('Error fetching reviewer names:', namesError);
+        for (const row of (nameRows as { id: string; name: string | null }[] | null) ?? []) {
+          names.set(row.id, row.name);
+        }
+      }
+
       const reviewsWithNames = data.map(review => ({
         ...review,
-        student_name: review.student_profiles?.name
+        student_name: names.get(review.student_id) ?? undefined
       }));
 
       setReviews(reviewsWithNames);
