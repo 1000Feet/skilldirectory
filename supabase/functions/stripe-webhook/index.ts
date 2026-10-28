@@ -59,7 +59,8 @@ Deno.serve(async (req) => {
       const id = (event.data.object as Stripe.Subscription).id;
       sub = await stripe.subscriptions.retrieve(id);
     } else {
-      const invoice = event.data.object as Stripe.Invoice;
+      // Re-read the invoice with our pinned API version (the event payload may use a newer one).
+      const invoice = await stripe.invoices.retrieve((event.data.object as Stripe.Invoice).id as string);
       const id = typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id;
       if (id) sub = await stripe.subscriptions.retrieve(id);
     }
