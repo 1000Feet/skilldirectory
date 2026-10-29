@@ -32,9 +32,12 @@ export function EducatorImageUpload({ currentImage, onImageUpload, loading = fal
 
     try {
       setIsUploading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Please sign in again to upload an image');
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `business-images/${fileName}`;
+      // Each user uploads only into their own folder (enforced by the storage policy)
+      const filePath = `${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('business-images')
