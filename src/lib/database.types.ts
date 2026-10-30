@@ -282,14 +282,14 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "student_profiles";
             referencedColumns: ["id"];
-          };
+          },
           {
             foreignKeyName: "lesson_requests_educator_profile_id_fkey";
             columns: ["educator_profile_id"];
             isOneToOne: false;
             referencedRelation: "educator_profiles";
             referencedColumns: ["id"];
-          };
+          }
         ];
       };
       memberships: {
@@ -342,7 +342,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "educator_profiles";
             referencedColumns: ["id"];
-          };
+          }
         ];
       };
       membership_payments: {
@@ -389,7 +389,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "memberships";
             referencedColumns: ["id"];
-          };
+          }
         ];
       };
       profile_views: {
@@ -421,7 +421,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "educator_profiles";
             referencedColumns: ["id"];
-          };
+          }
         ];
       };
       reviews: {
@@ -459,7 +459,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "educator_profiles";
             referencedColumns: ["id"];
-          };
+          }
         ];
       };
       review_reactions: {
@@ -491,7 +491,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "reviews";
             referencedColumns: ["id"];
-          };
+          }
         ];
       };
       review_replies: {
@@ -526,7 +526,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "reviews";
             referencedColumns: ["id"];
-          };
+          }
         ];
       };
       stripe_transactions: {
