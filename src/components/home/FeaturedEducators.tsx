@@ -38,7 +38,7 @@ export const FeaturedEducators = () => {
   const [loading, setLoading] = useState(true);
   const [ratings, setRatings] = useState<{ [key: string]: { average: number; count: number } }>({});
   const carouselRef = useRef<HTMLDivElement>(null);
-  const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoplayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [api, setApi] = useState<any>(null);
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();

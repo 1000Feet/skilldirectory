@@ -38,7 +38,7 @@ export const useOnlineStatusUpdater = (userId: string | undefined, isEducator: b
     window.addEventListener('focus', handleFocus);
 
     // Update last_active on user activity
-    let activityTimeout: NodeJS.Timeout;
+    let activityTimeout: ReturnType<typeof setTimeout>;
     const handleActivity = () => {
       clearTimeout(activityTimeout);
       activityTimeout = setTimeout(updateLastActive, 1000); // Debounce activity updates
