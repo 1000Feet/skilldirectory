@@ -91,6 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Sign out the user immediately
           await supabase.auth.signOut();
           // toast.error('Your account has been deactivated. Please contact support for reactivation.');
+          userRef.current = null;
           setUser(null);
           return;
         }
@@ -105,6 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Sign out the user immediately
           await supabase.auth.signOut();
           // toast.error('Your account has been deactivated. Please contact support for reactivation.');
+          userRef.current = null;
           setUser(null);
           return;
         }
@@ -139,6 +141,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       };
 
+      userRef.current = userData;
       setUser(userData);
       
       // Save user data to localStorage for persistence
@@ -147,6 +150,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('Error handling user change:', error);
       // Clear potentially corrupted data
       localStorage.removeItem('auth.user');
+      userRef.current = null;
       setUser(null);
     } finally {
       setLoading(false);
