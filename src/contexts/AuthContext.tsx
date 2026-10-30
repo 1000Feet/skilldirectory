@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthActions } from '@/hooks/useAuthActions';
@@ -32,6 +32,8 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  // Mirrors `user` for use inside the auth-state listener closure
+  const userRef = useRef<User | null>(null);
   const { signIn, signUp, signOut } = useAuthActions();
   const { fetchProfile, updateProfile: updateUserProfile, createProfile } = useProfileManagement();
   
