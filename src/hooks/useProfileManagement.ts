@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { callEdge } from '@/integrations/supabase/edge';
-import { UserType, Profile } from '@/lib/auth-types';
+import { UserType, Profile, StudentProfile } from '@/lib/auth-types';
+import { Database } from '@/lib/database.types';
 import { toast } from 'sonner';
 
 type Tables = Database['public']['Tables'];
@@ -98,7 +99,7 @@ export const useProfileManagement = () => {
         const studentData = {
           user_id: userId,
           name: data.name || data.email?.split('@')[0] || 'Student',
-          phone: data.phone || null,
+          phone: (data as Partial<StudentProfile>).phone || null,
           email: data.email,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -181,7 +182,7 @@ export const useProfileManagement = () => {
           .from('student_profiles')
           .update({
             name: updates.name,
-            phone: updates.phone,
+            phone: (updates as Partial<StudentProfile>).phone,
             updated_at: new Date().toISOString()
           })
           .eq('user_id', userId)
@@ -201,9 +202,11 @@ export const useProfileManagement = () => {
           user_id: data.user_id
         };
       } else {
+        // Strip non-column fields (user_type, membership_type) before updating
+        const { user_type: _ut, membership_type: _mt, ...educatorUpdates } = updates as Partial<Profile> & { membership_type?: string };
         const { data, error } = await supabase
           .from('educator_profiles')
-          .update(updates)
+          .update(educatorUpdates)
           .eq('user_id', userId)
           .select()
           .single();

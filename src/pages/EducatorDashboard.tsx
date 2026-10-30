@@ -192,7 +192,7 @@ export default function EducatorDashboard() {
     return null;
   }
 
-  const handleProfileUpdate = (updatedProfile: EducatorProfile) => {
+  const handleProfileUpdate = (updatedProfile: any) => {
     // @ts-ignore - Ignore type mismatch for now
     setProfileData(updatedProfile);
   };
@@ -418,7 +418,7 @@ export default function EducatorDashboard() {
 
                     <div>
                       <EducatorProfileForm 
-                        initialData={profileData} 
+                        initialData={profileData as any} 
                         membershipType={membershipType}
                         onSuccess={handleProfileUpdate}
                       />

@@ -1,6 +1,3 @@
-Need to install the following packages:
-supabase@2.19.7
-
 import { Database } from '@/lib/database.types';
 
 export type Tables = Database['public']['Tables'];
@@ -64,54 +61,3 @@ export type Json =
   | null
   | { [key: string]: Json | undefined }
   | Json[];
-
-export interface Database {
-  public: {
-    Tables: {
-      chat_messages: {
-        Row: {
-          id: string;
-          sender_id: string;
-          receiver_id: string;
-          content: string;
-          created_at: string;
-          read_at: string | null;
-          deleted_at: string | null;
-        };
-        Insert: {
-          id?: string;
-          sender_id: string;
-          receiver_id: string;
-          content: string;
-          created_at?: string;
-          read_at?: string | null;
-          deleted_at?: string | null;
-        };
-        Update: {
-          id?: string;
-          sender_id?: string;
-          receiver_id?: string;
-          content?: string;
-          created_at?: string;
-          read_at?: string | null;
-          deleted_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "chat_messages_receiver_id_fkey";
-            columns: ["receiver_id"];
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "chat_messages_sender_id_fkey";
-            columns: ["sender_id"];
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      // ... existing tables ...
-    };
-  };
-};

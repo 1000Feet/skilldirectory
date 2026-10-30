@@ -8,6 +8,7 @@ interface SidebarProps {
   categories: Category[];
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
+  loading?: boolean;
 }
 
 export const Sidebar = ({ categories, selectedCategory, onSelectCategory }: SidebarProps) => {

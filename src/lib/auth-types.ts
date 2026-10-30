@@ -23,7 +23,7 @@ export interface EducatorProfile extends BaseProfile {
   name: string;
   description: string | null;
   image: string | null;
-  membership_type: MembershipType;
+  membership_type?: MembershipType;
 }
 
 export type Profile = StudentProfile | EducatorProfile;

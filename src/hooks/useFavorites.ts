@@ -29,7 +29,7 @@ export const useFavorites = () => {
       }
 
       // Handle case where favorites column doesn't exist yet
-      setFavorites(studentProfile?.favorites || []);
+      setFavorites((studentProfile?.favorites as string[] | null) || []);
     } catch (error) {
       console.error('Error in fetchFavorites:', error);
       toast.error('Failed to load favorites');
@@ -59,7 +59,7 @@ export const useFavorites = () => {
         throw profileError;
       }
 
-      const currentFavorites = studentProfile?.favorites || [];
+      const currentFavorites = (studentProfile?.favorites as string[] | null) || [];
       const newFavorites = currentFavorites.includes(educatorId)
         ? currentFavorites.filter(id => id !== educatorId)
         : [...currentFavorites, educatorId];

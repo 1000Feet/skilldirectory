@@ -1,12 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/lib/database.types';
-
-type ViewCountResult = {
-  total_views: number;
-  unique_views: number;
-  last_24h_views: number;
-};
 
 interface ViewStats {
   totalViews: number;
@@ -30,7 +23,7 @@ export const useProfileViews = (educatorProfileId: string | undefined) => {
 
       try {
         setLoading(true);
-        const { data, error } = await supabase.rpc<ViewCountResult, { educator_id: string }>(
+        const { data, error } = await supabase.rpc(
           'get_profile_view_count',
           { educator_id: educatorProfileId }
         );

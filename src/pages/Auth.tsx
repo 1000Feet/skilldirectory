@@ -93,9 +93,12 @@ export default function Auth() {
     </div>
   );
 
-  // Redirect if user is already logged in - moved after hooks
+  // Redirect if user is already logged in - moved after hooks.
+  // If the user was sent here from a protected page, send them back there
+  // instead of the homepage.
   if (user) {
-    return <Navigate to="/" replace />;
+    const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
+    return <Navigate to={from || '/'} replace />;
   }
 
   return (
