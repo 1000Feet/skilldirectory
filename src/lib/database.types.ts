@@ -275,7 +275,22 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "lesson_requests_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "student_profiles";
+            referencedColumns: ["id"];
+          };
+          {
+            foreignKeyName: "lesson_requests_educator_profile_id_fkey";
+            columns: ["educator_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "educator_profiles";
+            referencedColumns: ["id"];
+          };
+        ];
       };
       memberships: {
         Row: {
@@ -320,7 +335,15 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "memberships_educator_id_fkey";
+            columns: ["educator_id"];
+            isOneToOne: false;
+            referencedRelation: "educator_profiles";
+            referencedColumns: ["id"];
+          };
+        ];
       };
       membership_payments: {
         Row: {
@@ -359,7 +382,15 @@ export interface Database {
           created_at?: string;
           metadata?: Json | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "membership_payments_membership_id_fkey";
+            columns: ["membership_id"];
+            isOneToOne: false;
+            referencedRelation: "memberships";
+            referencedColumns: ["id"];
+          };
+        ];
       };
       profile_views: {
         Row: {
@@ -383,7 +414,15 @@ export interface Database {
           ip_address?: string | null;
           viewed_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_educator_profile_id_fkey";
+            columns: ["educator_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "educator_profiles";
+            referencedColumns: ["id"];
+          };
+        ];
       };
       reviews: {
         Row: {
@@ -413,7 +452,15 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "reviews_educator_id_fkey";
+            columns: ["educator_id"];
+            isOneToOne: false;
+            referencedRelation: "educator_profiles";
+            referencedColumns: ["id"];
+          };
+        ];
       };
       review_reactions: {
         Row: {
@@ -437,7 +484,15 @@ export interface Database {
           reaction_type?: string;
           created_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "review_reactions_review_id_fkey";
+            columns: ["review_id"];
+            isOneToOne: false;
+            referencedRelation: "reviews";
+            referencedColumns: ["id"];
+          };
+        ];
       };
       review_replies: {
         Row: {
@@ -464,7 +519,15 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "review_replies_review_id_fkey";
+            columns: ["review_id"];
+            isOneToOne: false;
+            referencedRelation: "reviews";
+            referencedColumns: ["id"];
+          };
+        ];
       };
       stripe_transactions: {
         Row: {
