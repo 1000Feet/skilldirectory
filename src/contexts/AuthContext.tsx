@@ -42,24 +42,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useOnlineStatusUpdater(user?.id, isEducator);
 
   useEffect(() => {
-    // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Check active sessions and sets the user.
+    // Await handleUserChange so `loading` stays true until the profile is
+    // hydrated — otherwise ProtectedRoute briefly sees `user === null` and
+    // redirects signed-in users away from their dashboard on refresh.
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
-        handleUserChange(session.user);
+        await handleUserChange(session.user);
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     // Listen for changes on auth state (sign in, sign out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        handleUserChange(session.user);
+        // If no user is hydrated yet (e.g. right after sign-up/sign-in),
+        // keep the app in loading state while the profile loads.
+        if (!userRef.current) {
+          setLoading(true);
+        }
+        await handleUserChange(session.user);
       } else {
+        userRef.current = null;
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
