@@ -6,240 +6,576 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+// Generated from the live database schema (see supabase-backup/schema.sql).
 export interface Database {
   public: {
     Tables: {
       admin_users: {
         Row: {
-          id: string;
-          user_id: string;
+          id: string | null;
+          user_id: string | null;
           created_at: string;
         };
         Insert: {
-          id?: string;
-          user_id: string;
+          id?: string | null;
+          user_id?: string | null;
           created_at?: string;
         };
         Update: {
-          id?: string;
-          user_id?: string;
+          id?: string | null;
+          user_id?: string | null;
           created_at?: string;
         };
+        Relationships: [];
+      };
+      api_keys: {
+        Row: {
+          id: number | null;
+          key: string | null;
+          value: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number | null;
+          key?: string | null;
+          value?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: number | null;
+          key?: string | null;
+          value?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      categories: {
+        Row: {
+          id: string | null;
+          name: string;
+          icon_name: string;
+          display_order: number | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string | null;
+          name: string;
+          icon_name: string;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string | null;
+          name?: string;
+          icon_name?: string;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      chat_messages: {
+        Row: {
+          id: string | null;
+          sender_id: string;
+          receiver_id: string;
+          content: string;
+          read_at: string | null;
+          deleted_at: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string | null;
+          sender_id: string;
+          receiver_id: string;
+          content: string;
+          read_at?: string | null;
+          deleted_at?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string | null;
+          sender_id?: string;
+          receiver_id?: string;
+          content?: string;
+          read_at?: string | null;
+          deleted_at?: string | null;
+          created_at?: string | null;
+        };
+        Relationships: [];
       };
       educator_profiles: {
         Row: {
-          id: string;
+          id: string | null;
           user_id: string;
           name: string;
-          description: string;
-          website: string;
-          address: string;
-          phone: string;
           email: string;
-          about_business: string;
-          facebook_url: string;
-          instagram_url: string;
-          youtube_url?: string;
-          image?: string;
-          categories?: string[];
-          tags?: string[];
+          description: string | null;
+          about_business: string | null;
+          image: string | null;
+          website: string | null;
+          address: string | null;
+          phone: string | null;
+          facebook_url: string | null;
+          instagram_url: string | null;
+          youtube_url: string | null;
+          ai_chatbot: string | null;
+          ai_voice_agent: Json | null;
+          categories: string[] | null;
+          tags: string[] | null;
+          is_active: boolean | null;
+          is_featured: boolean | null;
+          last_active: string | null;
           created_at: string;
           updated_at: string;
-          last_active?: string;
-          ai_voice_agent: {
-            knowledge_base: string[];
-            voice_id: string;
-          };
-          ai_chatbot: string;
         };
         Insert: {
-          id?: string;
+          id?: string | null;
           user_id: string;
           name: string;
-          description?: string;
-          website?: string;
-          address?: string;
-          phone?: string;
-          email?: string;
-          about_business?: string;
-          facebook_url?: string;
-          instagram_url?: string;
-          youtube_url?: string;
-          image?: string;
-          categories?: string[];
-          tags?: string[];
+          email: string;
+          description?: string | null;
+          about_business?: string | null;
+          image?: string | null;
+          website?: string | null;
+          address?: string | null;
+          phone?: string | null;
+          facebook_url?: string | null;
+          instagram_url?: string | null;
+          youtube_url?: string | null;
+          ai_chatbot?: string | null;
+          ai_voice_agent?: Json | null;
+          categories?: string[] | null;
+          tags?: string[] | null;
+          is_active?: boolean | null;
+          is_featured?: boolean | null;
+          last_active?: string | null;
           created_at?: string;
           updated_at?: string;
-          last_active?: string;
-          ai_voice_agent?: {
-            knowledge_base: string[];
-            voice_id: string;
-          };
-          ai_chatbot?: string;
         };
         Update: {
-          id?: string;
+          id?: string | null;
           user_id?: string;
           name?: string;
-          description?: string;
-          website?: string;
-          address?: string;
-          phone?: string;
           email?: string;
-          about_business?: string;
-          facebook_url?: string;
-          instagram_url?: string;
-          youtube_url?: string;
-          image?: string;
-          categories?: string[];
-          tags?: string[];
+          description?: string | null;
+          about_business?: string | null;
+          image?: string | null;
+          website?: string | null;
+          address?: string | null;
+          phone?: string | null;
+          facebook_url?: string | null;
+          instagram_url?: string | null;
+          youtube_url?: string | null;
+          ai_chatbot?: string | null;
+          ai_voice_agent?: Json | null;
+          categories?: string[] | null;
+          tags?: string[] | null;
+          is_active?: boolean | null;
+          is_featured?: boolean | null;
+          last_active?: string | null;
           created_at?: string;
           updated_at?: string;
-          last_active?: string;
-          ai_voice_agent?: {
-            knowledge_base: string[];
-            voice_id: string;
-          };
-          ai_chatbot?: string;
         };
+        Relationships: [];
+      };
+      environment_variables: {
+        Row: {
+          id: string | null;
+          key: string;
+          value: string;
+          description: string | null;
+          is_encrypted: boolean | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string | null;
+          key: string;
+          value: string;
+          description?: string | null;
+          is_encrypted?: boolean | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string | null;
+          key?: string;
+          value?: string;
+          description?: string | null;
+          is_encrypted?: boolean | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       field_permissions: {
         Row: {
-          id: string;
-          field_name: string;
-          basic: boolean;
-          standard: boolean;
-          premium: boolean;
+          id: number | null;
+          permissions: Json;
           created_at: string;
           updated_at: string;
         };
         Insert: {
-          id?: string;
-          field_name: string;
-          basic: boolean;
-          standard: boolean;
-          premium: boolean;
+          id?: number | null;
+          permissions?: Json;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
-          id?: string;
-          field_name?: string;
-          basic?: boolean;
-          standard?: boolean;
-          premium?: boolean;
+          id?: number | null;
+          permissions?: Json;
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
+      };
+      lesson_requests: {
+        Row: {
+          id: string | null;
+          student_id: string;
+          educator_id: string;
+          educator_profile_id: string;
+          proposed_date: string;
+          proposed_time: string | null;
+          message: string | null;
+          message_from_educator: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string | null;
+          student_id: string;
+          educator_id: string;
+          educator_profile_id: string;
+          proposed_date: string;
+          proposed_time?: string | null;
+          message?: string | null;
+          message_from_educator?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string | null;
+          student_id?: string;
+          educator_id?: string;
+          educator_profile_id?: string;
+          proposed_date?: string;
+          proposed_time?: string | null;
+          message?: string | null;
+          message_from_educator?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       memberships: {
         Row: {
-          id: string;
+          id: string | null;
           educator_id: string;
-          type: 'basic' | 'standard' | 'premium';
-          status: 'active' | 'past_due' | 'canceled';
+          type: string;
+          status: string;
+          start_date: string;
+          end_date: string | null;
+          current_period_start: string;
+          current_period_end: string;
+          auto_renew: boolean;
+          metadata: Json | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
-          id?: string;
+          id?: string | null;
           educator_id: string;
-          type: 'basic' | 'standard' | 'premium';
-          status: 'active' | 'past_due' | 'canceled';
+          type: string;
+          status?: string;
+          start_date?: string;
+          end_date?: string | null;
+          current_period_start?: string;
+          current_period_end: string;
+          auto_renew?: boolean;
+          metadata?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
-          id?: string;
+          id?: string | null;
           educator_id?: string;
-          type?: 'basic' | 'standard' | 'premium';
-          status?: 'active' | 'past_due' | 'canceled';
+          type?: string;
+          status?: string;
+          start_date?: string;
+          end_date?: string | null;
+          current_period_start?: string;
+          current_period_end?: string;
+          auto_renew?: boolean;
+          metadata?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
+      };
+      membership_payments: {
+        Row: {
+          id: string | null;
+          membership_id: string;
+          amount: number;
+          currency: string;
+          status: string;
+          payment_method: string;
+          transaction_id: string | null;
+          payment_date: string;
+          created_at: string;
+          metadata: Json | null;
+        };
+        Insert: {
+          id?: string | null;
+          membership_id: string;
+          amount: number;
+          currency?: string;
+          status: string;
+          payment_method: string;
+          transaction_id?: string | null;
+          payment_date?: string;
+          created_at?: string;
+          metadata?: Json | null;
+        };
+        Update: {
+          id?: string | null;
+          membership_id?: string;
+          amount?: number;
+          currency?: string;
+          status?: string;
+          payment_method?: string;
+          transaction_id?: string | null;
+          payment_date?: string;
+          created_at?: string;
+          metadata?: Json | null;
+        };
+        Relationships: [];
       };
       profile_views: {
         Row: {
-          id: string;
+          id: string | null;
           educator_profile_id: string;
-          viewed_at: string;
           viewer_id: string | null;
           ip_address: string | null;
+          viewed_at: string | null;
         };
         Insert: {
-          id?: string;
+          id?: string | null;
           educator_profile_id: string;
-          viewed_at?: string;
           viewer_id?: string | null;
           ip_address?: string | null;
+          viewed_at?: string | null;
         };
         Update: {
-          id?: string;
+          id?: string | null;
           educator_profile_id?: string;
-          viewed_at?: string;
           viewer_id?: string | null;
           ip_address?: string | null;
+          viewed_at?: string | null;
         };
-        Relationships: [
-          {
-            foreignKeyName: "profile_views_educator_profile_id_fkey";
-            columns: ["educator_profile_id"];
-            isOneToOne: false;
-            referencedRelation: "educator_profiles";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "profile_views_viewer_id_fkey";
-            columns: ["viewer_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
+        Relationships: [];
+      };
+      reviews: {
+        Row: {
+          id: string | null;
+          educator_id: string;
+          student_id: string;
+          rating: number;
+          review_text: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string | null;
+          educator_id: string;
+          student_id: string;
+          rating: number;
+          review_text?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string | null;
+          educator_id?: string;
+          student_id?: string;
+          rating?: number;
+          review_text?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      review_reactions: {
+        Row: {
+          id: string | null;
+          review_id: string | null;
+          user_id: string | null;
+          reaction_type: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string | null;
+          review_id?: string | null;
+          user_id?: string | null;
+          reaction_type: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string | null;
+          review_id?: string | null;
+          user_id?: string | null;
+          reaction_type?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      review_replies: {
+        Row: {
+          id: string | null;
+          review_id: string | null;
+          user_id: string | null;
+          reply_text: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string | null;
+          review_id?: string | null;
+          user_id?: string | null;
+          reply_text: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string | null;
+          review_id?: string | null;
+          user_id?: string | null;
+          reply_text?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      stripe_transactions: {
+        Row: {
+          id: string | null;
+          customer_email: string;
+          customer_name: string;
+          amount: number;
+          currency: string;
+          status: string;
+          payment_method: string;
+          metadata: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string | null;
+          customer_email: string;
+          customer_name: string;
+          amount: number;
+          currency?: string;
+          status: string;
+          payment_method: string;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string | null;
+          customer_email?: string;
+          customer_name?: string;
+          amount?: number;
+          currency?: string;
+          status?: string;
+          payment_method?: string;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       student_profiles: {
         Row: {
-          id: string;
+          id: string | null;
           user_id: string;
           email: string;
           name: string | null;
           phone: string | null;
           address: string | null;
+          favorites: Json | null;
+          is_active: boolean | null;
           created_at: string;
           updated_at: string;
-          favorites: string[];
         };
         Insert: {
-          id?: string;
+          id?: string | null;
           user_id: string;
           email: string;
           name?: string | null;
           phone?: string | null;
           address?: string | null;
+          favorites?: Json | null;
+          is_active?: boolean | null;
           created_at?: string;
           updated_at?: string;
-          favorites?: string[];
         };
         Update: {
-          id?: string;
+          id?: string | null;
           user_id?: string;
           email?: string;
           name?: string | null;
           phone?: string | null;
           address?: string | null;
+          favorites?: Json | null;
+          is_active?: boolean | null;
           created_at?: string;
           updated_at?: string;
-          favorites?: string[];
         };
-        Relationships: [
-          {
-            foreignKeyName: "student_profiles_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: true;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
+        Relationships: [];
+      };
+      support_submissions: {
+        Row: {
+          id: string | null;
+          first_name: string;
+          last_name: string;
+          email: string;
+          issue_type: string;
+          message: string;
+          status: string;
+          reference_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string | null;
+          first_name: string;
+          last_name: string;
+          email: string;
+          issue_type: string;
+          message: string;
+          status?: string;
+          reference_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string | null;
+          first_name?: string;
+          last_name?: string;
+          email?: string;
+          issue_type?: string;
+          message?: string;
+          status?: string;
+          reference_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
     };
     Views: {
@@ -257,7 +593,9 @@ export interface Database {
         }>;
       };
       is_admin: {
-        Args: Record<string, never>;
+        Args: {
+          user_id: string;
+        };
         Returns: boolean;
       };
     };
@@ -269,3 +607,7 @@ export interface Database {
     };
   };
 }
+
+export type Tables<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Row'];
+
