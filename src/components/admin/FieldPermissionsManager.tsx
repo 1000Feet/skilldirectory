@@ -45,7 +45,7 @@ export function FieldPermissionsManager() {
           throw error;
         }
       } else if (data) {
-        setPermissions(data.permissions);
+        setPermissions(data.permissions as unknown as MembershipFieldPermissions);
       }
     } catch (error) {
       console.error('Error fetching permissions:', error);

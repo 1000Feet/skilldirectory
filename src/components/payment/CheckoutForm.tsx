@@ -70,7 +70,7 @@ export function CheckoutForm({
       // 3. Confirm the first payment; the card is saved for the automatic monthly renewals
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
-        clientSecret: subscription.clientSecret,
+        clientSecret: 'clientSecret' in subscription ? subscription.clientSecret : undefined,
         confirmParams: { return_url: `${window.location.origin}/payment-complete` },
         redirect: 'if_required',
       });

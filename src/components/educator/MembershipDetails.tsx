@@ -59,7 +59,7 @@ export const MembershipDetails = ({ educatorId }: { educatorId: string }) => {
         return;
       }
 
-      setMembership(data);
+      setMembership(data as unknown as MembershipData);
     } catch (error) {
       console.error('Error:', error);
     } finally {

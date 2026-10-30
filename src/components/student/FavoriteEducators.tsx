@@ -92,13 +92,8 @@ export function FavoriteEducators() {
       {educators.map((educator) => (
         <BusinessCard
           key={educator.id}
-          name={educator.name}
-          description={educator.description}
-          image={educator.image}
-          distance={educator.distance 
-            ? `${educator.distance.miles.toFixed(1)} mi (${educator.distance.kilometers.toFixed(1)} km)`
-            : "N/A"}
-          educator_profile_id={educator.id}
+          profile={educator}
+          showDistance
         />
       ))}
     </div>

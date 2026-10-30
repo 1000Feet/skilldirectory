@@ -13,7 +13,7 @@ interface Category {
 }
 
 interface CategorySelectionProps {
-  categories: string[];
+  categories?: string[];
   selectedCategories: string[];
   onChange: (categories: string[]) => void;
 }

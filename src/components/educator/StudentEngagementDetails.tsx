@@ -86,13 +86,13 @@ export function StudentEngagementDetails({ educatorId, isOpen, onClose }: Studen
       
       // Filter views for recent data
       const recentViews = viewsData?.filter(view => {
-        const viewDate = new Date(view.created_at);
+        const viewDate = new Date(view.viewed_at);
         return !isNaN(viewDate.getTime()) && viewDate >= thirtyDaysAgo;
       }) || [];
       
       // Process recent visits (last 30 days by day)
       const recentVisits = recentViews.reduce((acc: any[], view) => {
-        const viewDate = new Date(view.created_at);
+        const viewDate = new Date(view.viewed_at);
         if (isNaN(viewDate.getTime())) return acc; // Skip invalid dates
         
         const date = format(viewDate, 'yyyy-MM-dd');
@@ -109,7 +109,7 @@ export function StudentEngagementDetails({ educatorId, isOpen, onClose }: Studen
 
       // Process peak hours
       const peakHours = viewsData?.reduce((acc: any[], view) => {
-        const viewDate = new Date(view.created_at);
+        const viewDate = new Date(view.viewed_at);
         if (isNaN(viewDate.getTime())) return acc; // Skip invalid dates
         
         const hour = viewDate.getHours();

@@ -36,7 +36,7 @@ export function CouponManager() {
   const [newCoupon, setNewCoupon] = useState({
     name: '',
     percent_off: '',
-    duration: 'once' as const,
+    duration: 'once' as 'once' | 'repeating' | 'forever',
     duration_in_months: ''
   });
   const [selectedCoupon, setSelectedCoupon] = useState<string | null>(null);
