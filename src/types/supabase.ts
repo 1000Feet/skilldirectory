@@ -1,6 +1,3 @@
-Need to install the following packages:
-supabase@2.19.7
-
 import { Database } from '@/lib/database.types';
 
 export type Tables = Database['public']['Tables'];
