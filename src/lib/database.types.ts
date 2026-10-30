@@ -454,6 +454,13 @@ export interface Database {
         };
         Relationships: [
           {
+            foreignKeyName: "reviews_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "student_profiles";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "reviews_educator_id_fkey";
             columns: ["educator_id"];
             isOneToOne: false;

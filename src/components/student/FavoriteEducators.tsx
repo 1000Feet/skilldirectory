@@ -92,7 +92,7 @@ export function FavoriteEducators() {
       {educators.map((educator) => (
         <BusinessCard
           key={educator.id}
-          profile={educator}
+          profile={educator as any}
           showDistance
         />
       ))}
