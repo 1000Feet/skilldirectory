@@ -168,7 +168,7 @@ export function CouponManager() {
                 id="duration"
                 className="w-full px-3 py-2 border rounded-md"
                 value={newCoupon.duration}
-                onChange={(e) => setNewCoupon({ ...newCoupon, duration: e.target.value })}
+                onChange={(e) => setNewCoupon({ ...newCoupon, duration: e.target.value as 'once' | 'repeating' | 'forever' })}
               >
                 <option value="once">Once</option>
                 <option value="repeating">Repeating</option>

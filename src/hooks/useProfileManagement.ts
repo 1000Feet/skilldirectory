@@ -99,7 +99,7 @@ export const useProfileManagement = () => {
         const studentData = {
           user_id: userId,
           name: data.name || data.email?.split('@')[0] || 'Student',
-          phone: data.phone || null,
+          phone: (data as Partial<StudentProfile>).phone || null,
           email: data.email,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()

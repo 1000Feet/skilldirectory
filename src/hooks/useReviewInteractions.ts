@@ -44,14 +44,14 @@ export const useReviewInteractions = (reviewId: string) => {
       if (reactionsResponse.error) throw reactionsResponse.error;
       if (repliesResponse.error) throw repliesResponse.error;
 
-      setReactions(reactionsResponse.data || []);
+      setReactions((reactionsResponse.data || []) as ReviewReaction[]);
       setReplies(repliesResponse.data || []);
 
       // Get current user's reaction if they're logged in
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const userReaction = reactionsResponse.data?.find(r => r.user_id === user.id) || null;
-        setUserReaction(userReaction);
+        setUserReaction(userReaction as ReviewReaction | null);
       }
     } catch (error) {
       console.error('Error fetching review interactions:', error);
@@ -102,7 +102,7 @@ export const useReviewInteractions = (reviewId: string) => {
           .single();
 
         if (error) throw error;
-        setUserReaction(data);
+        setUserReaction(data as ReviewReaction);
       }
 
       await fetchInteractions();
