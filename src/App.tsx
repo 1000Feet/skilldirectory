@@ -12,6 +12,7 @@ import EducatorProfile from './pages/EducatorProfile';
 import AdminSettings from './pages/AdminSettings';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
+import { OnlineStatusProvider } from './contexts/OnlineStatusContext';
 import { Toaster as SonnerToaster } from 'sonner';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { StripeProvider } from '@/providers/StripeProvider';
