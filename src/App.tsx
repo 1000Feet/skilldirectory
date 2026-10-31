@@ -69,6 +69,7 @@ function App() {
     <Router>
       <AuthProvider>
         <StripeProvider>
+          <OnlineStatusProvider>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
