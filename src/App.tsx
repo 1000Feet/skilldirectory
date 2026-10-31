@@ -104,6 +104,7 @@ function App() {
           </Routes>
           <Toaster />
           <SonnerToaster />
+          </OnlineStatusProvider>
         </StripeProvider>
       </AuthProvider>
     </Router>
